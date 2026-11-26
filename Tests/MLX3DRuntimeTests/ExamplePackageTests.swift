@@ -18,7 +18,7 @@ struct ExamplePackageTests {
             encoding: .utf8
         )
         let exampleSource = try String(
-            contentsOf: root.appendingPathComponent("Examples/Integration/Sources/MLX3DExample/main.swift"),
+            contentsOf: root.appendingPathComponent("Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift"),
             encoding: .utf8
         )
 
