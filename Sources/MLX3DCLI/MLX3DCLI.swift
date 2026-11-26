@@ -61,7 +61,7 @@ struct MLX3DCLI {
     static func runText(_ arguments: [String]) async throws {
         let parser = try FlagParser(
             arguments: arguments,
-            valued: ["prompt", "bundle", "bpe", "output", "grid-size", "steps", "guidance", "seed", "query-batch-size", "format"]
+            valued: ["prompt", "bundle", "bpe", "output", "grid-size", "max-grid-size", "steps", "guidance", "seed", "query-batch-size", "format"]
         )
         if parser.help {
             print(textHelp)
@@ -70,12 +70,14 @@ struct MLX3DCLI {
         guard let prompt = parser.values["prompt"], !prompt.isEmpty else {
             throw CLIError.failed("text requires --prompt")
         }
+        let gridSize = try parser.integer("grid-size", default: 128)
+        let maximumGridSize = try parser.integer("max-grid-size", default: VolumeGrid.maximumResolution)
+        try VolumeGrid.validate(resolution: gridSize, maximum: maximumGridSize)
         guard let bundlePath = parser.values["bundle"] ?? environment("SHAP_E_BUNDLE") else {
             throw CLIError.failed("text requires --bundle or SHAP_E_BUNDLE")
         }
         let bundle = URL(fileURLWithPath: bundlePath)
         let bpe = parser.values["bpe"].map { URL(fileURLWithPath: $0) }
-        let gridSize = try parser.integer("grid-size", default: 128)
         let steps = try parser.integer("steps", default: 64)
         let seed = try parser.integer("seed", default: 0)
         let queryBatchSize = try parser.integer("query-batch-size", default: 65536)
@@ -92,7 +94,8 @@ struct MLX3DCLI {
                 numInferenceSteps: steps,
                 gridSize: gridSize,
                 queryBatchSize: queryBatchSize,
-                seed: seed
+                seed: seed,
+                maximumGridSize: maximumGridSize
             )
         )
         try write(mesh, to: output, format: format.kind)
@@ -102,7 +105,7 @@ struct MLX3DCLI {
     static func runImage(_ arguments: [String]) throws {
         let parser = try FlagParser(
             arguments: arguments,
-            valued: ["input", "weights", "output", "grid-size", "threshold", "query-batch-size", "format"]
+            valued: ["input", "weights", "output", "grid-size", "max-grid-size", "threshold", "query-batch-size", "format"]
         )
         if parser.help {
             print(imageHelp)
@@ -111,12 +114,14 @@ struct MLX3DCLI {
         guard let input = parser.values["input"], !input.isEmpty else {
             throw CLIError.failed("image requires --input")
         }
+        let gridSize = try parser.integer("grid-size", default: 128)
+        let maximumGridSize = try parser.integer("max-grid-size", default: VolumeGrid.maximumResolution)
+        try VolumeGrid.validate(resolution: gridSize, maximum: maximumGridSize)
         guard let weightsPath = parser.values["weights"] ?? environment("TRIPOSR_WEIGHTS_PATH") ?? relativeWeights() else {
             throw CLIError.failed(
                 "weights not found (pass --weights, set TRIPOSR_WEIGHTS_PATH, or place triposr_swift_ready.safetensors in the working directory)"
             )
         }
-        let gridSize = try parser.integer("grid-size", default: 128)
         let queryBatchSize = try parser.integer("query-batch-size", default: 8192)
         let threshold = try parser.float("threshold", default: 25)
         let format = try parser.format(defaultOutput: "mesh.obj")
@@ -128,7 +133,8 @@ struct MLX3DCLI {
             options: ImageToMeshOptions(
                 gridSize: gridSize,
                 threshold: threshold,
-                queryBatchSize: queryBatchSize
+                queryBatchSize: queryBatchSize,
+                maximumGridSize: maximumGridSize
             )
         )
         try write(mesh, to: output, format: format.kind)
@@ -252,7 +258,8 @@ text options:
   --bpe <file>                 CLIP BPE file. Default: <bundle>/bpe_simple_vocab_16e6.txt.gz
   --output <file>              Default mesh.obj
   --format obj|ply             Default follows --output, otherwise obj
-  --grid-size <int>            Default 128
+  --grid-size <int>            Default 128. Must be 2...512 (VolumeGrid.maximumResolution)
+  --max-grid-size <int>        Optional lower cap. Cannot raise the hard cap of 512
   --steps <int>                Default 64
   --guidance <float>           Default 15
   --seed <int>                 Default 0
@@ -263,7 +270,8 @@ image options:
   --weights <file>             safetensors file, TRIPOSR_WEIGHTS_PATH, or ./triposr_swift_ready.safetensors
   --output <file>              Default mesh.obj
   --format obj|ply             Default follows --output, otherwise obj
-  --grid-size <int>            Default 128
+  --grid-size <int>            Default 128. Must be 2...512 (VolumeGrid.maximumResolution)
+  --max-grid-size <int>        Optional lower cap. Cannot raise the hard cap of 512
   --threshold <float>          Default 25
   --query-batch-size <int>     Default 8192
 

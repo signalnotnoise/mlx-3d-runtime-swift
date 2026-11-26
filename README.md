@@ -72,7 +72,7 @@ try MeshExport.writePLY(scanned, to: URL(fileURLWithPath: "scan.ply"))
 
 `Mesh.positions` and `Mesh.vertexColors` are packed `x, y, z` and `r, g, b`. `Mesh.faces` are packed triangle indices. `vertexColors` is `nil` when a path has no colors. Shap-E's RGBA channel is stored as RGB.
 
-Image-to-mesh decodes the file, composites alpha over gray `0.5`, and aspect-fits it into a 512×512 RGB tensor. It then queries TripoSR density on a 128³ grid in batches of 8192, runs marching cubes at threshold 25, and queries TripoSR for a color at each vertex. `ImageToMeshOptions` changes the grid size, threshold, batch size, and radius. The default radius is the model's renderer radius, `0.87`.
+Image-to-mesh decodes the file, composites alpha over gray `0.5`, and aspect-fits it into a 512×512 RGB tensor. It then queries TripoSR density on a 128³ grid in batches of 8192, runs marching cubes at threshold 25, and queries TripoSR for a color at each vertex. Positions for each density batch are built when that batch runs. `--grid-size` must be from 2 through 512 (`VolumeGrid.maximumResolution`). A larger size fails before weights load. `ImageToMeshOptions.maximumGridSize` can set a lower cap. It cannot raise 512. The default radius is the model's renderer radius, `0.87`.
 
 Marching cubes is Shap-E's public `MarchingCubes.extract`. The density grid is converted with `density - threshold`, so the interior is positive and the isosurface is 0. That is the same field TripoSR passes to marching cubes after its double negation (`-(density - threshold)` is negated again inside the helper). Vertices stay in X, Y, Z. Shap-E's extractor already returns that order.
 

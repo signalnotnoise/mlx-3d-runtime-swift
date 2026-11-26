@@ -2,52 +2,146 @@
   "metadata": {
     "repo": "signalnotnoise/mlx-3d-runtime-swift",
     "branch": "cursor/mlx-3d-runtime-swift-5003",
-    "verified_commit": "4d5c73ee1ad4581ede2e87fae6678b4ca51abf69",
-    "verified_commit_note": "Line numbers were read from this commit. The commit that adds these docs does not edit the cited source files, so the same ranges remain valid. Re-read a file if a later commit changes it.",
+    "verified_commit": "c3fc11d1152eca0a07156a4232523df9c7bfaaaf",
+    "verified_commit_note": "Informational label only. scripts/verify_docs.py hashes cited lines in the working tree and does not require verified_commit to be an ancestor of HEAD.",
     "generated_at": "2026-11-26",
     "swift_tools_version": "6.2",
-    "mlx_swift_constraint": "0.31.3..<0.31.5"
+    "mlx_swift_constraint": "0.31.3..<0.31.5",
+    "content_hash_note": "content_hashes are SHA-256 of the cited lines in the working tree, joined by newlines with a trailing newline. verified_commit is not checked against HEAD and does not need to be an ancestor."
   },
   "location_index": {
     "text_to_mesh": [
-      {"file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift", "line_start": 60, "line_end": 93}
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+        "line_start": 68,
+        "line_end": 102
+      }
     ],
     "image_to_mesh": [
-      {"file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift", "line_start": 101, "line_end": 136},
-      {"file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift", "line_start": 5, "line_end": 47}
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+        "line_start": 110,
+        "line_end": 147
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift",
+        "line_start": 6,
+        "line_end": 46
+      }
     ],
     "image_decode": [
-      {"file_path": "Sources/MLX3DRuntime/ImageTensor.swift", "line_start": 11, "line_end": 90}
+      {
+        "file_path": "Sources/MLX3DRuntime/ImageTensor.swift",
+        "line_start": 11,
+        "line_end": 90
+      }
     ],
     "density_grid_and_marching_cubes": [
-      {"file_path": "Sources/MLX3DRuntime/VolumeGrid.swift", "line_start": 8, "line_end": 33},
-      {"file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift", "line_start": 49, "line_end": 98},
-      {"file_path": "Sources/MLX3DRuntime/MarchingCubesExtractor.swift", "line_start": 13, "line_end": 73}
+      {
+        "file_path": "Sources/MLX3DRuntime/VolumeGrid.swift",
+        "line_start": 15,
+        "line_end": 67
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift",
+        "line_start": 48,
+        "line_end": 105
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/MarchingCubesExtractor.swift",
+        "line_start": 13,
+        "line_end": 73
+      }
     ],
     "mesh_and_export": [
-      {"file_path": "Sources/MLX3DRuntime/Mesh.swift", "line_start": 5, "line_end": 75},
-      {"file_path": "Sources/MLX3DRuntime/MeshExport.swift", "line_start": 23, "line_end": 120}
+      {
+        "file_path": "Sources/MLX3DRuntime/Mesh.swift",
+        "line_start": 5,
+        "line_end": 75
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/MeshExport.swift",
+        "line_start": 23,
+        "line_end": 120
+      }
     ],
     "cli_text_and_image": [
-      {"file_path": "Sources/MLX3DCLI/MLX3DCLI.swift", "line_start": 39, "line_end": 167}
+      {
+        "file_path": "Sources/MLX3DCLI/MLX3DCLI.swift",
+        "line_start": 61,
+        "line_end": 142
+      }
     ],
     "weight_search": [
-      {"file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift", "line_start": 66, "line_end": 74},
-      {"file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift", "line_start": 163, "line_end": 168},
-      {"file_path": "Sources/MLX3DCLI/MLX3DCLI.swift", "line_start": 73, "line_end": 77},
-      {"file_path": "Sources/MLX3DCLI/MLX3DCLI.swift", "line_start": 114, "line_end": 117},
-      {"file_path": "Sources/MLX3DCLI/MLX3DCLI.swift", "line_start": 159, "line_end": 166}
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+        "line_start": 74,
+        "line_end": 83
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+        "line_start": 115,
+        "line_end": 116
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+        "line_start": 174,
+        "line_end": 179
+      },
+      {
+        "file_path": "Sources/MLX3DCLI/MLX3DCLI.swift",
+        "line_start": 73,
+        "line_end": 78
+      },
+      {
+        "file_path": "Sources/MLX3DCLI/MLX3DCLI.swift",
+        "line_start": 117,
+        "line_end": 123
+      },
+      {
+        "file_path": "Sources/MLX3DCLI/MLX3DCLI.swift",
+        "line_start": 165,
+        "line_end": 172
+      }
     ],
     "unit_tests": [
-      {"file_path": "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift", "line_start": 7, "line_end": 102},
-      {"file_path": "Tests/MLX3DRuntimeTests/MeshExportTests.swift", "line_start": 6, "line_end": 98},
-      {"file_path": "Tests/MLX3DRuntimeTests/CLIExitTests.swift", "line_start": 5, "line_end": 96},
-      {"file_path": "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift", "line_start": 9, "line_end": 106}
+      {
+        "file_path": "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift",
+        "line_start": 7,
+        "line_end": 175
+      },
+      {
+        "file_path": "Tests/MLX3DRuntimeTests/MeshExportTests.swift",
+        "line_start": 6,
+        "line_end": 98
+      },
+      {
+        "file_path": "Tests/MLX3DRuntimeTests/CLIExitTests.swift",
+        "line_start": 5,
+        "line_end": 105
+      },
+      {
+        "file_path": "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift",
+        "line_start": 9,
+        "line_end": 106
+      }
     ],
     "ci_and_package": [
-      {"file_path": "Package.swift", "line_start": 1, "line_end": 69},
-      {"file_path": ".github/workflows/ci.yml", "line_start": 16, "line_end": 141},
-      {"file_path": "Examples/Integration/Package.swift", "line_start": 1, "line_end": 44}
+      {
+        "file_path": "Package.swift",
+        "line_start": 1,
+        "line_end": 69
+      },
+      {
+        "file_path": ".github/workflows/ci.yml",
+        "line_start": 16,
+        "line_end": 141
+      },
+      {
+        "file_path": "Examples/Integration/Package.swift",
+        "line_start": 1,
+        "line_end": 44
+      }
     ]
   },
   "nodes": [
@@ -93,7 +187,7 @@
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
       "line_start": 7,
-      "line_end": 27,
+      "line_end": 31,
       "summary": "Defaults: guidance 15, 64 steps, grid 128, query batch 65536, seed 0."
     },
     {
@@ -101,8 +195,8 @@
       "kind": "struct",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-      "line_start": 29,
-      "line_end": 53,
+      "line_start": 33,
+      "line_end": 61,
       "summary": "Defaults: grid 128, threshold 25, query batch 8192, radius nil, image side 512, background 0.5."
     },
     {
@@ -110,8 +204,8 @@
       "kind": "enum",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-      "line_start": 55,
-      "line_end": 193,
+      "line_start": 63,
+      "line_end": 204,
       "summary": "textToMesh and imageToMesh."
     },
     {
@@ -119,8 +213,8 @@
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-      "line_start": 60,
-      "line_end": 93,
+      "line_start": 68,
+      "line_end": 102,
       "summary": "Shap-E text to Mesh. Throws emptyMesh when the face list is empty.",
       "tensor_signature": "ShapERuntime.generate -> Mesh positions [V,3] packed, faces [F,3] packed, optional RGB"
     },
@@ -129,8 +223,8 @@
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-      "line_start": 101,
-      "line_end": 113,
+      "line_start": 110,
+      "line_end": 123,
       "summary": "Decode a file, then the tensor imageToMesh overload."
     },
     {
@@ -138,8 +232,8 @@
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-      "line_start": 119,
-      "line_end": 136,
+      "line_start": 129,
+      "line_end": 147,
       "summary": "Load TripoSR weights, forwardTriplanes, extract a mesh.",
       "tensor_signature": "[H,W,3] or [1,H,W,3] float RGB -> Mesh"
     },
@@ -148,8 +242,8 @@
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-      "line_start": 171,
-      "line_end": 192,
+      "line_start": 182,
+      "line_end": 203,
       "summary": "Require channel 3 and batch 1. Reshape rank 3 to [1,H,W,3].",
       "tensor_signature": "[H,W,3] -> [1,H,W,3]"
     },
@@ -178,7 +272,7 @@
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift",
       "line_start": 5,
-      "line_end": 100,
+      "line_end": 106,
       "summary": "Sample density on a cube, march cubes, query vertex colors."
     },
     {
@@ -186,9 +280,9 @@
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift",
-      "line_start": 49,
-      "line_end": 73,
-      "summary": "Batched evaluate. Requires one density float per point.",
+      "line_start": 48,
+      "line_end": 79,
+      "summary": "Builds one batch of positions, then evaluate. Requires one density float per point.",
       "tensor_signature": "positions [count,3] -> density length count"
     },
     {
@@ -196,8 +290,8 @@
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift",
-      "line_start": 75,
-      "line_end": 99,
+      "line_start": 81,
+      "line_end": 105,
       "summary": "Batched evaluate. Requires count*3 color floats.",
       "tensor_signature": "positions [count,3] -> colors length count*3"
     },
@@ -207,8 +301,8 @@
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/VolumeGrid.swift",
       "line_start": 3,
-      "line_end": 34,
-      "summary": "Packed xyz, X slowest, inclusive endpoints."
+      "line_end": 68,
+      "summary": "Packed xyz samples, one batch at a time. Hard cap 512, checked before allocation."
     },
     {
       "id": "type.MarchingCubesExtractor",
@@ -261,8 +355,8 @@
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntimeError.swift",
       "line_start": 3,
-      "line_end": 45,
-      "summary": "Grid, field, image, weight, bundle, and empty-mesh errors."
+      "line_end": 49,
+      "summary": "Includes gridSizeOutOfRange plus image, weight, bundle, and empty-mesh errors."
     },
     {
       "id": "type.MLX3DCLI",
@@ -270,7 +364,7 @@
       "target": "MLX3DCLI",
       "file_path": "Sources/MLX3DCLI/MLX3DCLI.swift",
       "line_start": 19,
-      "line_end": 168,
+      "line_end": 174,
       "summary": "text and image subcommands. Failures print Failed: and exit 1."
     },
     {
@@ -278,8 +372,8 @@
       "kind": "struct",
       "target": "MLX3DCLI",
       "file_path": "Sources/MLX3DCLI/MLX3DCLI.swift",
-      "line_start": 180,
-      "line_end": 239,
+      "line_start": 186,
+      "line_end": 245,
       "summary": "Space-separated flags for the CLI."
     },
     {
@@ -338,19 +432,71 @@
     }
   ],
   "edges": [
-    {"from": "target.MLX3DRuntime", "to": "external.MLX", "kind": "depends_on"},
-    {"from": "target.MLX3DRuntime", "to": "external.ShapERuntime", "kind": "depends_on"},
-    {"from": "target.MLX3DRuntime", "to": "external.TripoSRRuntime", "kind": "depends_on"},
-    {"from": "target.MLX3DCLI", "to": "target.MLX3DRuntime", "kind": "depends_on"},
-    {"from": "target.MLX3DRuntimeTests", "to": "target.MLX3DCLI", "kind": "depends_on"},
-    {"from": "type.MLX3DCLI", "to": "method.textToMesh", "kind": "calls"},
-    {"from": "type.MLX3DCLI", "to": "method.imageToMeshFile", "kind": "calls"},
-    {"from": "method.textToMesh", "to": "external.ShapERuntime", "kind": "calls"},
-    {"from": "method.imageToMeshFile", "to": "method.ImageTensor.rgb", "kind": "calls"},
-    {"from": "method.imageToMeshFile", "to": "method.imageToMeshTensor", "kind": "calls"},
-    {"from": "method.imageToMeshTensor", "to": "external.TripoSRModel", "kind": "instantiates"},
-    {"from": "method.imageToMeshTensor", "to": "method.batchedImage", "kind": "calls"},
-    {"from": "method.imageToMeshTensor", "to": "type.TripoSRMeshing", "kind": "calls"},
+    {
+      "from": "target.MLX3DRuntime",
+      "to": "external.MLX",
+      "kind": "depends_on"
+    },
+    {
+      "from": "target.MLX3DRuntime",
+      "to": "external.ShapERuntime",
+      "kind": "depends_on"
+    },
+    {
+      "from": "target.MLX3DRuntime",
+      "to": "external.TripoSRRuntime",
+      "kind": "depends_on"
+    },
+    {
+      "from": "target.MLX3DCLI",
+      "to": "target.MLX3DRuntime",
+      "kind": "depends_on"
+    },
+    {
+      "from": "target.MLX3DRuntimeTests",
+      "to": "target.MLX3DCLI",
+      "kind": "depends_on"
+    },
+    {
+      "from": "type.MLX3DCLI",
+      "to": "method.textToMesh",
+      "kind": "calls"
+    },
+    {
+      "from": "type.MLX3DCLI",
+      "to": "method.imageToMeshFile",
+      "kind": "calls"
+    },
+    {
+      "from": "method.textToMesh",
+      "to": "external.ShapERuntime",
+      "kind": "calls"
+    },
+    {
+      "from": "method.imageToMeshFile",
+      "to": "method.ImageTensor.rgb",
+      "kind": "calls"
+    },
+    {
+      "from": "method.imageToMeshFile",
+      "to": "method.imageToMeshTensor",
+      "kind": "calls"
+    },
+    {
+      "from": "method.imageToMeshTensor",
+      "to": "external.TripoSRModel",
+      "kind": "instantiates"
+    },
+    {
+      "from": "method.imageToMeshTensor",
+      "to": "method.batchedImage",
+      "kind": "calls"
+    },
+    {
+      "from": "method.imageToMeshTensor",
+      "to": "type.TripoSRMeshing",
+      "kind": "calls"
+    },
     {
       "from": "method.batchedImage",
       "to": "method.imageToMeshTensor",
@@ -386,9 +532,173 @@
       "input_shape": "[resolution,resolution,resolution]",
       "output_shape": "Mesh positions packed xyz, faces Int32"
     },
-    {"from": "type.MarchingCubesExtractor", "to": "external.MarchingCubes", "kind": "calls"},
-    {"from": "type.MeshTests", "to": "type.Mesh", "kind": "tested_by", "file_path": "Tests/MLX3DRuntimeTests/MeshTests.swift", "line_start": 6, "line_end": 47},
-    {"from": "type.MeshExport", "to": "type.MeshExportTests", "kind": "tested_by", "file_path": "Tests/MLX3DRuntimeTests/MeshExportTests.swift", "line_start": 6, "line_end": 98},
-    {"from": "type.MarchingCubesExtractor", "to": "type.MarchingCubesTests", "kind": "tested_by", "file_path": "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift", "line_start": 51, "line_end": 92}
-  ]
+    {
+      "from": "type.MarchingCubesExtractor",
+      "to": "external.MarchingCubes",
+      "kind": "calls"
+    },
+    {
+      "from": "type.MeshTests",
+      "to": "type.Mesh",
+      "kind": "tested_by",
+      "file_path": "Tests/MLX3DRuntimeTests/MeshTests.swift",
+      "line_start": 6,
+      "line_end": 47
+    },
+    {
+      "from": "type.MeshExport",
+      "to": "type.MeshExportTests",
+      "kind": "tested_by",
+      "file_path": "Tests/MLX3DRuntimeTests/MeshExportTests.swift",
+      "line_start": 6,
+      "line_end": 98
+    },
+    {
+      "from": "type.MarchingCubesExtractor",
+      "to": "type.MarchingCubesTests",
+      "kind": "tested_by",
+      "file_path": "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift",
+      "line_start": 51,
+      "line_end": 93
+    }
+  ],
+  "content_hashes": {
+    ".github/workflows/ci.yml:116-127": "4152000c9dc18cd628a0e7881be2cb9db5294e0c72c1d0952e3d13446c0b3833",
+    ".github/workflows/ci.yml:119-127": "84dc3291aded2a967fbaa1c85a7f5534062eb9fb9f572f5ed7b0e33a5b7a9df8",
+    ".github/workflows/ci.yml:129-141": "5fda18a816021daa895614070473013683bb963711e93d263db043912e9d6909",
+    ".github/workflows/ci.yml:16-141": "07b5c949efec2eaf4b0b4f58f5897bce372265b78405b213f933c1d1b427fc2d",
+    ".github/workflows/ci.yml:26-31": "58b3c739dee7e7701ad416902daa4de3eb172545f2a6f5979b5585df8c9949f8",
+    ".github/workflows/ci.yml:41-47": "3eddab5fd7f49eb09b4e88008a7362463a44c6c1ad4d075da846fc68447b84b9",
+    ".github/workflows/ci.yml:49-72": "2ca932ff633bab3530e76fb15d0b54d4e32145ddce9e0fbb05268c7f401820dd",
+    "Examples/Integration/Package.swift:1-44": "420e6316ed6ec209c6cbda498c9b177ad604d2b8b1db2a1ca60d21899c8f8b46",
+    "Examples/Integration/Package.swift:18-19": "6a813e64b855a5388513aed54e095567fa06e7a5cda5d38d074c63b0add5c746",
+    "Examples/Integration/Package.swift:23-32": "431ddf1b15e9f685454bce03483178109821cf202d3a54bfb4dd32cfbe0bc7a9",
+    "Examples/Integration/Package.swift:35-42": "a7cda624ffd41f57d8a0961208d4b57a3288b541d7787b3dcf4e9272f1adc9e8",
+    "Examples/Integration/Package.swift:5-7": "0ab0eb46e0a5b32f6851a7ae7883fdf50de82dad1e52ee7823713634b319bcc6",
+    "Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18": "78726c408201d7205389776fc6798470165c619b7a76923732d9e2431e0ba0fb",
+    "Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:7-17": "512c2ee9a080379487f9d3f5e3d59e122f6cb078ef2c02da8a5a2e6aee69f1f4",
+    "Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:8-18": "2ee2a69f75cfa183bac13e018f05fe1915b0dbe153fbcf0e8b81a5936c920d4a",
+    "Package.swift:1-69": "2c4b0dc3a05825f67199850e861af47188400a331d0afd022d03eaca3356d1fb",
+    "Package.swift:45-53": "3a8226f7632a328a7081d5f6ab26e73ea0271413c71379433a4c4bfca23055ab",
+    "Package.swift:54-57": "159cb2fd755ec24b9c5bbbea7cf897672fc34ecfdb7be0fb2474a63cb7c5e918",
+    "Package.swift:58-67": "94ce6b32469e24f8709ef00fd96d5aacb9ad403a4cdc06a9bb755eade5c51d54",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:117-119": "dd06e224421e008f4f70186aef059a212bbafa778b56a10f8585942a9545a485",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:117-123": "833e08a1d662f7c0f891936eecf54cb1b5dae4a2e477dcb37d57062595da322e",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:120-123": "04e7e0bf42a963a12904700d994551360b2febeb79122fc1009a4add985f2c60",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:165-172": "f5c69b2a5215254b8c8ed39c4e19e81c7f447957f04f44d163d31056f0f5767a",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:18-168": "6f13cbd1792e6f9796802ed1150c6b2bc33ebe41efb66af740d2675656f28e5f",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:186-245": "fc799c9e08afecf78329cf0299336bd757df6db0a0d823460b62b295bd617669",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:19-174": "67d611e1e301ca7f5d2ebd92b55e25d0451a508cbd5f6cfefdd8bea2bafa7345",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:39-58": "9de8c419ebaf50d5b33375bd830ce5970c851b8067f0ebf9a62ce0270503c23f",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:49-58": "c4a5af41dc915fe4f59bb8af864bb2b3fa1d18b2cc7d044d9e3185f7341594c9",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:61-142": "10d15e2ae2285189e05f0b09c5757d6a8b71368c4c02bb9d194b47d4e1eaaa41",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:73-75": "dd06e224421e008f4f70186aef059a212bbafa778b56a10f8585942a9545a485",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:73-78": "194f86b4547588db96ce9e7e208128812f78244303d4ed9d04838487073ccf1d",
+    "Sources/MLX3DCLI/MLX3DCLI.swift:76-78": "e8f4a46329c7795c63e8dcb93bf53867622ef8541c9edd511480ffa941fc0fd9",
+    "Sources/MLX3DRuntime/ImageTensor.swift:11-14": "6bcc0cb531242ffd4cfcfad40bf69fb555afff42a19f7d9f3bb4496190312103",
+    "Sources/MLX3DRuntime/ImageTensor.swift:11-21": "48f165a180e9a79ef7806374413d2bba9103b37fa7000b946ed21c61a36659b8",
+    "Sources/MLX3DRuntime/ImageTensor.swift:11-90": "bded65dd17d11e53d79ed4de60185cdf28cc42393bbbde7e1c85df75a5c183d1",
+    "Sources/MLX3DRuntime/ImageTensor.swift:23-90": "a382c2002ab0fc4e278d56936833b8e4a914982235a4f9eb4cd0ca5acb68f376",
+    "Sources/MLX3DRuntime/ImageTensor.swift:52-59": "477443c85140f801bbf1c0a442b1fab3dd9eae40f99af4a188fc9709a90fa073",
+    "Sources/MLX3DRuntime/ImageTensor.swift:52-72": "3ff8e45cf3cec9309564e8c5d3e2074c3804d032715bfb2a9ac8d27dd84887e7",
+    "Sources/MLX3DRuntime/ImageTensor.swift:6-91": "e06dc647284668cfedb8b3a3ad96eb261e74039e8fc0114f230fea00bee55335",
+    "Sources/MLX3DRuntime/ImageTensor.swift:79-80": "bebfffef64692e3a9789b3350a406ae3c5d08d3279714bd8b9e3fe4c5789ec64",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:104-203": "c494336be3ae99e9ae698d672467a1dfd7ec33a10eebf8b1e41532a821fecb37",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:110-114": "05a8995dc0057f12fb9d3329b7fbbf1d37a9735faf725e7b0ffea7845f1e2313",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:110-123": "65586173975de4efd6f146498bbd823e19c3a75119016d3422de682e634ba1a0",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:110-147": "25a893408466d3ea2b43ce410a74ca5a772f8e4eac6fc0039fd482e1e91f4aa3",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:115-116": "7c46b491eb2f0b9d8f6c50a9f3d9278d949b181bb430b1183a52bad7c890170a",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:129-133": "f2ebc6aaca96e068b7dcfef728be1d5fe493ee1142252cbfe048eb31ea27ae09",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:129-147": "8564b9dea989ae9dd6373c4e4d90fece96c9429be30dd77140db0aa56f3d9fca",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:13-14": "918608519d041d2468c435af15afad3de8d7478accd50fc4af770edcd31aa4a9",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:134-138": "3c0e24823accf9e8219fa388164e1b8bbafba09646355b5faa7fe4fa41908277",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:143-145": "3a624651218878ac45745f4249b7bb4cd1d835f383ece62714374dedc23aad5f",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:149-154": "ae92e969bb17bb1547f7d9c61a65ff3ee7f83e17170155b750e85867430d4373",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:156-171": "052fac79615ca43a7f35f2e0b1fddc92599d62a92d7f629a904974f418e3ec09",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:156-172": "e1c76ec9ff55c6bad40584a150c43bd525a7be84cb31dbbf4586cb398dae8ca8",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:16-19": "f4a1e188d3ead79e99132682de4a3ae80f5953098c651311bef8cb223bcf8b32",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:16-21": "0b306a100a406b8577b043c5de1ceb570183ed359ac6f1c38377e85daa9c7627",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:16-22": "e381d10074ece058664494927fbe7d5a0aae678d843379785ede01bcf357ddd9",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:174-179": "3369179f210e1a96173cbaa365764e7f9a4d7211ab3e88a4142082e4cdafe056",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:182-203": "53183525d24d8c211e1bf35c9b140a84f440702414ec6f15175bbb52ffb52230",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:33-61": "4171189657d2ef465c243a24e4c6927bd17341f6525f653f6316bd60df9d72c0",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:41-42": "32b0f1d74a5feca9807cf8c18d8aa2d752e39a18718a950f61322678638680d8",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:44-47": "e38215837359f671808d9d999b0c2230956a152bce5e8210887e2be371fc64d5",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:44-51": "a8b2ea53c43a99500bfd3fddc4e23595dd3783fb334197b930af7ec01c563b66",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:63-204": "edb4f8b5fa494fc70be1c7f50565257c65f388d969a79424e61c2a55a4788afc",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:68-102": "92f70388f6d514778047ce79b690ebd937e642cb4ec24088bd09ec1895b4f06a",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:68-73": "a57517333954b80374101dc08aa86efd853db880b12d11006c6279e0e491423c",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:7-102": "03d89da65454dbc4963a93cb5ff31e24100cd78eb7d567ddb36e54132e5c03dc",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:7-31": "9aadf5789397c633d3b1b2485e4460b212dfae455a31fb610b9581e9774b0ff6",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:74-83": "2a19cdcdb460c13639b8de33ef2be8f089e0b37fa7e2f7cd8faa12da0132e55f",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:75-83": "0f6d3ebd4a5be28af8f440f72b0b6c49f4e58bf8bf5a677b4ccd2801ff6442a5",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:98-100": "3a624651218878ac45745f4249b7bb4cd1d835f383ece62714374dedc23aad5f",
+    "Sources/MLX3DRuntime/MLX3DRuntimeError.swift:3-49": "75c6b52cbca6dfbc4782527ea38d6ca0dcf8ca6a4e134325217b2d1983671d7a",
+    "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:13-73": "15c50197e85852123e37fe8d407b91b8db0e348ce568b55992ba2d3f2cbddf87",
+    "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:33-37": "c18d71c3c3467b1424bb2b81b7d079139f7dbc113e99821cd6b1d0974b8d372d",
+    "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:38-44": "c77daeb2f0387de787ecd4a06e9f782e44ff16bd64b84d56cdcbef79d3b49296",
+    "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:45-46": "49da55c83c2219d03e57f890688d02423d980cf4a4132c51c4c11626721ab342",
+    "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:45-53": "6d2d9c02bd8f4cbe8ad710118356cb632758ed4505dc2bb71058914bf7380652",
+    "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:48-49": "b78130a1f3e3af8af5f5e9ab9d653e83a9f0f66d630b0aab35bb7e9d20017cb0",
+    "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:5-74": "3eb709eaa949fbcc52ce938f4dc07f1dd6490fdb8834194624eff9fb5f106fdc",
+    "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:6-12": "7967dba99657093819f340c29cdd89283dd69d7b40322958674c4c4930c746b6",
+    "Sources/MLX3DRuntime/Mesh.swift:5-10": "4471d4b7dfb4472645cc93f5168eeabfb5da0c0daee019f90be74ed42efd584d",
+    "Sources/MLX3DRuntime/Mesh.swift:5-16": "c6581bfa133b9ff0ae5ff51c10c6292837fc8a260170fb1c38387721ffc255d8",
+    "Sources/MLX3DRuntime/Mesh.swift:5-75": "6676f2dd9fff42e1ff301bf37a0007184bc87d31f2b345d13f57617e5b3ad5b8",
+    "Sources/MLX3DRuntime/Mesh.swift:5-90": "59d180ba995e42f245a7614db268d36f39ae51fec8dbbbf3f513bbc76b2abff4",
+    "Sources/MLX3DRuntime/Mesh.swift:77-90": "c4b22916abf33d7e79cd3ad132a0c69dad85b63d21710e15a6d7c0986aa1df7f",
+    "Sources/MLX3DRuntime/MeshExport.swift:113-118": "102cb7b4f22beadebadadf2d9a465ac0e082e826bc7662ddae54b352b058fce1",
+    "Sources/MLX3DRuntime/MeshExport.swift:23-120": "fb2d5dc1936559b0f0db9013884aa509955b77bcb87f00901b0fbabe31d1be02",
+    "Sources/MLX3DRuntime/MeshExport.swift:23-172": "334daaa32173a660028212f8fbcada836d5b5501fc40442fe189cea2ceadaaa6",
+    "Sources/MLX3DRuntime/MeshExport.swift:23-46": "82afda8f80eb61f155b3300216e37ea4699e382da9bd50c22c8a64b0638c6202",
+    "Sources/MLX3DRuntime/MeshExport.swift:3-21": "73c40ce1a4f04091b7f11bb081289e78ec2a548b4d7731cb6245b8c2fd35648d",
+    "Sources/MLX3DRuntime/MeshExport.swift:72-78": "83f1aed8f19e1b6c9e577774840bb502efadf16f13342049d8d7cf27f38f77dd",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:21-22": "172323586fcb871ab0ada10c3f1a2f714dfab608aa360eba8b6a168aceb2502d",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:48-105": "2966d0d502b1daffd6a14cf690581fd08d803d3332019341b4573580e8e62803",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:48-79": "dfecad43b7dc27d9b98bab092c9351058f36a6b886d23e8fe41c934c730c7267",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:5-106": "bde7b85e7e45241726509da83162e6906462eeff87b05f9e29ccaea1bdb4953d",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:56-58": "fca62ce8e30625a05eb426a7970c7ed0d08a55c02461ca40e3992ce43fc8ed36",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:59-68": "3396e1dbb26d7160eaa17a3714052d4051ec567b54a8dd8acf3347e8d0bceeb5",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:59-77": "616679a00949236ba935c7fdb422f3790fed182effb10e16b37ed759877676dd",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:6-46": "d6e27b43ef3455872e52455aaea503ca492a410c4bee5675922cb8a0c53b1b31",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:62-67": "78b99dec7804150b1bf55bcffbb94b459db98aaa08385d0b1a047c557c9db1ee",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:62-68": "380c3f9db9a180bf7171213bf5ce13074fc249cd6095b9667392b37ca5430fa8",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:72-74": "e406110672cad15cd5a812e575493e034bbf7fe5db450bf9885fd1a5fed8d3ff",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:81-105": "ce1405c6b6418c727e79f5a47f7e7fe12159a16e1d90c36f24608c4a5111997a",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:90-96": "a300c60a395295a6ed4fbb34c304fd1f2ee5cd68b568423ce93173a071d53a92",
+    "Sources/MLX3DRuntime/TripoSRMeshing.swift:93-99": "813fd49ebbf56a9a23b86480b162fd2fdb47e0ada377184562cf19e62a4ab4a7",
+    "Sources/MLX3DRuntime/VolumeGrid.swift:15-17": "a71b4eb110014b6a9b7514469e9024ab4784b764338169f36445db1fa381aa45",
+    "Sources/MLX3DRuntime/VolumeGrid.swift:15-24": "c21d7fa5e40efc9657872ea2afb9061bb36a48e13f0b62e11ad2108f9412fe3d",
+    "Sources/MLX3DRuntime/VolumeGrid.swift:15-67": "73a5ff209432c17fe6c9d6c58f202931e976c9379e1afc193eb53c1b9fa7bbe6",
+    "Sources/MLX3DRuntime/VolumeGrid.swift:26-47": "8512f4646bc62dbf41d1a2b452a37e3d64df88c4d618a116e5021f6482ea2c46",
+    "Sources/MLX3DRuntime/VolumeGrid.swift:3-68": "b9e66214bd65cd03f41999674ed499e88d6379f03a42740c0dcd0c34f3b8a968",
+    "Sources/MLX3DRuntime/VolumeGrid.swift:30-50": "239a40257449f5334a398ecd753f7064df0bf26a39d15a642a6c69479171940f",
+    "Sources/MLX3DRuntime/VolumeGrid.swift:9-23": "ec93f090eddcaad8d43112bb71df56a9f5058ee119fc5cd80e4a42c01a72408a",
+    "Sources/MLX3DRuntime/VolumeGrid.swift:9-24": "c0e62322c3c3e54ea4cf1decf4cd43b943ecac902541843caaa198b28e1d5c45",
+    "Tests/MLX3DRuntimeTests/CLIExitTests.swift:5-105": "8e1ee65c7ad3444242f49fcde2d4ebd47235280096553f49fcb216ab49e9f4ea",
+    "Tests/MLX3DRuntimeTests/CLIExitTests.swift:5-82": "6b5af112b531c76224793e935cf5960265aae869b050d59b517b6c5ee72d5ebc",
+    "Tests/MLX3DRuntimeTests/CLIExitTests.swift:84-105": "4462e46a7ead7dbacd6684675de1cb1c73530f080af653f56c64d64dbbd39ed4",
+    "Tests/MLX3DRuntimeTests/ImageTensorTests.swift:10-12": "f060d137b343507f3ac6123c55b08c8e90c0873dc17e59ab8f84e23cd98da587",
+    "Tests/MLX3DRuntimeTests/ImageTensorTests.swift:9-80": "ceb7f86b01872cbc1bab5de291a226e6aca55c044e864a25d0aa2f88198776af",
+    "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:104-175": "e637c957c5a28323cb50fed51cffcb7a94e4ad3f458d45b6b960db6bdd258ba9",
+    "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-67": "7c2d4c842c72176b82e64eeebdc9711ef5e3f55a694dddd73959fdf27f1467b0",
+    "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-92": "1bff6d12c15b82adfc466e1c2e12991804219effacf7ce99c9384f5103338839",
+    "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-93": "cd7cb7842826dfce124abdc3c3f3791b3108383411a7d9f59cf64b80ee1bbece",
+    "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:7-102": "294afebe111c5763d44880208206c6a5044383e1c918e9676ead0460575b3df7",
+    "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:7-175": "458b2ddd08522924e2478f468b599a9d0be1eed280e5c92c41e62f2fc30b1799",
+    "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:70-93": "8bd7d686e4d8129d0a44973dbc487a90af0596890c907ddc71756fefe4da4514",
+    "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:8-10": "f060d137b343507f3ac6123c55b08c8e90c0873dc17e59ab8f84e23cd98da587",
+    "Tests/MLX3DRuntimeTests/MeshExportTests.swift:6-98": "b39dab25cec7e18291be115393f5473d1155e75a79ca1492b3b1c6c7a413f69c",
+    "Tests/MLX3DRuntimeTests/MeshTests.swift:6-47": "e64d6f5a0d7e18e026e34d5636f1519d067e805773827471026beb295e9f8fd0",
+    "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:40-65": "f367cf371f36713e87fbeb568e806c83646ac5f77973ce8ab694c3adb7bf3cf4",
+    "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:47-64": "b4e5fbc01b123b269c80aee628bd0a803acac24c291931ef94b38656b95ea855",
+    "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:67-75": "d49762d1b03dd1e4fc857f1de9199b64de4e4de52f035033759e1f2d3e166bd0",
+    "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:67-90": "e4c6a439eb05d035a5bb066dbaed548ca425bb41db23b2fa4d3fe1d9d211c6e1",
+    "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:9-106": "f0c5dfb00aea8c37544b73a34b118a82de0aed37020a8ecc3ed6109c3a20b02a",
+    "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:9-38": "c0905d6c8decf945b0bdec2a126a2075e7322dde284200e5a91218502cf5c533",
+    "Vendor/SNAPSHOT.txt:1-2": "a4b09c19f0435d4b1f60c5ca41d8ea0672955e2745de4c4337afe9698681da8a",
+    "Vendor/triposr-mlx-swift/Package.swift:25-27": "a3eb524066bfae2b0942b68b0459625276440b887900919e608283acf1d5519d",
+    "Vendor/triposr-mlx-swift/README.md:132-134": "4e738d4d78b4ca6ded39e86505ece9ed3a75b4cea31c4a253967c0386811fc5a",
+    "Vendor/triposr-mlx-swift/README.md:67-70": "ea08f11e16808d80fd573fbef155a459b4cbf74a203504dbfd211f88de4ccee2"
+  }
 }

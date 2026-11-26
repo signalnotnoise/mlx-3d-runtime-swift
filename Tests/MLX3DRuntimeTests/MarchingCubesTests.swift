@@ -9,10 +9,10 @@ struct MarchingCubesTests {
         Device.setDefault(device: Device(.cpu))
     }
 
-    @Test func volumeGridIncludesBothCorners() {
+    @Test func volumeGridIncludesBothCorners() throws {
         let minCorner = SIMD3<Float>(-0.87, -0.87, -0.87)
         let maxCorner = SIMD3<Float>(0.87, 0.87, 0.87)
-        let values = VolumeGrid.positions(resolution: 4, min: minCorner, max: maxCorner)
+        let values = try VolumeGrid.positions(resolution: 4, min: minCorner, max: maxCorner)
         #expect(values.count == 4 * 4 * 4 * 3)
         #expect(values[0] == minCorner.x)
         #expect(values[1] == minCorner.y)
@@ -71,7 +71,7 @@ struct MarchingCubesTests {
         let resolution = 32
         let bboxMin = SIMD3<Float>(-1, -1, -1)
         let bboxMax = SIMD3<Float>(1, 1, 1)
-        let samples = VolumeGrid.positions(resolution: resolution, min: bboxMin, max: bboxMax)
+        let samples = try VolumeGrid.positions(resolution: resolution, min: bboxMin, max: bboxMax)
         let rx: Float = 0.62
         let ry: Float = 0.28
         let rz: Float = 0.45
@@ -98,5 +98,78 @@ struct MarchingCubesTests {
             value = max(value, abs(mesh.positions[vertex * 3 + axis]))
         }
         return value
+    }
+}
+
+struct VolumeGridBatchTests {
+    @Test func rejectsGridSizesOutsideTheInclusiveCap() {
+        #expect(
+            throws: MLX3DRuntimeError.gridSizeOutOfRange(
+                requested: 1,
+                minimum: VolumeGrid.minimumResolution,
+                maximum: VolumeGrid.maximumResolution
+            )
+        ) {
+            try VolumeGrid.validate(resolution: 1)
+        }
+        #expect(
+            throws: MLX3DRuntimeError.gridSizeOutOfRange(
+                requested: 513,
+                minimum: VolumeGrid.minimumResolution,
+                maximum: VolumeGrid.maximumResolution
+            )
+        ) {
+            try VolumeGrid.validate(resolution: 513)
+        }
+        #expect(
+            throws: MLX3DRuntimeError.gridSizeOutOfRange(
+                requested: 32,
+                minimum: VolumeGrid.minimumResolution,
+                maximum: 16
+            )
+        ) {
+            try VolumeGrid.validate(resolution: 32, maximum: 16)
+        }
+    }
+
+    @Test func oversizedImageGridIsRejectedBeforeWeightsLoad() {
+        #expect(
+            throws: MLX3DRuntimeError.gridSizeOutOfRange(
+                requested: 513,
+                minimum: VolumeGrid.minimumResolution,
+                maximum: VolumeGrid.maximumResolution
+            )
+        ) {
+            try MLX3DRuntime.imageToMesh(
+                imageURL: URL(fileURLWithPath: "/nonexistent/mlx3d.png"),
+                weightsURL: URL(fileURLWithPath: "/nonexistent/triposr_swift_ready.safetensors"),
+                options: ImageToMeshOptions(gridSize: 513)
+            )
+        }
+    }
+
+    @Test func lazyBatchesMatchTheFullPointList() throws {
+        let resolution = 5
+        let minCorner = SIMD3<Float>(-0.5, 0, 0.25)
+        let maxCorner = SIMD3<Float>(0.5, 1, 1.25)
+        let full = try VolumeGrid.positions(resolution: resolution, min: minCorner, max: maxCorner)
+        let batchSize = 3
+        let pointCount = resolution * resolution * resolution
+        var batched: [Float] = []
+        var offset = 0
+        while offset < pointCount {
+            let count = min(batchSize, pointCount - offset)
+            let batch = VolumeGrid.positions(
+                resolution: resolution,
+                min: minCorner,
+                max: maxCorner,
+                points: offset..<(offset + count)
+            )
+            #expect(batch.count == count * 3)
+            #expect(batch.count < full.count)
+            batched.append(contentsOf: batch)
+            offset += count
+        }
+        #expect(batched == full)
     }
 }

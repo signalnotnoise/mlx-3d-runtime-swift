@@ -41,9 +41,10 @@ xcodebuild build \
 | --- | --- | --- |
 | `MeshTests` | `Tests/MLX3DRuntimeTests/MeshTests.swift:6-47` | Open triangle, closed tetrahedron, degenerate face |
 | `MeshExportTests` | `Tests/MLX3DRuntimeTests/MeshExportTests.swift:6-98` | OBJ, PLY, empty mesh, bad indices |
-| `MarchingCubesTests` | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:7-102` | Grid corners, empty fields, closed ellipsoid at resolution 32 (`Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:70-92`) |
+| `MarchingCubesTests` | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:7-102` | Grid corners, empty fields, closed ellipsoid at resolution 32 (`Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:70-93`) |
+| `VolumeGridBatchTests` | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:104-175` | Rejects grids outside 2...512 before weight load, and checks lazy batches match the full point list |
 | `ImageTensorTests` | `Tests/MLX3DRuntimeTests/ImageTensorTests.swift:9-80` | Missing file, opaque red, transparent pixel over 0.5 |
-| `CLIExitTests` | `Tests/MLX3DRuntimeTests/CLIExitTests.swift:5-73` | Nonzero exits; locates `MLX3DCLI` via `dladdr` (`Tests/MLX3DRuntimeTests/CLIExitTests.swift:75-96`) |
+| `CLIExitTests` | `Tests/MLX3DRuntimeTests/CLIExitTests.swift:5-82` | Nonzero exits, including `--grid-size 9999`; locates `MLX3DCLI` via `dladdr` (`Tests/MLX3DRuntimeTests/CLIExitTests.swift:84-105`) |
 | `RuntimeContractTests` | `Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:9-38` | Missing weights, missing bundle, short field |
 | `PublishedWeightTests` | `Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:40-65` | Skipped unless weights or a Shap-E bundle are present |
 

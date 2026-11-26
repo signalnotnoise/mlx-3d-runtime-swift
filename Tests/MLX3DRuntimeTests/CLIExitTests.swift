@@ -21,6 +21,15 @@ struct CLIExitTests {
         #expect(result.output.contains("Failed:"), Comment(rawValue: result.output))
     }
 
+    @Test func imageExitsNonzeroWhenGridSizeIsInvalid() throws {
+        let result = try runCLI(
+            ["image", "--input", "/nonexistent/photo.png", "--grid-size", "9999"]
+        )
+        #expect(result.status != 0)
+        #expect(result.output.contains("Failed:"), Comment(rawValue: result.output))
+        #expect(result.output.contains("9999"), Comment(rawValue: result.output))
+    }
+
     @Test func imageExitsNonzeroWhenWeightsAreMissing() throws {
         let result = try runCLI(["image", "--input", "/nonexistent/photo.png"])
         #expect(result.status != 0)

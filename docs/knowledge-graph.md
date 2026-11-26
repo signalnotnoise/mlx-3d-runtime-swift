@@ -1,6 +1,6 @@
 # Knowledge graph
 
-`verified_commit` is `4d5c73ee1ad4581ede2e87fae6678b4ca51abf69` on `cursor/mlx-3d-runtime-swift-5003`. Line numbers were read from that tree. The docs commit that adds this file does not edit those source lines. Sibling modules are external and have no line numbers here.
+`verified_commit` `4d5c73ee1ad4581ede2e87fae6678b4ca51abf69` on `cursor/mlx-3d-runtime-swift-5003` is a label. `scripts/verify_docs.py` does not require it to be an ancestor of `HEAD`. It hashes the cited lines in the working tree. Sibling modules are external and have no line numbers here.
 
 ```mermaid
 flowchart TD
@@ -40,11 +40,12 @@ flowchart TD
 | Task | Location |
 | --- | --- |
 | Package pins and products | `Package.swift:1-69` |
-| Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:7-93` |
+| Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:7-102` |
 | Image decode | `Sources/MLX3DRuntime/ImageTensor.swift:6-91` |
-| Image-to-mesh and image rank check | `Sources/MLX3DRuntime/MLX3DRuntime.swift:95-192` |
-| Density grid and batches | `Sources/MLX3DRuntime/TripoSRMeshing.swift:5-100` |
-| Sample coordinates | `Sources/MLX3DRuntime/VolumeGrid.swift:3-34` |
+| Image-to-mesh and image rank check | `Sources/MLX3DRuntime/MLX3DRuntime.swift:104-203` |
+| Density grid and batches | `Sources/MLX3DRuntime/TripoSRMeshing.swift:5-106` |
+| Sample coordinates and the 512 cap | `Sources/MLX3DRuntime/VolumeGrid.swift:3-68` |
+| Grid rejection and lazy-batch tests | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:104-175` |
 | Marching cubes | `Sources/MLX3DRuntime/MarchingCubesExtractor.swift:5-74` |
 | Mesh topology | `Sources/MLX3DRuntime/Mesh.swift:5-90` |
 | OBJ and PLY | `Sources/MLX3DRuntime/MeshExport.swift:23-172` |

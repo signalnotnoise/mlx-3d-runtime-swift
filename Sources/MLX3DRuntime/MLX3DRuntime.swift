@@ -10,19 +10,23 @@ public struct TextToMeshOptions: Sendable {
     public var gridSize: Int
     public var queryBatchSize: Int
     public var seed: Int
+    /// Upper bound checked before Shap-E loads. Cannot exceed `VolumeGrid.maximumResolution`.
+    public var maximumGridSize: Int
 
     public init(
         guidanceScale: Float = 15,
         numInferenceSteps: Int = 64,
         gridSize: Int = 128,
         queryBatchSize: Int = 65536,
-        seed: Int = 0
+        seed: Int = 0,
+        maximumGridSize: Int = VolumeGrid.maximumResolution
     ) {
         self.guidanceScale = guidanceScale
         self.numInferenceSteps = numInferenceSteps
         self.gridSize = gridSize
         self.queryBatchSize = queryBatchSize
         self.seed = seed
+        self.maximumGridSize = maximumGridSize
     }
 }
 
@@ -34,6 +38,8 @@ public struct ImageToMeshOptions: Sendable {
     public var radius: Float?
     public var imageSide: Int
     public var background: Float
+    /// Upper bound checked before TripoSR weights load. Cannot exceed `VolumeGrid.maximumResolution`.
+    public var maximumGridSize: Int
 
     public init(
         gridSize: Int = 128,
@@ -41,7 +47,8 @@ public struct ImageToMeshOptions: Sendable {
         queryBatchSize: Int = 8192,
         radius: Float? = nil,
         imageSide: Int = 512,
-        background: Float = 0.5
+        background: Float = 0.5,
+        maximumGridSize: Int = VolumeGrid.maximumResolution
     ) {
         self.gridSize = gridSize
         self.threshold = threshold
@@ -49,6 +56,7 @@ public struct ImageToMeshOptions: Sendable {
         self.radius = radius
         self.imageSide = imageSide
         self.background = background
+        self.maximumGridSize = maximumGridSize
     }
 }
 
@@ -63,6 +71,7 @@ public enum MLX3DRuntime {
         bpeVocabularyURL: URL? = nil,
         options: TextToMeshOptions = TextToMeshOptions()
     ) async throws -> Mesh {
+        try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         let manifest = modelBundleURL.appendingPathComponent("manifest.json")
         guard FileManager.default.fileExists(atPath: manifest.path) else {
             throw MLX3DRuntimeError.bundleNotFound(modelBundleURL.path)
@@ -103,6 +112,7 @@ public enum MLX3DRuntime {
         weightsURL: URL,
         options: ImageToMeshOptions = ImageToMeshOptions()
     ) throws -> Mesh {
+        try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         try requireWeights(weightsURL)
         let image = try ImageTensor.rgb(
             contentsOf: imageURL,
@@ -121,6 +131,7 @@ public enum MLX3DRuntime {
         weightsURL: URL,
         options: ImageToMeshOptions = ImageToMeshOptions()
     ) throws -> Mesh {
+        try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         try requireWeights(weightsURL)
         let model = TripoSRModel()
         MLX.eval(model.parameters())

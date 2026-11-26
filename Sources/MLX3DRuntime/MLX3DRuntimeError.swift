@@ -2,6 +2,7 @@ import Foundation
 
 public enum MLX3DRuntimeError: Error, Equatable, LocalizedError, Sendable {
     case invalidGrid(Int)
+    case gridSizeOutOfRange(requested: Int, minimum: Int, maximum: Int)
     case fieldSizeMismatch(expected: Int, actual: Int)
     case invalidBatchSize(Int)
     case emptyBBox
@@ -18,6 +19,9 @@ public enum MLX3DRuntimeError: Error, Equatable, LocalizedError, Sendable {
         switch self {
         case .invalidGrid(let resolution):
             return "Grid resolution must be at least 2, got \(resolution)."
+        case .gridSizeOutOfRange(let requested, let minimum, let maximum):
+            return "Grid size \(requested) is outside \(minimum)...\(maximum). "
+                + "The hard cap is VolumeGrid.maximumResolution (\(VolumeGrid.maximumResolution))."
         case .fieldSizeMismatch(let expected, let actual):
             return "Scalar field has \(actual) values, expected \(expected)."
         case .invalidBatchSize(let batchSize):

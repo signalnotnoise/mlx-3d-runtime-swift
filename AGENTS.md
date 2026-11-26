@@ -12,13 +12,13 @@ Platforms in `Package.swift:13-16`: macOS 14, iOS 17, visionOS 1. Only the macOS
 
 Public entry points, verified in `Sources/MLX3DRuntime/MLX3DRuntime.swift`:
 
-- `textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:60-65`. Calls `ShapERuntime.generate` and returns a `Mesh`.
-- `imageToMesh(imageURL:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:101-105`. Decodes a file to `[1, side, side, 3]` float RGB (`Sources/MLX3DRuntime/ImageTensor.swift:20`).
-- `imageToMesh(image:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:119-123`. `image` is `[height, width, 3]` or `[1, height, width, 3]` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:171-186`). This overload does not resize.
+- `textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:68-73`. Calls `ShapERuntime.generate` and returns a `Mesh`. Grid size is checked first (`Sources/MLX3DRuntime/MLX3DRuntime.swift:74`).
+- `imageToMesh(imageURL:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:110-114`. Grid size is checked before weights load (`Sources/MLX3DRuntime/MLX3DRuntime.swift:115-116`). Decodes a file to `[1, side, side, 3]` float RGB (`Sources/MLX3DRuntime/ImageTensor.swift:20`).
+- `imageToMesh(image:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:129-133`. `image` is `[height, width, 3]` or `[1, height, width, 3]` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:182-203`). This overload does not resize.
 
 `Mesh` packs positions as `x,y,z`, faces as triangle indices, and optional vertex colors as `r,g,b` (`Sources/MLX3DRuntime/Mesh.swift:5-10`).
 
-Image-to-mesh defaults live on `ImageToMeshOptions` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:38-44`): grid 128, threshold 25, query batch 8192, `radius` nil (then `model.renderer.radius`), image side 512, background 0.5. The numeric renderer radius is not hardcoded in this repo.
+Image-to-mesh defaults live on `ImageToMeshOptions` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:44-51`): grid 128, threshold 25, query batch 8192, `radius` nil (then `model.renderer.radius`), image side 512, background 0.5, `maximumGridSize` 512. The hard cap is `VolumeGrid.maximumResolution` (`Sources/MLX3DRuntime/VolumeGrid.swift:9`). Density positions are built one batch at a time (`Sources/MLX3DRuntime/TripoSRMeshing.swift:62-67`). The numeric renderer radius is not hardcoded in this repo.
 
 ## Out of scope
 
@@ -75,4 +75,4 @@ The private sibling URLs do not clone with the Actions token. CI mirrors `Vendor
 
 ## Zero-drift
 
-A commit that adds, moves, renames, or changes files, public APIs, or `Package.swift` constraints updates `docs/knowledge-graph.json`, `docs/knowledge-graph.md`, and the affected `docs/wiki/*.md` in the same commit. `metadata.verified_commit` stays the commit whose source lines were read. `scripts/verify_docs.py` checks those anchors. Re-run it when a cited file changes.
+A commit that adds, moves, renames, or changes files, public APIs, or `Package.swift` constraints updates `docs/knowledge-graph.json`, `docs/knowledge-graph.md`, and the affected `docs/wiki/*.md` in the same commit. `scripts/verify_docs.py` hashes the cited lines in the working tree. `metadata.verified_commit` is a label only. It does not have to be an ancestor of `HEAD`.

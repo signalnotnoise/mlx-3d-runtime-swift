@@ -8,9 +8,7 @@ enum TripoSRMeshing {
         triplanes: MLXArray,
         options: ImageToMeshOptions
     ) throws -> Mesh {
-        guard options.gridSize >= 2 else {
-            throw MLX3DRuntimeError.invalidGrid(options.gridSize)
-        }
+        try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         guard options.queryBatchSize > 0 else {
             throw MLX3DRuntimeError.invalidBatchSize(options.queryBatchSize)
         }
@@ -22,11 +20,12 @@ enum TripoSRMeshing {
         eval(triplanes)
         let bboxMin = SIMD3<Float>(-radius, -radius, -radius)
         let bboxMax = SIMD3<Float>(radius, radius, radius)
-        let samples = VolumeGrid.positions(resolution: options.gridSize, min: bboxMin, max: bboxMax)
         let density = try queryDensity(
             model: model,
             triplanes: triplanes,
-            positions: samples,
+            resolution: options.gridSize,
+            min: bboxMin,
+            max: bboxMax,
             batchSize: options.queryBatchSize
         )
         return try MarchingCubesExtractor.extract(
@@ -49,16 +48,23 @@ enum TripoSRMeshing {
     private static func queryDensity(
         model: TripoSRModel,
         triplanes: MLXArray,
-        positions: [Float],
+        resolution: Int,
+        min bboxMin: SIMD3<Float>,
+        max bboxMax: SIMD3<Float>,
         batchSize: Int
     ) throws -> [Float] {
-        let pointCount = positions.count / 3
+        let pointCount = resolution * resolution * resolution
         var density = [Float]()
         density.reserveCapacity(pointCount)
         var offset = 0
         while offset < pointCount {
             let count = min(batchSize, pointCount - offset)
-            let slice = Array(positions[(offset * 3)..<((offset + count) * 3)])
+            let slice = VolumeGrid.positions(
+                resolution: resolution,
+                min: bboxMin,
+                max: bboxMax,
+                points: offset..<(offset + count)
+            )
             let query = MLXArray(slice).reshaped([count, 3])
             let (densityArray, _) = model.evaluate(triplanes: triplanes, positions: query)
             eval(densityArray)
