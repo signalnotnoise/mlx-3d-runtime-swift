@@ -6,7 +6,7 @@ Invariants of this repository. Sibling model code is not specified here.
 
 `Package.swift:1` sets `swift-tools-version: 6.2`.
 
-`Package.swift:29-32` caps `mlx-swift` at `0.31.3..<0.31.5`. The comment states that `0.31.5` and later set Swift tools 6.3, and that Shap-E's own manifest allows `0.29.1` and later, so this range is the overlap. The vendored sibling manifests match that description: `Vendor/shap-e-mlx-swift/Package.swift:22` uses `from: "0.29.1"` and `Vendor/triposr-mlx-swift/Package.swift:25-27` uses the same `0.31.3..<0.31.5` cap. Do not widen this package past `0.31.4`.
+`Package.swift:29-31` caps `mlx-swift` at `0.31.3..<0.31.5`. The comment states that `0.31.5` and later set Swift tools 6.3. Public `shap-e-mlx-swift` and `triposr-mlx-swift` `main` (commits `d7b6b7aa88d11e265799fc81e5fea1b734571d2b` and `51994056febf3be5ed726e89de169037a2fbf6a6`) both declare that same range. Do not widen this package past `0.31.4`.
 
 ## Tensor layout and coordinates
 
@@ -38,8 +38,8 @@ Tests also accept `TEST_RUNNER_TRIPOSR_WEIGHTS_PATH` and `TEST_RUNNER_SHAP_E_BUN
 
 Canonical files, cited from the vendored sibling READMEs (sibling measurements, not re-hashed here):
 
-- TripoSR: `triposr_swift_ready.safetensors`, 1,674,793,528 bytes, SHA-256 `83563625f39180f505a3ccb855e67b59b65989f6545015672465d7487c4bc2cb`, Hub commit `76f3028746d0b5f39b6ba0205ede9e28835f106d` (`Vendor/triposr-mlx-swift/README.md:67-70` and `Vendor/triposr-mlx-swift/README.md:121`).
-- Shap-E: Hub revision `d71f70a09b9c03535188d006a719edda5c19a6eb`, described as 1,104 files. The sibling README says upstream notes record 5,143,254,750 bytes and that the package does not re-measure that payload (`Vendor/shap-e-mlx-swift/README.md:63`). This repo does not record a single SHA-256 for that bundle.
+- TripoSR: `triposr_swift_ready.safetensors`, 1,674,793,528 bytes, SHA-256 `83563625f39180f505a3ccb855e67b59b65989f6545015672465d7487c4bc2cb`, Hub commit `76f3028746d0b5f39b6ba0205ede9e28835f106d`. Those figures are in the public `triposr-mlx-swift` README at `51994056febf3be5ed726e89de169037a2fbf6a6`. This repo does not re-hash that file.
+- Shap-E: Hub revision `d71f70a09b9c03535188d006a719edda5c19a6eb`, described as 1,104 files. The public `shap-e-mlx-swift` README at `d7b6b7aa88d11e265799fc81e5fea1b734571d2b` says upstream notes record 5,143,254,750 bytes and that the package does not re-measure that payload. This repo does not record a single SHA-256 for that bundle.
 
 ## Parity
 

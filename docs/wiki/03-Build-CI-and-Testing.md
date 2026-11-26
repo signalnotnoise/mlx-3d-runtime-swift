@@ -4,11 +4,11 @@
 
 Do not use `swift build` or `swift test`. Metal's `default.metallib` comes from an Xcode build. See [AGENTS.md](../../AGENTS.md).
 
-CI runs on `macos-26` (`.github/workflows/ci.yml:18`) and selects `Xcode_26.6` when that app is present (`.github/workflows/ci.yml:26-31`). It installs the Metal toolchain if `xcodebuild -showComponent MetalToolchain` fails (`.github/workflows/ci.yml:41-47`).
+CI runs on `macos-26` (`.github/workflows/ci.yml:18`) and selects `Xcode_26.6` when that app is present (`.github/workflows/ci.yml:26-31`). It installs the Metal toolchain if `xcodebuild -showComponent MetalToolchain` fails (`.github/workflows/ci.yml:40-47`).
 
-Package resolution cannot clone the private sibling URLs with the Actions token. The job turns `Vendor/` into bare git mirrors and rewrites those URLs (`.github/workflows/ci.yml:49-72`). `Package.swift` itself still lists the GitHub URLs (`Package.swift:34-42`).
+The job deletes the SwiftPM and DerivedData caches, then runs `xcodebuild -resolvePackageDependencies` into an empty directory (`.github/workflows/ci.yml:49-96`). It refuses to continue if `git url.insteadOf` is set, and it checks that `shap-e-mlx-swift`, `triposr-mlx-swift`, and `mlx-swift` resolved from their GitHub URLs, with the siblings on branch `main`. `Package.swift` lists those URLs (`Package.swift:31-41`).
 
-Test command in CI (`.github/workflows/ci.yml:116-127`):
+Test command in CI (`.github/workflows/ci.yml:104-112`):
 
 ```bash
 xcodebuild test \
@@ -20,7 +20,7 @@ xcodebuild test \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-Example command in CI (`.github/workflows/ci.yml:129-141`), from `Examples/Integration`:
+The example resolves into a second empty checkout directory and then builds (`.github/workflows/ci.yml:114-147`), from `Examples/Integration`:
 
 ```bash
 xcodebuild build \

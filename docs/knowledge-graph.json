@@ -130,17 +130,17 @@
       {
         "file_path": "Package.swift",
         "line_start": 1,
-        "line_end": 69
+        "line_end": 68
       },
       {
         "file_path": ".github/workflows/ci.yml",
         "line_start": 16,
-        "line_end": 141
+        "line_end": 151
       },
       {
         "file_path": "Examples/Integration/Package.swift",
         "line_start": 1,
-        "line_end": 44
+        "line_end": 45
       }
     ]
   },
@@ -392,7 +392,7 @@
       "file_path": "https://github.com/signalnotnoise/shap-e-mlx-swift",
       "line_start": null,
       "line_end": null,
-      "summary": "Text-to-3D runtime. Product ShapERuntime. Branch pin cursor/shap-e-runtime-package-ea5b."
+      "summary": "Text-to-3D runtime. Product ShapERuntime. Public branch main."
     },
     {
       "id": "external.MarchingCubes",
@@ -410,7 +410,7 @@
       "file_path": "https://github.com/signalnotnoise/triposr-mlx-swift",
       "line_start": null,
       "line_end": null,
-      "summary": "Image-to-3D runtime. Product TripoSRRuntime. Branch pin cursor/triposr-mlx-swift-package-45c1."
+      "summary": "Image-to-3D runtime. Product TripoSRRuntime. Public branch main."
     },
     {
       "id": "external.TripoSRModel",
@@ -563,25 +563,25 @@
     }
   ],
   "content_hashes": {
-    ".github/workflows/ci.yml:116-127": "4152000c9dc18cd628a0e7881be2cb9db5294e0c72c1d0952e3d13446c0b3833",
-    ".github/workflows/ci.yml:119-127": "84dc3291aded2a967fbaa1c85a7f5534062eb9fb9f572f5ed7b0e33a5b7a9df8",
-    ".github/workflows/ci.yml:129-141": "5fda18a816021daa895614070473013683bb963711e93d263db043912e9d6909",
-    ".github/workflows/ci.yml:16-141": "07b5c949efec2eaf4b0b4f58f5897bce372265b78405b213f933c1d1b427fc2d",
+    ".github/workflows/ci.yml:104-112": "84dc3291aded2a967fbaa1c85a7f5534062eb9fb9f572f5ed7b0e33a5b7a9df8",
+    ".github/workflows/ci.yml:114-147": "c1509c40a08959bbfd84e08fa5281e3807290d4fb35b342b2bed5a1c5e8116e5",
+    ".github/workflows/ci.yml:16-151": "661b1369a43599aaede111f43245e265db344cd44f2781eee0836f8b58c0aa53",
     ".github/workflows/ci.yml:26-31": "58b3c739dee7e7701ad416902daa4de3eb172545f2a6f5979b5585df8c9949f8",
-    ".github/workflows/ci.yml:41-47": "3eddab5fd7f49eb09b4e88008a7362463a44c6c1ad4d075da846fc68447b84b9",
-    ".github/workflows/ci.yml:49-72": "2ca932ff633bab3530e76fb15d0b54d4e32145ddce9e0fbb05268c7f401820dd",
-    "Examples/Integration/Package.swift:1-44": "420e6316ed6ec209c6cbda498c9b177ad604d2b8b1db2a1ca60d21899c8f8b46",
-    "Examples/Integration/Package.swift:18-19": "6a813e64b855a5388513aed54e095567fa06e7a5cda5d38d074c63b0add5c746",
-    "Examples/Integration/Package.swift:23-32": "431ddf1b15e9f685454bce03483178109821cf202d3a54bfb4dd32cfbe0bc7a9",
-    "Examples/Integration/Package.swift:35-42": "a7cda624ffd41f57d8a0961208d4b57a3288b541d7787b3dcf4e9272f1adc9e8",
+    ".github/workflows/ci.yml:40-47": "62d9951204305e9afba8dcc0580cbd780b9e147bdbe7f06047c9a7530eb5cafb",
+    ".github/workflows/ci.yml:49-96": "3760bee72e3428cbe5470e8309a504016820164b24d7d7f27284c4d49791dc3c",
+    "Examples/Integration/Package.swift:1-45": "1ccdb2cc33c39500b1e0d0a035517b5a6d8468e94e37811ed845e30624469a2c",
+    "Examples/Integration/Package.swift:18-19": "bb0bbaf31647b73136b1258cb57f097e8472b8bbc4bdcaaeb57562129e1368b0",
+    "Examples/Integration/Package.swift:24-33": "07cb9533fbb86ebfdfeb28e67168fee59ec12e483e6a99b304b68b31adf22c3e",
+    "Examples/Integration/Package.swift:35-42": "5d9b88788d13bb9525e60c068f67e7e2b5ac51c940e5d5b5716ab066ea55e7cc",
     "Examples/Integration/Package.swift:5-7": "0ab0eb46e0a5b32f6851a7ae7883fdf50de82dad1e52ee7823713634b319bcc6",
+    "Examples/Integration/Package.swift:9-10": "b73c21d8d9265e328acdd8c2365dfe1f950d557942489650ad7194fd157ea6f1",
     "Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18": "78726c408201d7205389776fc6798470165c619b7a76923732d9e2431e0ba0fb",
     "Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:7-17": "512c2ee9a080379487f9d3f5e3d59e122f6cb078ef2c02da8a5a2e6aee69f1f4",
     "Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:8-18": "2ee2a69f75cfa183bac13e018f05fe1915b0dbe153fbcf0e8b81a5936c920d4a",
-    "Package.swift:1-69": "2c4b0dc3a05825f67199850e861af47188400a331d0afd022d03eaca3356d1fb",
-    "Package.swift:45-53": "3a8226f7632a328a7081d5f6ab26e73ea0271413c71379433a4c4bfca23055ab",
-    "Package.swift:54-57": "159cb2fd755ec24b9c5bbbea7cf897672fc34ecfdb7be0fb2474a63cb7c5e918",
-    "Package.swift:58-67": "94ce6b32469e24f8709ef00fd96d5aacb9ad403a4cdc06a9bb755eade5c51d54",
+    "Package.swift:1-68": "6a658908ebaf08dd938e8bf42a3b62d069704326997598018f01743f294c487b",
+    "Package.swift:45-53": "5affe77356edf3ebd3d580ec272f5aec28b4d29fa61b5fb82306c92b505806d6",
+    "Package.swift:54-57": "05670eb41b593246a31927705f36b78b3903790c90e0965fcd6d6a2fa81da977",
+    "Package.swift:58-67": "1995c0b153f89e586eabb528d2e133a2a16c2764d83061b3769a7f10ddb5f430",
     "Sources/MLX3DCLI/MLX3DCLI.swift:117-119": "dd06e224421e008f4f70186aef059a212bbafa778b56a10f8585942a9545a485",
     "Sources/MLX3DCLI/MLX3DCLI.swift:117-123": "833e08a1d662f7c0f891936eecf54cb1b5dae4a2e477dcb37d57062595da322e",
     "Sources/MLX3DCLI/MLX3DCLI.swift:120-123": "04e7e0bf42a963a12904700d994551360b2febeb79122fc1009a4add985f2c60",
@@ -695,10 +695,6 @@
     "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:67-75": "d49762d1b03dd1e4fc857f1de9199b64de4e4de52f035033759e1f2d3e166bd0",
     "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:67-90": "e4c6a439eb05d035a5bb066dbaed548ca425bb41db23b2fa4d3fe1d9d211c6e1",
     "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:9-106": "f0c5dfb00aea8c37544b73a34b118a82de0aed37020a8ecc3ed6109c3a20b02a",
-    "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:9-38": "c0905d6c8decf945b0bdec2a126a2075e7322dde284200e5a91218502cf5c533",
-    "Vendor/SNAPSHOT.txt:1-2": "a4b09c19f0435d4b1f60c5ca41d8ea0672955e2745de4c4337afe9698681da8a",
-    "Vendor/triposr-mlx-swift/Package.swift:25-27": "a3eb524066bfae2b0942b68b0459625276440b887900919e608283acf1d5519d",
-    "Vendor/triposr-mlx-swift/README.md:132-134": "4e738d4d78b4ca6ded39e86505ece9ed3a75b4cea31c4a253967c0386811fc5a",
-    "Vendor/triposr-mlx-swift/README.md:67-70": "ea08f11e16808d80fd573fbef155a459b4cbf74a203504dbfd211f88de4ccee2"
+    "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:9-38": "c0905d6c8decf945b0bdec2a126a2075e7322dde284200e5a91218502cf5c533"
   }
 }
