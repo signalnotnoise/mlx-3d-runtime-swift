@@ -6,26 +6,26 @@ struct CLIExitTests {
     @Test func missingSubcommandExitsNonzero() throws {
         let result = try runCLI([])
         #expect(result.status != 0)
-        #expect(result.output.contains("Failed:"), result.output)
+        #expect(result.output.contains("Failed:"), Comment(rawValue: result.output))
     }
 
     @Test func helpExitsZero() throws {
         let result = try runCLI(["--help"])
-        #expect(result.status == 0, result.output)
-        #expect(result.output.contains("Usage:"), result.output)
+        #expect(result.status == 0, Comment(rawValue: result.output))
+        #expect(result.output.contains("Usage:"), Comment(rawValue: result.output))
     }
 
     @Test func textExitsNonzeroWhenBundleIsMissing() throws {
         let result = try runCLI(["text", "--prompt", "a chair", "--bundle", "/nonexistent/runtime_bundle"])
         #expect(result.status != 0)
-        #expect(result.output.contains("Failed:"), result.output)
+        #expect(result.output.contains("Failed:"), Comment(rawValue: result.output))
     }
 
     @Test func imageExitsNonzeroWhenWeightsAreMissing() throws {
         let result = try runCLI(["image", "--input", "/nonexistent/photo.png"])
         #expect(result.status != 0)
-        #expect(result.output.contains("Failed:"), result.output)
-        #expect(result.output.contains("weights"), result.output)
+        #expect(result.output.contains("Failed:"), Comment(rawValue: result.output))
+        #expect(result.output.contains("weights"), Comment(rawValue: result.output))
     }
 
     private func runCLI(_ arguments: [String]) throws -> (status: Int32, output: String) {

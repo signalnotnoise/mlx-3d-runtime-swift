@@ -61,9 +61,10 @@ struct MarchingCubesTests {
         let x = maxAbs(mesh, axis: 0)
         let y = maxAbs(mesh, axis: 1)
         let z = maxAbs(mesh, axis: 2)
-        #expect(abs(x - 0.62) < 0.10, "x extent \(x) y \(y) z \(z) vertices \(mesh.vertexCount)")
-        #expect(abs(y - 0.28) < 0.10, "x extent \(x) y \(y) z \(z) vertices \(mesh.vertexCount)")
-        #expect(abs(z - 0.45) < 0.10, "x extent \(x) y \(y) z \(z) vertices \(mesh.vertexCount)")
+        let detail = "x extent \(x) y \(y) z \(z) vertices \(mesh.vertexCount)"
+        #expect(abs(x - 0.62) < 0.10, Comment(rawValue: detail))
+        #expect(abs(y - 0.28) < 0.10, Comment(rawValue: detail))
+        #expect(abs(z - 0.45) < 0.10, Comment(rawValue: detail))
     }
 
     private func ellipsoid(attachColors: Bool) throws -> Mesh {
