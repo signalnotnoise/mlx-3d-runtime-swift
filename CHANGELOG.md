@@ -19,8 +19,12 @@ version tag yet.
   TripoSR's color query.
 - `Examples/Integration`, a separate package that depends on this repo by
   relative path and imports `MLX3DRuntime`, `ShapERuntime`, and `TripoSRRuntime`.
-- Unit tests for marching cubes, mesh export, CLI failure exits, and the
-  example package wiring. Real-weight tests skip when the files are absent.
+- `imageToMesh(cgImage:)` runs Mesquette's `foregroundCutout` (ratio 0.85)
+  before TripoSR preprocessing. Pass `applyForegroundCutout: false` to skip it.
+  `removeBackground` is copied alongside it and is not used on the TripoSR path.
+- Unit tests for marching cubes, mesh export, CLI failure exits, foreground
+  cutout helpers, and the example package wiring. Real-weight tests skip when
+  the files are absent.
 - GitHub Actions workflow that builds, tests, and builds the example on macOS.
 - `NOTICE`, `.spi.yml`, and this changelog.
 

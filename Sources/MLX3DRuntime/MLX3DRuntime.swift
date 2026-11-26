@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import MLX
 import MLXNN
@@ -40,6 +41,10 @@ public struct ImageToMeshOptions: Sendable {
     public var background: Float
     /// Upper bound checked before TripoSR weights load. Cannot exceed `VolumeGrid.maximumResolution`.
     public var maximumGridSize: Int
+    /// When true, `imageToMesh(cgImage:)` runs `foregroundCutout` before TripoSR preprocessing.
+    public var applyForegroundCutout: Bool
+    /// Foreground fill of the square cutout. Default matches upstream `resize_foreground`.
+    public var foregroundRatio: CGFloat
 
     public init(
         gridSize: Int = 128,
@@ -48,7 +53,9 @@ public struct ImageToMeshOptions: Sendable {
         radius: Float? = nil,
         imageSide: Int = 512,
         background: Float = 0.5,
-        maximumGridSize: Int = VolumeGrid.maximumResolution
+        maximumGridSize: Int = VolumeGrid.maximumResolution,
+        applyForegroundCutout: Bool = true,
+        foregroundRatio: CGFloat = 0.85
     ) {
         self.gridSize = gridSize
         self.threshold = threshold
@@ -57,6 +64,8 @@ public struct ImageToMeshOptions: Sendable {
         self.imageSide = imageSide
         self.background = background
         self.maximumGridSize = maximumGridSize
+        self.applyForegroundCutout = applyForegroundCutout
+        self.foregroundRatio = foregroundRatio
     }
 }
 
@@ -116,6 +125,38 @@ public enum MLX3DRuntime {
         try requireWeights(weightsURL)
         let image = try ImageTensor.rgb(
             contentsOf: imageURL,
+            side: options.imageSide,
+            background: options.background
+        )
+        return try imageToMesh(image: image, weightsURL: weightsURL, options: options)
+    }
+
+    /// CGImage to mesh through TripoSR.
+    ///
+    /// When `options.applyForegroundCutout` is true (the default), this runs
+    /// `ImageBackgroundRemoval.foregroundCutout` at `options.foregroundRatio`
+    /// (0.85) and then the same square RGB preprocessing as the file entry.
+    /// Set the flag false for an image that is already prepared.
+    public static func imageToMesh(
+        cgImage: CGImage,
+        weightsURL: URL,
+        options: ImageToMeshOptions = ImageToMeshOptions()
+    ) async throws -> Mesh {
+        try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
+        let prepared: CGImage
+        if options.applyForegroundCutout {
+            guard let cutout = try await ImageBackgroundRemoval.foregroundCutout(
+                from: cgImage,
+                ratio: options.foregroundRatio
+            ) else {
+                throw MLX3DRuntimeError.imageUnsupported("Vision foreground cutout produced no subject.")
+            }
+            prepared = cutout
+        } else {
+            prepared = cgImage
+        }
+        let image = try ImageTensor.rgb(
+            cgImage: prepared,
             side: options.imageSide,
             background: options.background
         )

@@ -40,9 +40,11 @@ flowchart TD
 | Task | Location |
 | --- | --- |
 | Package pins and products | `Package.swift:1-69` |
-| Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:7-102` |
-| Image decode | `Sources/MLX3DRuntime/ImageTensor.swift:6-91` |
-| Image-to-mesh and image rank check | `Sources/MLX3DRuntime/MLX3DRuntime.swift:104-203` |
+| Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:8-111` |
+| Image decode | `Sources/MLX3DRuntime/ImageTensor.swift:6-107` |
+| CGImage cutout then TripoSR | `Sources/MLX3DRuntime/MLX3DRuntime.swift:140-164` |
+| Copied Mesquette cutout | `Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:6-199` |
+| Image-to-mesh and image rank check | `Sources/MLX3DRuntime/MLX3DRuntime.swift:113-244` |
 | Density grid and batches | `Sources/MLX3DRuntime/TripoSRMeshing.swift:5-106` |
 | Sample coordinates and the 512 cap | `Sources/MLX3DRuntime/VolumeGrid.swift:3-68` |
 | Grid rejection and lazy-batch tests | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:104-175` |

@@ -12,19 +12,19 @@ Platforms in `Package.swift:13-16`: macOS 14, iOS 17, visionOS 1. Only the macOS
 
 Public entry points, verified in `Sources/MLX3DRuntime/MLX3DRuntime.swift`:
 
-- `textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:68-73`. Calls `ShapERuntime.generate` and returns a `Mesh`. Grid size is checked first (`Sources/MLX3DRuntime/MLX3DRuntime.swift:74`).
-- `imageToMesh(imageURL:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:110-114`. Grid size is checked before weights load (`Sources/MLX3DRuntime/MLX3DRuntime.swift:115-116`). Decodes a file to `[1, side, side, 3]` float RGB (`Sources/MLX3DRuntime/ImageTensor.swift:20`).
-- `imageToMesh(image:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:129-133`. `image` is `[height, width, 3]` or `[1, height, width, 3]` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:182-203`). This overload does not resize.
+- `textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:77-82`. Calls `ShapERuntime.generate` and returns a `Mesh`. Grid size is checked first (`Sources/MLX3DRuntime/MLX3DRuntime.swift:83`).
+- `imageToMesh(imageURL:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:119-123`. Grid size is checked before weights load (`Sources/MLX3DRuntime/MLX3DRuntime.swift:124-125`). Decodes a file to `[1, side, side, 3]` float RGB (`Sources/MLX3DRuntime/ImageTensor.swift:20`).
+- `imageToMesh(cgImage:weightsURL:options:) async throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:140-144`. Default `applyForegroundCutout` runs `foregroundCutout` at ratio 0.85 (`Sources/MLX3DRuntime/MLX3DRuntime.swift:147-154`), then the same preprocessing. Set the flag false to skip the cutout.
+- `imageToMesh(image:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:170-174`. `image` is `[height, width, 3]` or `[1, height, width, 3]` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:223-244`). This overload does not resize or cut out.
 
 `Mesh` packs positions as `x,y,z`, faces as triangle indices, and optional vertex colors as `r,g,b` (`Sources/MLX3DRuntime/Mesh.swift:5-10`).
 
-Image-to-mesh defaults live on `ImageToMeshOptions` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:44-51`): grid 128, threshold 25, query batch 8192, `radius` nil (then `model.renderer.radius`), image side 512, background 0.5, `maximumGridSize` 512. The hard cap is `VolumeGrid.maximumResolution` (`Sources/MLX3DRuntime/VolumeGrid.swift:9`). Density positions are built one batch at a time (`Sources/MLX3DRuntime/TripoSRMeshing.swift:62-67`). The numeric renderer radius is not hardcoded in this repo.
+Image-to-mesh defaults live on `ImageToMeshOptions` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:49-58`): grid 128, threshold 25, query batch 8192, `radius` nil (then `model.renderer.radius`), image side 512, background 0.5, `maximumGridSize` 512, foreground cutout on, ratio 0.85. The hard cap is `VolumeGrid.maximumResolution` (`Sources/MLX3DRuntime/VolumeGrid.swift:9`). Density positions are built one batch at a time (`Sources/MLX3DRuntime/TripoSRMeshing.swift:62-67`). The numeric renderer radius is not hardcoded in this repo.
 
 ## Out of scope
 
 - Model internals of Shap-E and TripoSR. Those symbols are external. They live in `shap-e-mlx-swift` and `triposr-mlx-swift`.
 - Training, fine-tuning, and Python parity or weight-conversion scripts.
-- Background removal beyond compositing an existing alpha over a flat color (`Sources/MLX3DRuntime/ImageTensor.swift:52-72`).
 - iOS and visionOS execution. The platforms are declared only.
 
 ## Documentation index

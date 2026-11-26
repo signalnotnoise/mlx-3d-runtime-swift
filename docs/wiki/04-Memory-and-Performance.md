@@ -4,7 +4,7 @@ Numbers below are either code defaults or sibling README measurements. This wrap
 
 ## What this repo sets
 
-`ImageToMeshOptions` defaults are grid 128, threshold 25, and `queryBatchSize` 8192 (`Sources/MLX3DRuntime/MLX3DRuntime.swift:44-47`). `TextToMeshOptions` defaults include `queryBatchSize` 65536 and `gridSize` 128 (`Sources/MLX3DRuntime/MLX3DRuntime.swift:16-19`). Both options carry `maximumGridSize`, which cannot exceed 512 (`Sources/MLX3DRuntime/VolumeGrid.swift:9-23`).
+`ImageToMeshOptions` defaults are grid 128, threshold 25, and `queryBatchSize` 8192 (`Sources/MLX3DRuntime/MLX3DRuntime.swift:50-53`). `TextToMeshOptions` defaults include `queryBatchSize` 65536 and `gridSize` 128 (`Sources/MLX3DRuntime/MLX3DRuntime.swift:17-20`). Both options carry `maximumGridSize`, which cannot exceed 512 (`Sources/MLX3DRuntime/VolumeGrid.swift:9-23`).
 
 Density queries build only the current batch of positions (`Sources/MLX3DRuntime/TripoSRMeshing.swift:59-68`) and still store the full density field, because marching cubes needs every sample (`Sources/MLX3DRuntime/TripoSRMeshing.swift:56-58`). Color queries loop mesh vertices (`Sources/MLX3DRuntime/TripoSRMeshing.swift:90-96`). Each chunk is `eval`'d before the next one.
 
