@@ -67,10 +67,10 @@ jobs:
           }
           prepare "${GITHUB_WORKSPACE}/Vendor/shap-e-mlx-swift" "cursor/shap-e-runtime-package-ea5b"
           prepare "${GITHUB_WORKSPACE}/Vendor/triposr-mlx-swift" "cursor/triposr-mlx-swift-package-45c1"
+          # Match the full URL only. A shorter prefix would keep the trailing
+          # ".git" and look for Vendor/<repo>.git.git.
           git config --global url."${GITHUB_WORKSPACE}/Vendor/shap-e-mlx-swift.git".insteadOf "https://github.com/signalnotnoise/shap-e-mlx-swift.git"
-          git config --global url."${GITHUB_WORKSPACE}/Vendor/shap-e-mlx-swift.git".insteadOf "https://github.com/signalnotnoise/shap-e-mlx-swift"
           git config --global url."${GITHUB_WORKSPACE}/Vendor/triposr-mlx-swift.git".insteadOf "https://github.com/signalnotnoise/triposr-mlx-swift.git"
-          git config --global url."${GITHUB_WORKSPACE}/Vendor/triposr-mlx-swift.git".insteadOf "https://github.com/signalnotnoise/triposr-mlx-swift"
           python3 - << 'PY'
           import json
           import os
