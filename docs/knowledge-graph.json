@@ -1,0 +1,394 @@
+{
+  "metadata": {
+    "repo": "signalnotnoise/mlx-3d-runtime-swift",
+    "branch": "cursor/mlx-3d-runtime-swift-5003",
+    "verified_commit": "4d5c73ee1ad4581ede2e87fae6678b4ca51abf69",
+    "verified_commit_note": "Line numbers were read from this commit. The commit that adds these docs does not edit the cited source files, so the same ranges remain valid. Re-read a file if a later commit changes it.",
+    "generated_at": "2026-11-26",
+    "swift_tools_version": "6.2",
+    "mlx_swift_constraint": "0.31.3..<0.31.5"
+  },
+  "location_index": {
+    "text_to_mesh": [
+      {"file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift", "line_start": 60, "line_end": 93}
+    ],
+    "image_to_mesh": [
+      {"file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift", "line_start": 101, "line_end": 136},
+      {"file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift", "line_start": 5, "line_end": 47}
+    ],
+    "image_decode": [
+      {"file_path": "Sources/MLX3DRuntime/ImageTensor.swift", "line_start": 11, "line_end": 90}
+    ],
+    "density_grid_and_marching_cubes": [
+      {"file_path": "Sources/MLX3DRuntime/VolumeGrid.swift", "line_start": 8, "line_end": 33},
+      {"file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift", "line_start": 49, "line_end": 98},
+      {"file_path": "Sources/MLX3DRuntime/MarchingCubesExtractor.swift", "line_start": 13, "line_end": 73}
+    ],
+    "mesh_and_export": [
+      {"file_path": "Sources/MLX3DRuntime/Mesh.swift", "line_start": 5, "line_end": 75},
+      {"file_path": "Sources/MLX3DRuntime/MeshExport.swift", "line_start": 23, "line_end": 120}
+    ],
+    "cli_text_and_image": [
+      {"file_path": "Sources/MLX3DCLI/MLX3DCLI.swift", "line_start": 39, "line_end": 167}
+    ],
+    "weight_search": [
+      {"file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift", "line_start": 66, "line_end": 74},
+      {"file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift", "line_start": 163, "line_end": 168},
+      {"file_path": "Sources/MLX3DCLI/MLX3DCLI.swift", "line_start": 73, "line_end": 77},
+      {"file_path": "Sources/MLX3DCLI/MLX3DCLI.swift", "line_start": 114, "line_end": 117},
+      {"file_path": "Sources/MLX3DCLI/MLX3DCLI.swift", "line_start": 159, "line_end": 166}
+    ],
+    "unit_tests": [
+      {"file_path": "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift", "line_start": 7, "line_end": 102},
+      {"file_path": "Tests/MLX3DRuntimeTests/MeshExportTests.swift", "line_start": 6, "line_end": 98},
+      {"file_path": "Tests/MLX3DRuntimeTests/CLIExitTests.swift", "line_start": 5, "line_end": 96},
+      {"file_path": "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift", "line_start": 9, "line_end": 106}
+    ],
+    "ci_and_package": [
+      {"file_path": "Package.swift", "line_start": 1, "line_end": 69},
+      {"file_path": ".github/workflows/ci.yml", "line_start": 16, "line_end": 141},
+      {"file_path": "Examples/Integration/Package.swift", "line_start": 1, "line_end": 44}
+    ]
+  },
+  "nodes": [
+    {
+      "id": "target.MLX3DRuntime",
+      "kind": "target",
+      "target": "MLX3DRuntime",
+      "file_path": "Package.swift",
+      "line_start": 45,
+      "line_end": 53,
+      "summary": "Library target. Depends on MLX, MLXNN, ShapERuntime, and TripoSRRuntime."
+    },
+    {
+      "id": "target.MLX3DCLI",
+      "kind": "target",
+      "target": "MLX3DCLI",
+      "file_path": "Package.swift",
+      "line_start": 54,
+      "line_end": 57,
+      "summary": "Executable target. Depends on MLX3DRuntime."
+    },
+    {
+      "id": "target.MLX3DRuntimeTests",
+      "kind": "target",
+      "target": "MLX3DRuntimeTests",
+      "file_path": "Package.swift",
+      "line_start": 58,
+      "line_end": 67,
+      "summary": "Test target. Depends on MLX3DRuntime, MLX3DCLI, MLX, ShapERuntime, and TripoSRRuntime."
+    },
+    {
+      "id": "target.MLX3DExample",
+      "kind": "target",
+      "target": "MLX3DExample",
+      "file_path": "Examples/Integration/Package.swift",
+      "line_start": 35,
+      "line_end": 42,
+      "summary": "Separate package executable that imports MLX3DRuntime, ShapERuntime, and TripoSRRuntime."
+    },
+    {
+      "id": "type.TextToMeshOptions",
+      "kind": "struct",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+      "line_start": 7,
+      "line_end": 27,
+      "summary": "Defaults: guidance 15, 64 steps, grid 128, query batch 65536, seed 0."
+    },
+    {
+      "id": "type.ImageToMeshOptions",
+      "kind": "struct",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+      "line_start": 29,
+      "line_end": 53,
+      "summary": "Defaults: grid 128, threshold 25, query batch 8192, radius nil, image side 512, background 0.5."
+    },
+    {
+      "id": "type.MLX3DRuntime",
+      "kind": "enum",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+      "line_start": 55,
+      "line_end": 193,
+      "summary": "textToMesh and imageToMesh."
+    },
+    {
+      "id": "method.textToMesh",
+      "kind": "method",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+      "line_start": 60,
+      "line_end": 93,
+      "summary": "Shap-E text to Mesh. Throws emptyMesh when the face list is empty.",
+      "tensor_signature": "ShapERuntime.generate -> Mesh positions [V,3] packed, faces [F,3] packed, optional RGB"
+    },
+    {
+      "id": "method.imageToMeshFile",
+      "kind": "method",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+      "line_start": 101,
+      "line_end": 113,
+      "summary": "Decode a file, then the tensor imageToMesh overload."
+    },
+    {
+      "id": "method.imageToMeshTensor",
+      "kind": "method",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+      "line_start": 119,
+      "line_end": 136,
+      "summary": "Load TripoSR weights, forwardTriplanes, extract a mesh.",
+      "tensor_signature": "[H,W,3] or [1,H,W,3] float RGB -> Mesh"
+    },
+    {
+      "id": "method.batchedImage",
+      "kind": "method",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+      "line_start": 171,
+      "line_end": 192,
+      "summary": "Require channel 3 and batch 1. Reshape rank 3 to [1,H,W,3].",
+      "tensor_signature": "[H,W,3] -> [1,H,W,3]"
+    },
+    {
+      "id": "type.ImageTensor",
+      "kind": "enum",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/ImageTensor.swift",
+      "line_start": 6,
+      "line_end": 91,
+      "summary": "File to float RGB. Alpha over a flat background. Aspect fit. Top-left origin."
+    },
+    {
+      "id": "method.ImageTensor.rgb",
+      "kind": "method",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/ImageTensor.swift",
+      "line_start": 11,
+      "line_end": 21,
+      "summary": "Returns [1, side, side, 3].",
+      "tensor_signature": "image file -> [1,side,side,3]"
+    },
+    {
+      "id": "type.TripoSRMeshing",
+      "kind": "enum",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift",
+      "line_start": 5,
+      "line_end": 100,
+      "summary": "Sample density on a cube, march cubes, query vertex colors."
+    },
+    {
+      "id": "method.queryDensity",
+      "kind": "method",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift",
+      "line_start": 49,
+      "line_end": 73,
+      "summary": "Batched evaluate. Requires one density float per point.",
+      "tensor_signature": "positions [count,3] -> density length count"
+    },
+    {
+      "id": "method.queryColors",
+      "kind": "method",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift",
+      "line_start": 75,
+      "line_end": 99,
+      "summary": "Batched evaluate. Requires count*3 color floats.",
+      "tensor_signature": "positions [count,3] -> colors length count*3"
+    },
+    {
+      "id": "type.VolumeGrid",
+      "kind": "enum",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/VolumeGrid.swift",
+      "line_start": 3,
+      "line_end": 34,
+      "summary": "Packed xyz, X slowest, inclusive endpoints."
+    },
+    {
+      "id": "type.MarchingCubesExtractor",
+      "kind": "enum",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MarchingCubesExtractor.swift",
+      "line_start": 5,
+      "line_end": 74,
+      "summary": "field minus threshold, shape [resolution, resolution, resolution], Shap-E MarchingCubes."
+    },
+    {
+      "id": "type.Mesh",
+      "kind": "struct",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/Mesh.swift",
+      "line_start": 5,
+      "line_end": 75,
+      "summary": "positions, faces, optional vertexColors, boundary and closed checks."
+    },
+    {
+      "id": "type.EdgeKey",
+      "kind": "struct",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/Mesh.swift",
+      "line_start": 77,
+      "line_end": 90,
+      "summary": "Undirected edge key used by topology."
+    },
+    {
+      "id": "type.MeshExport",
+      "kind": "enum",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MeshExport.swift",
+      "line_start": 23,
+      "line_end": 172,
+      "summary": "OBJ and ASCII PLY writers."
+    },
+    {
+      "id": "type.MeshExportError",
+      "kind": "enum",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MeshExport.swift",
+      "line_start": 3,
+      "line_end": 21,
+      "summary": "emptyMesh, inconsistentCounts, faceVertexMismatch, unsupportedFormat."
+    },
+    {
+      "id": "type.MLX3DRuntimeError",
+      "kind": "enum",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DRuntimeError.swift",
+      "line_start": 3,
+      "line_end": 45,
+      "summary": "Grid, field, image, weight, bundle, and empty-mesh errors."
+    },
+    {
+      "id": "type.MLX3DCLI",
+      "kind": "struct",
+      "target": "MLX3DCLI",
+      "file_path": "Sources/MLX3DCLI/MLX3DCLI.swift",
+      "line_start": 19,
+      "line_end": 168,
+      "summary": "text and image subcommands. Failures print Failed: and exit 1."
+    },
+    {
+      "id": "type.FlagParser",
+      "kind": "struct",
+      "target": "MLX3DCLI",
+      "file_path": "Sources/MLX3DCLI/MLX3DCLI.swift",
+      "line_start": 180,
+      "line_end": 239,
+      "summary": "Space-separated flags for the CLI."
+    },
+    {
+      "id": "type.MLX3DExample",
+      "kind": "struct",
+      "target": "MLX3DExample",
+      "file_path": "Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift",
+      "line_start": 8,
+      "line_end": 18,
+      "summary": "Prints a triangle and the sibling type names. Does not load weights."
+    },
+    {
+      "id": "external.ShapERuntime",
+      "kind": "external_module",
+      "target": null,
+      "file_path": "https://github.com/signalnotnoise/shap-e-mlx-swift",
+      "line_start": null,
+      "line_end": null,
+      "summary": "Text-to-3D runtime. Product ShapERuntime. Branch pin cursor/shap-e-runtime-package-ea5b."
+    },
+    {
+      "id": "external.MarchingCubes",
+      "kind": "external_symbol",
+      "target": null,
+      "file_path": "https://github.com/signalnotnoise/shap-e-mlx-swift",
+      "line_start": null,
+      "line_end": null,
+      "summary": "Public MarchingCubes.extract used by MarchingCubesExtractor. No line number is recorded here."
+    },
+    {
+      "id": "external.TripoSRRuntime",
+      "kind": "external_module",
+      "target": null,
+      "file_path": "https://github.com/signalnotnoise/triposr-mlx-swift",
+      "line_start": null,
+      "line_end": null,
+      "summary": "Image-to-3D runtime. Product TripoSRRuntime. Branch pin cursor/triposr-mlx-swift-package-45c1."
+    },
+    {
+      "id": "external.TripoSRModel",
+      "kind": "external_symbol",
+      "target": null,
+      "file_path": "https://github.com/signalnotnoise/triposr-mlx-swift",
+      "line_start": null,
+      "line_end": null,
+      "summary": "loadWeights, forwardTriplanes, and evaluate. Triplane rank is not checked in this repo."
+    },
+    {
+      "id": "external.MLX",
+      "kind": "external_module",
+      "target": null,
+      "file_path": "https://github.com/ml-explore/mlx-swift",
+      "line_start": null,
+      "line_end": null,
+      "summary": "mlx-swift 0.31.3..<0.31.5."
+    }
+  ],
+  "edges": [
+    {"from": "target.MLX3DRuntime", "to": "external.MLX", "kind": "depends_on"},
+    {"from": "target.MLX3DRuntime", "to": "external.ShapERuntime", "kind": "depends_on"},
+    {"from": "target.MLX3DRuntime", "to": "external.TripoSRRuntime", "kind": "depends_on"},
+    {"from": "target.MLX3DCLI", "to": "target.MLX3DRuntime", "kind": "depends_on"},
+    {"from": "target.MLX3DRuntimeTests", "to": "target.MLX3DCLI", "kind": "depends_on"},
+    {"from": "type.MLX3DCLI", "to": "method.textToMesh", "kind": "calls"},
+    {"from": "type.MLX3DCLI", "to": "method.imageToMeshFile", "kind": "calls"},
+    {"from": "method.textToMesh", "to": "external.ShapERuntime", "kind": "calls"},
+    {"from": "method.imageToMeshFile", "to": "method.ImageTensor.rgb", "kind": "calls"},
+    {"from": "method.imageToMeshFile", "to": "method.imageToMeshTensor", "kind": "calls"},
+    {"from": "method.imageToMeshTensor", "to": "external.TripoSRModel", "kind": "instantiates"},
+    {"from": "method.imageToMeshTensor", "to": "method.batchedImage", "kind": "calls"},
+    {"from": "method.imageToMeshTensor", "to": "type.TripoSRMeshing", "kind": "calls"},
+    {
+      "from": "method.batchedImage",
+      "to": "method.imageToMeshTensor",
+      "kind": "transforms_tensor",
+      "input_shape": "[H,W,3]",
+      "output_shape": "[1,H,W,3]"
+    },
+    {
+      "from": "method.ImageTensor.rgb",
+      "to": "method.imageToMeshTensor",
+      "kind": "transforms_tensor",
+      "input_shape": "image file",
+      "output_shape": "[1,side,side,3]"
+    },
+    {
+      "from": "method.queryDensity",
+      "to": "external.TripoSRModel",
+      "kind": "transforms_tensor",
+      "input_shape": "[count,3]",
+      "output_shape": "density length count"
+    },
+    {
+      "from": "method.queryColors",
+      "to": "external.TripoSRModel",
+      "kind": "transforms_tensor",
+      "input_shape": "[count,3]",
+      "output_shape": "rgb length count*3"
+    },
+    {
+      "from": "type.MarchingCubesExtractor",
+      "to": "external.MarchingCubes",
+      "kind": "transforms_tensor",
+      "input_shape": "[resolution,resolution,resolution]",
+      "output_shape": "Mesh positions packed xyz, faces Int32"
+    },
+    {"from": "type.MarchingCubesExtractor", "to": "external.MarchingCubes", "kind": "calls"},
+    {"from": "type.MeshTests", "to": "type.Mesh", "kind": "tested_by", "file_path": "Tests/MLX3DRuntimeTests/MeshTests.swift", "line_start": 6, "line_end": 47},
+    {"from": "type.MeshExport", "to": "type.MeshExportTests", "kind": "tested_by", "file_path": "Tests/MLX3DRuntimeTests/MeshExportTests.swift", "line_start": 6, "line_end": 98},
+    {"from": "type.MarchingCubesExtractor", "to": "type.MarchingCubesTests", "kind": "tested_by", "file_path": "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift", "line_start": 51, "line_end": 92}
+  ]
+}
