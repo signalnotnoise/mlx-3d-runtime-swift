@@ -1,0 +1,2 @@
+shap-e-mlx-swift cursor/shap-e-runtime-package-ea5b 9d042666fbfbd40b07417cd23dfe34d0731d673f
+triposr-mlx-swift cursor/triposr-mlx-swift-package-45c1 aafdeee6081dd780986479a72f34baab1a4f3c09

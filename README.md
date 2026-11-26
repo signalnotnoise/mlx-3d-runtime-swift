@@ -39,6 +39,8 @@ let package = Package(
 
 You need read access to this repository and to both sibling repositories. Dependencies are URL pins, not local paths.
 
+GitHub Actions cannot clone those private repositories with the workflow token. CI builds from the snapshots in `Vendor/` (the commits in `Vendor/SNAPSHOT.txt`) by mirroring those URLs for the job. A checkout with access to the private repos still resolves the URLs on GitHub.
+
 | Product | Kind |
 | --- | --- |
 | `MLX3DRuntime` | Library. Import this. |

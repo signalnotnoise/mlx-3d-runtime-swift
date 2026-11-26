@@ -23,16 +23,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Authenticate private Swift package fetches
-        env:
-          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          # Sibling packages are private. Send the job token as a Basic header
-          # so SwiftPM's git fetch does not embed it in the URL.
-          auth="$(printf 'x-access-token:%s' "$GIT_TOKEN" | base64 | tr -d '\n')"
-          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic ${auth}"
-
       - name: Select Xcode
         run: |
           set -euo pipefail
@@ -55,6 +45,70 @@ jobs:
             xcodebuild -downloadComponent MetalToolchain
             xcodebuild -showComponent MetalToolchain
           fi
+
+      - name: Point private package URLs at the pinned snapshots
+        run: |
+          set -euo pipefail
+          # The Actions token cannot clone the private sibling repositories.
+          # Package.swift still declares those GitHub URLs. This step serves the
+          # pinned Vendor snapshots (see Vendor/SNAPSHOT.txt) as git mirrors.
+          git config --global protocol.file.allow always
+          prepare() {
+            local dir="$1"
+            local branch="$2"
+            local bare="${dir}.git"
+            rm -rf "${dir}/.git" "${bare}"
+            git -C "${dir}" init -b "${branch}"
+            git -C "${dir}" add -A
+            git -C "${dir}" -c user.email="ci@example.com" -c user.name="CI" commit -m "Pinned snapshot"
+            git clone --bare "${dir}" "${bare}"
+            git config --global --add safe.directory "${dir}"
+            git config --global --add safe.directory "${bare}"
+          }
+          prepare "${GITHUB_WORKSPACE}/Vendor/shap-e-mlx-swift" "cursor/shap-e-runtime-package-ea5b"
+          prepare "${GITHUB_WORKSPACE}/Vendor/triposr-mlx-swift" "cursor/triposr-mlx-swift-package-45c1"
+          git config --global url."${GITHUB_WORKSPACE}/Vendor/shap-e-mlx-swift.git".insteadOf "https://github.com/signalnotnoise/shap-e-mlx-swift.git"
+          git config --global url."${GITHUB_WORKSPACE}/Vendor/shap-e-mlx-swift.git".insteadOf "https://github.com/signalnotnoise/shap-e-mlx-swift"
+          git config --global url."${GITHUB_WORKSPACE}/Vendor/triposr-mlx-swift.git".insteadOf "https://github.com/signalnotnoise/triposr-mlx-swift.git"
+          git config --global url."${GITHUB_WORKSPACE}/Vendor/triposr-mlx-swift.git".insteadOf "https://github.com/signalnotnoise/triposr-mlx-swift"
+          python3 - << 'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          workspace = os.environ["GITHUB_WORKSPACE"]
+          mirrors = {
+              "version": 1,
+              "object": [
+                  {
+                      "original": "https://github.com/signalnotnoise/shap-e-mlx-swift.git",
+                      "mirror": f"{workspace}/Vendor/shap-e-mlx-swift.git",
+                  },
+                  {
+                      "original": "https://github.com/signalnotnoise/shap-e-mlx-swift",
+                      "mirror": f"{workspace}/Vendor/shap-e-mlx-swift.git",
+                  },
+                  {
+                      "original": "https://github.com/signalnotnoise/triposr-mlx-swift.git",
+                      "mirror": f"{workspace}/Vendor/triposr-mlx-swift.git",
+                  },
+                  {
+                      "original": "https://github.com/signalnotnoise/triposr-mlx-swift",
+                      "mirror": f"{workspace}/Vendor/triposr-mlx-swift.git",
+                  },
+              ],
+          }
+          home = Path.home() / ".swiftpm" / "config" / "mirrors.json"
+          destinations = [
+              Path(workspace) / ".swiftpm" / "config" / "mirrors.json",
+              Path(workspace) / "Examples" / "Integration" / ".swiftpm" / "config" / "mirrors.json",
+              home,
+          ]
+          payload = json.dumps(mirrors, indent=2) + "\n"
+          for path in destinations:
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_text(payload)
+          PY
 
       - name: List schemes
         run: xcodebuild -list -skipPackagePluginValidation
