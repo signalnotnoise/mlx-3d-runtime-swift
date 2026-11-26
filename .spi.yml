@@ -1,0 +1,11 @@
+version: 1
+builder:
+  configs:
+    - platform: macos-spm
+      documentation_targets: [MLX3DRuntime]
+    - platform: macos-xcodebuild
+      scheme: MLX3DRuntime-Package
+    - platform: ios
+      scheme: MLX3DRuntime-Package
+    - platform: visionos
+      scheme: MLX3DRuntime-Package

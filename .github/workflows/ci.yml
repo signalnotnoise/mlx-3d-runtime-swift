@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    name: Build, test, and build the example (macOS)
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Authenticate private Swift package fetches
+        env:
+          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Sibling packages are private. Send the job token as a Basic header
+          # so SwiftPM's git fetch does not embed it in the URL.
+          auth="$(printf 'x-access-token:%s' "$GIT_TOKEN" | base64 | tr -d '\n')"
+          git config --global http.https://github.com/.extraheader "AUTHORIZATION: basic ${auth}"
+
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          if [ -d /Applications/Xcode_26.6.app/Contents/Developer ]; then
+            echo "DEVELOPER_DIR=/Applications/Xcode_26.6.app/Contents/Developer" >> "$GITHUB_ENV"
+          fi
+
+      - name: Show Xcode and Swift
+        run: |
+          set -euo pipefail
+          xcode-select -p
+          xcodebuild -version
+          swift --version
+
+      - name: Ensure Metal toolchain
+        run: |
+          set -euo pipefail
+          if ! xcodebuild -showComponent MetalToolchain; then
+            echo "Metal toolchain is not installed. Downloading it."
+            xcodebuild -downloadComponent MetalToolchain
+            xcodebuild -showComponent MetalToolchain
+          fi
+
+      - name: List schemes
+        run: xcodebuild -list -skipPackagePluginValidation
+
+      - name: Build and test
+        run: |
+          set -euo pipefail
+          xcodebuild test \
+            -scheme MLX3DRuntime-Package \
+            -destination 'platform=macOS' \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -parallel-testing-enabled NO \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
+            -derivedDataPath "${RUNNER_TEMP}/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Build the example
+        working-directory: Examples/Integration
+        run: |
+          set -euo pipefail
+          xcodebuild -list -skipPackagePluginValidation
+          xcodebuild build \
+            -scheme MLX3DExample \
+            -destination 'platform=macOS' \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
+            -derivedDataPath "${RUNNER_TEMP}/ExampleDerived" \
+            CODE_SIGNING_ALLOWED=NO
