@@ -46,6 +46,8 @@ xcodebuild build \
 | `ImageTensorTests` | `Tests/MLX3DRuntimeTests/ImageTensorTests.swift:9-80` | Missing file, opaque red, transparent pixel over 0.5 |
 | `CLIExitTests` | `Tests/MLX3DRuntimeTests/CLIExitTests.swift:5-82` | Nonzero exits, including `--grid-size 9999`; locates `MLX3DCLI` via `dladdr` (`Tests/MLX3DRuntimeTests/CLIExitTests.swift:84-105`) |
 | `RuntimeContractTests` | `Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:9-38` | Missing weights, missing bundle, short field |
+| `ModelCacheTests` | `Tests/MLX3DRuntimeTests/ModelCacheTests.swift:8-232` | Fake loaders: reuse, single-flight load, failed load is retried, `unload` does not republish an in-flight model |
+| `SessionLoadTests` | `Tests/MLX3DRuntimeTests/ModelCacheTests.swift:234-272` | Missing bundle and weights throw on `MLX3DSession.load` and are not kept as a successful load |
 | `PublishedWeightTests` | `Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:40-65` | Skipped unless weights or a Shap-E bundle are present |
 
 `PublishedWeightTests` only calls `loadWeights` or `ShapERuntime` init. It does not generate a mesh (`Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:47-64`).

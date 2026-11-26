@@ -14,14 +14,24 @@
       {
         "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
         "line_start": 68,
-        "line_end": 102
+        "line_end": 80
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
+        "line_start": 90,
+        "line_end": 115
       }
     ],
     "image_to_mesh": [
       {
         "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-        "line_start": 110,
-        "line_end": 147
+        "line_start": 88,
+        "line_end": 138
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
+        "line_start": 118,
+        "line_end": 145
       },
       {
         "file_path": "Sources/MLX3DRuntime/TripoSRMeshing.swift",
@@ -72,21 +82,53 @@
         "line_end": 142
       }
     ],
+    "loaded_model_cache": [
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DModelKey.swift",
+        "line_start": 18,
+        "line_end": 54
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DModelCache.swift",
+        "line_start": 1,
+        "line_end": 93
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
+        "line_start": 1,
+        "line_end": 88
+      },
+      {
+        "file_path": "Tests/MLX3DRuntimeTests/ModelCacheTests.swift",
+        "line_start": 8,
+        "line_end": 272
+      }
+    ],
     "weight_search": [
       {
-        "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-        "line_start": 74,
-        "line_end": 83
+        "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
+        "line_start": 96,
+        "line_end": 96
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
+        "line_start": 151,
+        "line_end": 167
       },
       {
         "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-        "line_start": 115,
-        "line_end": 116
+        "line_start": 93,
+        "line_end": 94
       },
       {
         "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-        "line_start": 174,
-        "line_end": 179
+        "line_start": 112,
+        "line_end": 113
+      },
+      {
+        "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
+        "line_start": 165,
+        "line_end": 171
       },
       {
         "file_path": "Sources/MLX3DCLI/MLX3DCLI.swift",
@@ -124,6 +166,11 @@
         "file_path": "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift",
         "line_start": 9,
         "line_end": 106
+      },
+      {
+        "file_path": "Tests/MLX3DRuntimeTests/ModelCacheTests.swift",
+        "line_start": 8,
+        "line_end": 272
       }
     ],
     "ci_and_package": [
@@ -205,8 +252,35 @@
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
       "line_start": 63,
-      "line_end": 204,
-      "summary": "textToMesh and imageToMesh."
+      "line_end": 195,
+      "summary": "Stateless textToMesh and imageToMesh. textToMesh uses a throwaway MLX3DSession."
+    },
+    {
+      "id": "type.MLX3DSession",
+      "kind": "class",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
+      "line_start": 33,
+      "line_end": 168,
+      "summary": "Caller-owned cache of loaded Shap-E and TripoSR models. load, unload, and evict. No download or preload policy."
+    },
+    {
+      "id": "type.MLX3DModelKey",
+      "kind": "struct",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DModelKey.swift",
+      "line_start": 18,
+      "line_end": 78,
+      "summary": "Backend, bundle URL, and auxiliary files that the loader reads. Shap-E includes the BPE URL. TripoSR bundle URL is the safetensors file."
+    },
+    {
+      "id": "type.MLX3DModelCache",
+      "kind": "actor",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DModelCache.swift",
+      "line_start": 19,
+      "line_end": 165,
+      "summary": "Reuse, single-flight load, drop failures, and a generation token so unload cannot be undone by an in-flight load."
     },
     {
       "id": "method.textToMesh",
@@ -214,8 +288,18 @@
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
       "line_start": 68,
-      "line_end": 102,
-      "summary": "Shap-E text to Mesh. Throws emptyMesh when the face list is empty.",
+      "line_end": 80,
+      "summary": "Stateless Shap-E entry. Builds a throwaway MLX3DSession, so it does not reuse a loaded model across calls.",
+      "tensor_signature": "ShapERuntime.generate -> Mesh positions [V,3] packed, faces [F,3] packed, optional RGB"
+    },
+    {
+      "id": "method.sessionTextToMesh",
+      "kind": "method",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
+      "line_start": 90,
+      "line_end": 115,
+      "summary": "Cached Shap-E text to Mesh. Checks the grid, then reuses the loaded runtime for that key.",
       "tensor_signature": "ShapERuntime.generate -> Mesh positions [V,3] packed, faces [F,3] packed, optional RGB"
     },
     {
@@ -223,27 +307,36 @@
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-      "line_start": 110,
-      "line_end": 123,
-      "summary": "Decode a file, then the tensor imageToMesh overload."
+      "line_start": 88,
+      "line_end": 101,
+      "summary": "Stateless file path. Checks the grid and the weights file, decodes, then the tensor overload. Does not use MLX3DSession."
     },
     {
       "id": "method.imageToMeshTensor",
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-      "line_start": 129,
-      "line_end": 147,
-      "summary": "Load TripoSR weights, forwardTriplanes, extract a mesh.",
+      "line_start": 107,
+      "line_end": 138,
+      "summary": "Stateless tensor path. Loads a new TripoSRModel, forwardTriplanes, extract a mesh.",
       "tensor_signature": "[H,W,3] or [1,H,W,3] float RGB -> Mesh"
+    },
+    {
+      "id": "method.sessionImageToMesh",
+      "kind": "method",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
+      "line_start": 118,
+      "line_end": 145,
+      "summary": "Cached TripoSR image to Mesh. File and tensor overloads share one loaded model per weights URL."
     },
     {
       "id": "method.batchedImage",
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
-      "line_start": 182,
-      "line_end": 203,
+      "line_start": 173,
+      "line_end": 194,
       "summary": "Require channel 3 and batch 1. Reshape rank 3 to [1,H,W,3].",
       "tensor_signature": "[H,W,3] -> [1,H,W,3]"
     },
@@ -355,8 +448,8 @@
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DRuntimeError.swift",
       "line_start": 3,
-      "line_end": 49,
-      "summary": "Includes gridSizeOutOfRange plus image, weight, bundle, and empty-mesh errors."
+      "line_end": 56,
+      "summary": "Includes gridSizeOutOfRange, modelUnloaded, plus image, weight, bundle, and empty-mesh errors."
     },
     {
       "id": "type.MLX3DCLI",
@@ -469,8 +562,36 @@
     },
     {
       "from": "method.textToMesh",
+      "to": "method.sessionTextToMesh",
+      "kind": "calls"
+    },
+    {
+      "from": "method.sessionTextToMesh",
       "to": "external.ShapERuntime",
       "kind": "calls"
+    },
+    {
+      "from": "method.sessionTextToMesh",
+      "to": "type.MLX3DModelCache",
+      "kind": "calls"
+    },
+    {
+      "from": "type.MLX3DSession",
+      "to": "type.MLX3DModelCache",
+      "kind": "calls"
+    },
+    {
+      "from": "method.sessionImageToMesh",
+      "to": "type.MLX3DModelCache",
+      "kind": "calls"
+    },
+    {
+      "from": "type.MLX3DModelCache",
+      "to": "type.ModelCacheTests",
+      "kind": "tested_by",
+      "file_path": "Tests/MLX3DRuntimeTests/ModelCacheTests.swift",
+      "line_start": 8,
+      "line_end": 232
     },
     {
       "from": "method.imageToMeshFile",
@@ -603,37 +724,57 @@
     "Sources/MLX3DRuntime/ImageTensor.swift:52-72": "3ff8e45cf3cec9309564e8c5d3e2074c3804d032715bfb2a9ac8d27dd84887e7",
     "Sources/MLX3DRuntime/ImageTensor.swift:6-91": "e06dc647284668cfedb8b3a3ad96eb261e74039e8fc0114f230fea00bee55335",
     "Sources/MLX3DRuntime/ImageTensor.swift:79-80": "bebfffef64692e3a9789b3350a406ae3c5d08d3279714bd8b9e3fe4c5789ec64",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:104-203": "c494336be3ae99e9ae698d672467a1dfd7ec33a10eebf8b1e41532a821fecb37",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:110-114": "05a8995dc0057f12fb9d3329b7fbbf1d37a9735faf725e7b0ffea7845f1e2313",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:110-123": "65586173975de4efd6f146498bbd823e19c3a75119016d3422de682e634ba1a0",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:110-147": "25a893408466d3ea2b43ce410a74ca5a772f8e4eac6fc0039fd482e1e91f4aa3",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:115-116": "7c46b491eb2f0b9d8f6c50a9f3d9278d949b181bb430b1183a52bad7c890170a",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:129-133": "f2ebc6aaca96e068b7dcfef728be1d5fe493ee1142252cbfe048eb31ea27ae09",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:129-147": "8564b9dea989ae9dd6373c4e4d90fece96c9429be30dd77140db0aa56f3d9fca",
+    "Sources/MLX3DRuntime/MLX3DModelCache.swift:1-165": "e0a9f51e13cc246deaa85013be49d19a1e9619c39b4fd0084ffd5693ace5c903",
+    "Sources/MLX3DRuntime/MLX3DModelCache.swift:1-93": "82d1288a489771a2246953302f9582e627fa16cfc0638fda5ef85df1b9480140",
+    "Sources/MLX3DRuntime/MLX3DModelCache.swift:19-165": "b47f5267058c2dcb495f32a608350951911d3d504643eaa0097fcdd4cd34c166",
+    "Sources/MLX3DRuntime/MLX3DModelCache.swift:44-64": "02eb199ba0a3dd5cc0393c4a26d205914aab88be28fac79d9994ce60c1384c5c",
+    "Sources/MLX3DRuntime/MLX3DModelCache.swift:44-93": "8bcaffc04dd86b114728881cee1174a9142c9943075570fe2dc1f03e5db3b76b",
+    "Sources/MLX3DRuntime/MLX3DModelCache.swift:66-71": "acb3d8ce827ec841fb044de39ed6f33b36c15b41512182fcbe95c19ff63d62bd",
+    "Sources/MLX3DRuntime/MLX3DModelCache.swift:80-93": "a028ae9edbd547773da54f35a2c04e8f69aac2f5cea48b3043e4ae5856e8fbec",
+    "Sources/MLX3DRuntime/MLX3DModelKey.swift:1-78": "51cb413d56915d824670cbafc4fc3854111a027b4905bbc27fb0413a4fe6a7f6",
+    "Sources/MLX3DRuntime/MLX3DModelKey.swift:18-54": "ccd8ac50c525c34112fb4d38b5ea4fd4efd8f6afc2a634b3245e8b2d339ee0f9",
+    "Sources/MLX3DRuntime/MLX3DModelKey.swift:18-78": "1781b23b5db3c6f64aa8dc75341db1c8577c956995aea757601c70c8854e92c3",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:107-116": "7feafbaea574d65b5ec24a69ce7ce00b792ebb066f299ef4aa5939bbac898730",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:107-138": "40fd2de0f54dc9a86f80ccb39ae4080f47e5028ef9729ca5ba1d27ef8d88e8e6",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:112-113": "7c46b491eb2f0b9d8f6c50a9f3d9278d949b181bb430b1183a52bad7c890170a",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:118-123": "1a1827917b007f195dbbb055eb537a34df436604d1cb60c1f0bd48edbd3bc510",
     "Sources/MLX3DRuntime/MLX3DRuntime.swift:13-14": "918608519d041d2468c435af15afad3de8d7478accd50fc4af770edcd31aa4a9",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:134-138": "3c0e24823accf9e8219fa388164e1b8bbafba09646355b5faa7fe4fa41908277",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:143-145": "3a624651218878ac45745f4249b7bb4cd1d835f383ece62714374dedc23aad5f",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:149-154": "ae92e969bb17bb1547f7d9c61a65ff3ee7f83e17170155b750e85867430d4373",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:156-171": "052fac79615ca43a7f35f2e0b1fddc92599d62a92d7f629a904974f418e3ec09",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:156-172": "e1c76ec9ff55c6bad40584a150c43bd525a7be84cb31dbbf4586cb398dae8ca8",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:134-136": "3a624651218878ac45745f4249b7bb4cd1d835f383ece62714374dedc23aad5f",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:140-145": "ae92e969bb17bb1547f7d9c61a65ff3ee7f83e17170155b750e85867430d4373",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:147-163": "e1c76ec9ff55c6bad40584a150c43bd525a7be84cb31dbbf4586cb398dae8ca8",
     "Sources/MLX3DRuntime/MLX3DRuntime.swift:16-19": "f4a1e188d3ead79e99132682de4a3ae80f5953098c651311bef8cb223bcf8b32",
     "Sources/MLX3DRuntime/MLX3DRuntime.swift:16-21": "0b306a100a406b8577b043c5de1ceb570183ed359ac6f1c38377e85daa9c7627",
     "Sources/MLX3DRuntime/MLX3DRuntime.swift:16-22": "e381d10074ece058664494927fbe7d5a0aae678d843379785ede01bcf357ddd9",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:174-179": "3369179f210e1a96173cbaa365764e7f9a4d7211ab3e88a4142082e4cdafe056",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:182-203": "53183525d24d8c211e1bf35c9b140a84f440702414ec6f15175bbb52ffb52230",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:165-171": "e36dcb4e883e1bbc269d8aa4b6e5b879f88a923e32e51fa05d772db8c6841a99",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:173-194": "53183525d24d8c211e1bf35c9b140a84f440702414ec6f15175bbb52ffb52230",
     "Sources/MLX3DRuntime/MLX3DRuntime.swift:33-61": "4171189657d2ef465c243a24e4c6927bd17341f6525f653f6316bd60df9d72c0",
     "Sources/MLX3DRuntime/MLX3DRuntime.swift:41-42": "32b0f1d74a5feca9807cf8c18d8aa2d752e39a18718a950f61322678638680d8",
     "Sources/MLX3DRuntime/MLX3DRuntime.swift:44-47": "e38215837359f671808d9d999b0c2230956a152bce5e8210887e2be371fc64d5",
     "Sources/MLX3DRuntime/MLX3DRuntime.swift:44-51": "a8b2ea53c43a99500bfd3fddc4e23595dd3783fb334197b930af7ec01c563b66",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:63-204": "edb4f8b5fa494fc70be1c7f50565257c65f388d969a79424e61c2a55a4788afc",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:68-102": "92f70388f6d514778047ce79b690ebd937e642cb4ec24088bd09ec1895b4f06a",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:68-73": "a57517333954b80374101dc08aa86efd853db880b12d11006c6279e0e491423c",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:7-102": "03d89da65454dbc4963a93cb5ff31e24100cd78eb7d567ddb36e54132e5c03dc",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:63-195": "8ca733bc04785fcc9f22a240b9df3b21efed2677f7804c3e554f6c331eeac5a0",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:68-80": "1307d0772385ca71518a50dc026e8aea4f78884d5bfa72428c5a9a5fc231d40f",
     "Sources/MLX3DRuntime/MLX3DRuntime.swift:7-31": "9aadf5789397c633d3b1b2485e4460b212dfae455a31fb610b9581e9774b0ff6",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:74-83": "2a19cdcdb460c13639b8de33ef2be8f089e0b37fa7e2f7cd8faa12da0132e55f",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:75-83": "0f6d3ebd4a5be28af8f440f72b0b6c49f4e58bf8bf5a677b4ccd2801ff6442a5",
-    "Sources/MLX3DRuntime/MLX3DRuntime.swift:98-100": "3a624651218878ac45745f4249b7bb4cd1d835f383ece62714374dedc23aad5f",
-    "Sources/MLX3DRuntime/MLX3DRuntimeError.swift:3-49": "75c6b52cbca6dfbc4782527ea38d6ca0dcf8ca6a4e134325217b2d1983671d7a",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:7-80": "891db5e699b8ef12f3badf77bfe76e44f0e6becc8e23ffb96b7356db45a11c38",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:74-79": "6dbc3851931994339879f7ff5a154b34b4cec9ab223ac95f175cacc3aa828ed6",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:88-101": "65586173975de4efd6f146498bbd823e19c3a75119016d3422de682e634ba1a0",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:88-138": "48e7cf689915fe19e9866e7b069750c05a40cd5a7885bba035c36185f1e000a8",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:88-194": "ff511e9d215331446fa5be4fe1262d42da4c6e5c32ce6a46a540dc7a59bb7a12",
+    "Sources/MLX3DRuntime/MLX3DRuntime.swift:93-94": "7c46b491eb2f0b9d8f6c50a9f3d9278d949b181bb430b1183a52bad7c890170a",
+    "Sources/MLX3DRuntime/MLX3DRuntimeError.swift:17-20": "0bbbf98fc9e9ebff990596a3600a78a6c5d4c12d3b5056697732dd7522e79515",
+    "Sources/MLX3DRuntime/MLX3DRuntimeError.swift:3-56": "87bc5b9108c0f2d9cb8cef79d5dfd29f6c3b6c73ede320e6a84a4df5e45493a9",
+    "Sources/MLX3DRuntime/MLX3DRuntimeError.swift:51-53": "da1a9d6a62f79a48af78992b4a00ff8d09bc614abc59d15a36671c7b5cf0cfd8",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:1-178": "ff1d1f7b0ea8d0a59a94fd946212d560962abd9fb2fd6e19e1ae0cfbcf1c5c06",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:1-88": "fb356ac0787b05084b97b811a6a44f375c17f36ae9073cc835cef6a6fb8c4d90",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:111-113": "3a624651218878ac45745f4249b7bb4cd1d835f383ece62714374dedc23aad5f",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:118-145": "6b4fdcd221600f673bf36c9b1e3c68cf1e9bf3fd36a67714c2eed94f800fe04a",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:151-162": "0562cb412428c9dc8ee74d96a936e2a66128c12ba6c28e688c1224d72e24031e",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:151-167": "3a98a7e29d5bd5cd084ac2d320349f2d4cbdcb1d095227bb772c0a616709ff37",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:164-167": "20940e821325e4683834a79b09bf4c0f23a1b8f6d4ccefad1bd97c9e643e58dd",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:33-168": "88d3f6e2e40557feba0c1352465b45ca8e6d6009fca43b01d8ee2c5bb975ed67",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:33-56": "740363b56b76c5ed490495af7324a529dc9259880c69b558a5523ea0d5c72343",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:48-88": "6049efc4afb7126026b485e575982055c10828a6a3e4348ce241a33b559d0e86",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:90-115": "a9f17295aeae00c61743a3cfda5ec8e1b872bf180c01948f67686c4295584dec",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:96-96": "ed15607f28f446dda00f3936a425332d62b40bf511c535ae1b208f7cf567ab46",
     "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:13-73": "15c50197e85852123e37fe8d407b91b8db0e348ce568b55992ba2d3f2cbddf87",
     "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:33-37": "c18d71c3c3467b1424bb2b81b7d079139f7dbc113e99821cd6b1d0974b8d372d",
     "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:38-44": "c77daeb2f0387de787ecd4a06e9f782e44ff16bd64b84d56cdcbef79d3b49296",
@@ -690,6 +831,9 @@
     "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:8-10": "f060d137b343507f3ac6123c55b08c8e90c0873dc17e59ab8f84e23cd98da587",
     "Tests/MLX3DRuntimeTests/MeshExportTests.swift:6-98": "b39dab25cec7e18291be115393f5473d1155e75a79ca1492b3b1c6c7a413f69c",
     "Tests/MLX3DRuntimeTests/MeshTests.swift:6-47": "e64d6f5a0d7e18e026e34d5636f1519d067e805773827471026beb295e9f8fd0",
+    "Tests/MLX3DRuntimeTests/ModelCacheTests.swift:234-272": "2e1c25ddad001b61a710604c0f03a798ff182d2bb3a78c88470ff75d777a8765",
+    "Tests/MLX3DRuntimeTests/ModelCacheTests.swift:8-232": "ef118b342f25cb8aa4df3b4617b3b69910bd881f074024ca4b61d69cf14073b5",
+    "Tests/MLX3DRuntimeTests/ModelCacheTests.swift:8-272": "b5db62e6948136d8d70f8d5a6642e2a11a4f703bd8cf1e0213c213c8fa406247",
     "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:40-65": "f367cf371f36713e87fbeb568e806c83646ac5f77973ce8ab694c3adb7bf3cf4",
     "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:47-64": "b4e5fbc01b123b269c80aee628bd0a803acac24c291931ef94b38656b95ea855",
     "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:67-75": "d49762d1b03dd1e4fc857f1de9199b64de4e4de52f035033759e1f2d3e166bd0",

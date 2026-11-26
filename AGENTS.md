@@ -10,11 +10,13 @@ Platforms in `Package.swift:13-16`: macOS 14, iOS 17, visionOS 1. Only the macOS
 
 `swift-tools-version: 6.2`. `mlx-swift` is `"0.31.3"..<"0.31.5"` (`Package.swift:32`).
 
-Public entry points, verified in `Sources/MLX3DRuntime/MLX3DRuntime.swift`:
+Public entry points:
 
-- `textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:68-73`. Calls `ShapERuntime.generate` and returns a `Mesh`. Grid size is checked first (`Sources/MLX3DRuntime/MLX3DRuntime.swift:74`).
-- `imageToMesh(imageURL:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:110-114`. Grid size is checked before weights load (`Sources/MLX3DRuntime/MLX3DRuntime.swift:115-116`). Decodes a file to `[1, side, side, 3]` float RGB (`Sources/MLX3DRuntime/ImageTensor.swift:20`).
-- `imageToMesh(image:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:129-133`. `image` is `[height, width, 3]` or `[1, height, width, 3]` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:182-203`). This overload does not resize.
+- `MLX3DSession` at `Sources/MLX3DRuntime/MLX3DSession.swift:33-168`. The caller creates and holds it. Loaded Shap-E and TripoSR models stay in that session until `unload` or `evict`.
+- `textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:68-80`. Builds a throwaway `MLX3DSession`, so a second static call loads again. The session method checks the grid first (`Sources/MLX3DRuntime/MLX3DSession.swift:96`), then reuses the cached `ShapERuntime`.
+- `imageToMesh(imageURL:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:88-101`. Grid size is checked before the weights file (`Sources/MLX3DRuntime/MLX3DRuntime.swift:93-94`). Decodes a file to `[1, side, side, 3]` float RGB (`Sources/MLX3DRuntime/ImageTensor.swift:20`). This static path does not use the session cache.
+- `imageToMesh(image:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:107-116`. `image` is `[height, width, 3]` or `[1, height, width, 3]` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:173-194`). This overload does not resize. It loads a new `TripoSRModel` on every call.
+- Session `imageToMesh` overloads at `Sources/MLX3DRuntime/MLX3DSession.swift:118-145` are `async` and reuse the loaded TripoSR model for the same weights URL.
 
 `Mesh` packs positions as `x,y,z`, faces as triangle indices, and optional vertex colors as `r,g,b` (`Sources/MLX3DRuntime/Mesh.swift:5-10`).
 
@@ -26,6 +28,7 @@ Image-to-mesh defaults live on `ImageToMeshOptions` (`Sources/MLX3DRuntime/MLX3D
 - Training, fine-tuning, and Python parity or weight-conversion scripts.
 - Background removal beyond compositing an existing alpha over a flat color (`Sources/MLX3DRuntime/ImageTensor.swift:52-72`).
 - iOS and visionOS execution. The platforms are declared only.
+- Downloads, on-disk weight locations, and preload or unload policy. `MLX3DSession` only exposes `load`, `unload`, and `evict`. The caller decides when to use them.
 
 ## Documentation index
 

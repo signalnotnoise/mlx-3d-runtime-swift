@@ -9,6 +9,15 @@ version tag yet.
 
 ### Added
 
+- `MLX3DSession`, a caller-owned in-memory cache of loaded Shap-E and TripoSR
+  models. The key is the backend, the bundle URL, and any other file the
+  loader reads (the Shap-E BPE vocabulary). A second request reuses the loaded
+  model. Concurrent requests for that key share one load. A failed load is not
+  cached. `unload` bumps a generation token so an in-flight load cannot
+  re-enter the cache; its waiters throw `MLX3DRuntimeError.modelUnloaded`.
+  `evict` drops a ready model and leaves an in-flight load alone. The session
+  does not download weights or choose a preload policy. Static `textToMesh`
+  uses a throwaway session. Static `imageToMesh` still loads on every call.
 - Swift package `MLX3DRuntime` with library product `MLX3DRuntime` and
   executable product `MLX3DCLI`.
 - `Mesh` (positions, faces, optional vertex colors) plus OBJ and PLY export.

@@ -68,6 +68,20 @@ let scanned = try MLX3DRuntime.imageToMesh(
 try MeshExport.writePLY(scanned, to: URL(fileURLWithPath: "scan.ply"))
 ```
 
+Those static calls load weights on every request. Hold an `MLX3DSession` when the same weights should stay loaded. A second call with the same key reuses the model. Concurrent calls for that key share one in-flight load. A failed load is not cached. `unload` drops the model and, if a load is still running, does not put it back; waiters throw `MLX3DRuntimeError.modelUnloaded`. `evict` drops a model that is already loaded and leaves an in-flight load alone. The session does not download weights or decide when to preload.
+
+```swift
+let session = MLX3DSession()
+let key = MLX3DModelKey.shapE(modelBundleURL: bundleURL)
+try await session.load(key)
+
+let first = try await session.textToMesh(prompt: "a red chair", modelBundleURL: bundleURL)
+let second = try await session.textToMesh(prompt: "a blue lamp", modelBundleURL: bundleURL)
+await session.unload(key)
+```
+
+The Shap-E key is the bundle directory plus the BPE file (default `bpe_simple_vocab_16e6.txt.gz` inside the bundle). The TripoSR key is the safetensors URL. Prompt, seed, grid size, and steps are not part of the key.
+
 `Mesh.positions` and `Mesh.vertexColors` are packed `x, y, z` and `r, g, b`. `Mesh.faces` are packed triangle indices. `vertexColors` is `nil` when a path has no colors. Shap-E's RGBA channel is stored as RGB.
 
 Image-to-mesh decodes the file, composites alpha over gray `0.5`, and aspect-fits it into a 512×512 RGB tensor. It then queries TripoSR density on a 128³ grid in batches of 8192, runs marching cubes at threshold 25, and queries TripoSR for a color at each vertex. Positions for each density batch are built when that batch runs. `--grid-size` must be from 2 through 512 (`VolumeGrid.maximumResolution`). A larger size fails before weights load. `ImageToMeshOptions.maximumGridSize` can set a lower cap. It cannot raise 512. The default radius is the model's renderer radius, `0.87`.
@@ -124,6 +138,28 @@ public enum MLX3DRuntime {
     public static func imageToMesh(image:weightsURL:options:) throws -> Mesh
 }
 
+public enum MLX3DBackend { case shapE, tripoSR }
+
+public struct MLX3DModelKey: Sendable, Hashable {
+    public let backend: MLX3DBackend
+    public let bundleURL: URL
+    public let auxiliaryURLs: [URL]
+    public static func shapE(modelBundleURL:bpeVocabularyURL:) -> MLX3DModelKey
+    public static func tripoSR(weightsURL:) -> MLX3DModelKey
+}
+
+public final class MLX3DSession: Sendable {
+    public init()
+    public func load(_ key: MLX3DModelKey) async throws
+    public func unload(_ key: MLX3DModelKey) async
+    public func unloadAll() async
+    public func evict(_ key: MLX3DModelKey) async
+    public func evictAll() async
+    public func textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh
+    public func imageToMesh(imageURL:weightsURL:options:) async throws -> Mesh
+    public func imageToMesh(image:weightsURL:options:) async throws -> Mesh
+}
+
 public enum ImageTensor {
     public static func rgb(contentsOf:side:background:) throws -> MLXArray
 }
@@ -153,7 +189,7 @@ xcodebuild test \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-Unit tests cover mesh topology, OBJ and PLY export, a synthetic ellipsoid through marching cubes (closed, 0 boundary edges), image decoding, and CLI exits when the bundle or weights are missing. Loading real weights is optional: those tests skip when `TRIPOSR_WEIGHTS_PATH` / `triposr_swift_ready.safetensors` or `SHAP_E_BUNDLE` is absent. `xcodebuild` only forwards variables prefixed with `TEST_RUNNER_` into the test process.
+Unit tests cover mesh topology, OBJ and PLY export, a synthetic ellipsoid through marching cubes (closed, 0 boundary edges), image decoding, CLI exits when the bundle or weights are missing, and the loaded-model cache. Cache tests inject a fake loader. They do not read weight files. They check reuse, one shared in-flight load, a failed load that is retried, and `unload` discarding a load that was already running. Loading real weights is optional: those tests skip when `TRIPOSR_WEIGHTS_PATH` / `triposr_swift_ready.safetensors` or `SHAP_E_BUNDLE` is absent. `xcodebuild` only forwards variables prefixed with `TEST_RUNNER_` into the test process.
 
 ## Scope
 
