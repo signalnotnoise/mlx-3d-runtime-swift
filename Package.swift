@@ -2,8 +2,8 @@
 import PackageDescription
 
 // TODO: Switch both sibling dependencies to `from: "0.1.0"` once those
-// repositories are tagged. They are still branch-pinned because 0.1.0
-// does not exist yet.
+// repositories are tagged. They are public and pinned to branch `main`
+// because 0.1.0 does not exist yet.
 //
 // shap-e-mlx-swift: `.package(url: "https://github.com/signalnotnoise/shap-e-mlx-swift.git", from: "0.1.0")`
 // triposr-mlx-swift: `.package(url: "https://github.com/signalnotnoise/triposr-mlx-swift.git", from: "0.1.0")`
@@ -26,19 +26,18 @@ let package = Package(
         ),
     ],
     dependencies: [
-        // TripoSRRuntime allows only mlx-swift 0.31.3..<0.31.5 (0.31.5 needs
-        // Swift tools 6.3). ShapERuntime allows 0.29.1 and later. This range
-        // is the overlap, so one mlx-swift version satisfies both packages.
+        // Both public sibling manifests pin mlx-swift to 0.31.3..<0.31.5.
+        // 0.31.5 and later set Swift tools 6.3. Keep this package on that range.
         .package(url: "https://github.com/ml-explore/mlx-swift", "0.31.3"..<"0.31.5"),
-        // TODO: from: "0.1.0" once shap-e-mlx-swift is tagged.
+        // TODO: from: "0.1.0" once shap-e-mlx-swift is tagged. Public branch main.
         .package(
             url: "https://github.com/signalnotnoise/shap-e-mlx-swift.git",
-            branch: "cursor/shap-e-runtime-package-ea5b"
+            branch: "main"
         ),
-        // TODO: from: "0.1.0" once triposr-mlx-swift is tagged.
+        // TODO: from: "0.1.0" once triposr-mlx-swift is tagged. Public branch main.
         .package(
             url: "https://github.com/signalnotnoise/triposr-mlx-swift.git",
-            branch: "cursor/triposr-mlx-swift-package-45c1"
+            branch: "main"
         ),
     ],
     targets: [

@@ -39,7 +39,7 @@ flowchart TD
 
 | Task | Location |
 | --- | --- |
-| Package pins and products | `Package.swift:1-69` |
+| Package pins and products | `Package.swift:1-68` |
 | Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:16-206` |
 | Shap-E image options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:68-122` |
 | Image decode | `Sources/MLX3DRuntime/ImageTensor.swift:6-107` |
@@ -56,6 +56,6 @@ flowchart TD
 | OBJ and PLY | `Sources/MLX3DRuntime/MeshExport.swift:23-172` |
 | CLI | `Sources/MLX3DCLI/MLX3DCLI.swift:18-168` |
 | Example link check | `Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18` |
-| CI | `.github/workflows/ci.yml:16-141` |
-| Weight facts from sibling snapshots | `Vendor/triposr-mlx-swift/README.md:67-70`, `Vendor/shap-e-mlx-swift/README.md:63` |
+| CI | `.github/workflows/ci.yml:16-151` |
+| Public sibling branch pins | `Package.swift:33-41` |
 | Ellipsoid test | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-92` |

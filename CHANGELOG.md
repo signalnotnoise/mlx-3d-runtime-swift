@@ -35,7 +35,8 @@ version tag yet.
 
 ### Notes
 
-- `shap-e-mlx-swift` and `triposr-mlx-swift` are pinned to branches until
-  `0.1.0` is tagged. `mlx-swift` is constrained to `0.31.3..<0.31.5`.
-- CI mirrors those private URLs to the snapshots in `Vendor/` because the
-  Actions token cannot clone them.
+- `shap-e-mlx-swift` and `triposr-mlx-swift` are public and pinned to
+  branch `main` until `0.1.0` is tagged. `mlx-swift` is constrained to
+  `0.31.3..<0.31.5`.
+- CI resolves those URLs from GitHub with an empty SwiftPM cache. There is
+  no `Vendor/` mirror.

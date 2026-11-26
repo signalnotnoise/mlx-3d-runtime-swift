@@ -8,7 +8,7 @@ Products: library `MLX3DRuntime`, executable `MLX3DCLI`, and the separate exampl
 
 Platforms in `Package.swift:13-16`: macOS 14, iOS 17, visionOS 1. Only the macOS `xcodebuild` path has been run. iOS and visionOS are declared and have not been run.
 
-`swift-tools-version: 6.2`. `mlx-swift` is `"0.31.3"..<"0.31.5"` (`Package.swift:32`).
+`swift-tools-version: 6.2`. `mlx-swift` is `"0.31.3"..<"0.31.5"` (`Package.swift:31`).
 
 Public entry points, verified in `Sources/MLX3DRuntime/MLX3DRuntime.swift`:
 
@@ -59,7 +59,7 @@ xcodebuild test \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-CI also passes `-skipMacroValidation` (`.github/workflows/ci.yml:119-127`). The test target depends on `MLX3DCLI` (`Package.swift:58-66`), so `MLX3DRuntime-Package` builds the CLI. Optional weight tests read `TRIPOSR_WEIGHTS_PATH` and `SHAP_E_BUNDLE`, and also the `TEST_RUNNER_` prefixed copies (`Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:67-75`). Prefix those variables with `TEST_RUNNER_` when invoking `xcodebuild`.
+CI also passes `-skipMacroValidation` (`.github/workflows/ci.yml:104-112`). The test target depends on `MLX3DCLI` (`Package.swift:58-66`), so `MLX3DRuntime-Package` builds the CLI. Optional weight tests read `TRIPOSR_WEIGHTS_PATH` and `SHAP_E_BUNDLE`, and also the `TEST_RUNNER_` prefixed copies (`Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:67-75`). Prefix those variables with `TEST_RUNNER_` when invoking `xcodebuild`.
 
 Example package (directory name of this checkout must be `mlx-3d-runtime-swift`):
 
@@ -72,7 +72,7 @@ xcodebuild build \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-The private sibling URLs do not clone with the Actions token. CI mirrors `Vendor/` (`Vendor/SNAPSHOT.txt:1-2`, `.github/workflows/ci.yml:49-72`).
+CI resolves the public sibling `main` branches from GitHub after deleting the SwiftPM cache (`.github/workflows/ci.yml:49-96`). There is no `Vendor/` mirror.
 
 ## Zero-drift
 

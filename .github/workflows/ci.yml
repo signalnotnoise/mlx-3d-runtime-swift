@@ -46,68 +46,53 @@ jobs:
             xcodebuild -showComponent MetalToolchain
           fi
 
-      - name: Point private package URLs at the pinned snapshots
+      - name: Resolve packages from GitHub with an empty cache
         run: |
           set -euo pipefail
-          # The Actions token cannot clone the private sibling repositories.
-          # Package.swift still declares those GitHub URLs. This step serves the
-          # pinned Vendor snapshots (see Vendor/SNAPSHOT.txt) as git mirrors.
-          git config --global protocol.file.allow always
-          prepare() {
-            local dir="$1"
-            local branch="$2"
-            local bare="${dir}.git"
-            rm -rf "${dir}/.git" "${bare}"
-            git -C "${dir}" init -b "${branch}"
-            git -C "${dir}" add -A
-            git -C "${dir}" -c user.email="ci@example.com" -c user.name="CI" commit -m "Pinned snapshot"
-            git clone --bare "${dir}" "${bare}"
-            git config --global --add safe.directory "${dir}"
-            git config --global --add safe.directory "${bare}"
-          }
-          prepare "${GITHUB_WORKSPACE}/Vendor/shap-e-mlx-swift" "cursor/shap-e-runtime-package-ea5b"
-          prepare "${GITHUB_WORKSPACE}/Vendor/triposr-mlx-swift" "cursor/triposr-mlx-swift-package-45c1"
-          # Match the full URL only. A shorter prefix would keep the trailing
-          # ".git" and look for Vendor/<repo>.git.git.
-          git config --global url."${GITHUB_WORKSPACE}/Vendor/shap-e-mlx-swift.git".insteadOf "https://github.com/signalnotnoise/shap-e-mlx-swift.git"
-          git config --global url."${GITHUB_WORKSPACE}/Vendor/triposr-mlx-swift.git".insteadOf "https://github.com/signalnotnoise/triposr-mlx-swift.git"
+          if git config --global --get-regexp 'url\..*\.insteadof' >/dev/null 2>&1; then
+            echo "git url.insteadOf is set; refusing a mirrored resolve"
+            git config --global --get-regexp 'url\..*\.insteadof'
+            exit 1
+          fi
+          rm -rf \
+            "${HOME}/Library/Caches/org.swift.swiftpm" \
+            "${HOME}/Library/org.swift.swiftpm" \
+            "${HOME}/Library/Developer/Xcode/DerivedData" \
+            "${HOME}/Library/Caches/com.apple.dt.xcodebuild" \
+            "${HOME}/.swiftpm" \
+            "${RUNNER_TEMP}/SourcePackages" \
+            "${RUNNER_TEMP}/DerivedData" \
+            "${RUNNER_TEMP}/ExampleDerived" \
+            "${RUNNER_TEMP}/ExampleSourcePackages"
+          xcodebuild -resolvePackageDependencies \
+            -scheme MLX3DRuntime-Package \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation
           python3 - << 'PY'
           import json
-          import os
+          import sys
           from pathlib import Path
 
-          workspace = os.environ["GITHUB_WORKSPACE"]
-          mirrors = {
-              "version": 1,
-              "object": [
-                  {
-                      "original": "https://github.com/signalnotnoise/shap-e-mlx-swift.git",
-                      "mirror": f"{workspace}/Vendor/shap-e-mlx-swift.git",
-                  },
-                  {
-                      "original": "https://github.com/signalnotnoise/shap-e-mlx-swift",
-                      "mirror": f"{workspace}/Vendor/shap-e-mlx-swift.git",
-                  },
-                  {
-                      "original": "https://github.com/signalnotnoise/triposr-mlx-swift.git",
-                      "mirror": f"{workspace}/Vendor/triposr-mlx-swift.git",
-                  },
-                  {
-                      "original": "https://github.com/signalnotnoise/triposr-mlx-swift",
-                      "mirror": f"{workspace}/Vendor/triposr-mlx-swift.git",
-                  },
-              ],
+          resolved = json.loads(Path("Package.resolved").read_text())
+          pins = {pin["identity"]: pin for pin in resolved["pins"]}
+          expected = {
+              "shap-e-mlx-swift": "https://github.com/signalnotnoise/shap-e-mlx-swift",
+              "triposr-mlx-swift": "https://github.com/signalnotnoise/triposr-mlx-swift",
+              "mlx-swift": "https://github.com/ml-explore/mlx-swift",
           }
-          home = Path.home() / ".swiftpm" / "config" / "mirrors.json"
-          destinations = [
-              Path(workspace) / ".swiftpm" / "config" / "mirrors.json",
-              Path(workspace) / "Examples" / "Integration" / ".swiftpm" / "config" / "mirrors.json",
-              home,
-          ]
-          payload = json.dumps(mirrors, indent=2) + "\n"
-          for path in destinations:
-              path.parent.mkdir(parents=True, exist_ok=True)
-              path.write_text(payload)
+          for identity, prefix in expected.items():
+              pin = pins.get(identity)
+              if pin is None:
+                  sys.exit(f"missing pin {identity}")
+              location = pin["location"]
+              if not location.startswith(prefix) or location.startswith("file:"):
+                  sys.exit(f"{identity} did not resolve from GitHub: {location}")
+              state = pin["state"]
+              if identity != "mlx-swift" and state.get("branch") != "main":
+                  sys.exit(f"{identity} branch is {state.get('branch')!r}, expected main")
+              revision = state.get("revision", "")
+              print(f"resolved {identity} {revision} {location}")
           PY
 
       - name: List schemes
@@ -126,17 +111,38 @@ jobs:
             -derivedDataPath "${RUNNER_TEMP}/DerivedData" \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Build the example
+      - name: Resolve and build the example from GitHub
         working-directory: Examples/Integration
         run: |
           set -euo pipefail
-          xcodebuild -list -skipPackagePluginValidation
+          xcodebuild -resolvePackageDependencies \
+            -scheme MLX3DExample \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/ExampleSourcePackages" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation
+          python3 - << 'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          resolved = json.loads(Path("Package.resolved").read_text())
+          pins = {pin["identity"]: pin for pin in resolved["pins"]}
+          for identity, prefix in {
+              "shap-e-mlx-swift": "https://github.com/signalnotnoise/shap-e-mlx-swift",
+              "triposr-mlx-swift": "https://github.com/signalnotnoise/triposr-mlx-swift",
+          }.items():
+              pin = pins[identity]
+              location = pin["location"]
+              if not location.startswith(prefix) or pin["state"].get("branch") != "main":
+                  sys.exit(f"example {identity} did not resolve public main: {pin}")
+              print(f"example resolved {identity} {pin['state']['revision']} {location}")
+          PY
           xcodebuild build \
             -scheme MLX3DExample \
             -destination 'platform=macOS' \
             -skipPackagePluginValidation \
             -skipMacroValidation \
-            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/ExampleSourcePackages" \
             -derivedDataPath "${RUNNER_TEMP}/ExampleDerived" \
             CODE_SIGNING_ALLOWED=NO
 

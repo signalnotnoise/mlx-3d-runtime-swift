@@ -14,12 +14,12 @@ This package has not been timed on device. There is no measured wall clock, resi
 
 ## Sibling measurements (not this binary)
 
-Copied from `Vendor/triposr-mlx-swift/README.md`, which records a harness outside that package, on an Apple M3 Max:
+Recorded in public `triposr-mlx-swift` at `51994056febf3be5ed726e89de169037a2fbf6a6`, a harness outside that package, on an Apple M3 Max:
 
-- `TripoSRCLI` smoke with `Memory.cacheLimit` 512 MiB: 0.75 seconds real, maximum resident set size 1,733,754,880 bytes, peak memory footprint 2,231,355,360 bytes. Printed triplanes `[1, 3, 64, 64, 40]` (`Vendor/triposr-mlx-swift/README.md:123`).
-- Chair run phase table: density query of a 128³ grid in batches of 8192 took 2.375 seconds; marching cubes 0.058 seconds; vertex colors 0.016 seconds (`Vendor/triposr-mlx-swift/README.md:132-134`). The same section says marching cubes ran outside that package.
-- That process: 5.26 seconds real, maximum resident set size 1,773,879,296 bytes, peak memory footprint 3,503,343,872 bytes, MLX `Memory.peakMemory` 2,629,506,977 bytes (`Vendor/triposr-mlx-swift/README.md:136`).
+- `TripoSRCLI` smoke with `Memory.cacheLimit` 512 MiB: 0.75 seconds real, maximum resident set size 1,733,754,880 bytes, peak memory footprint 2,231,355,360 bytes. Printed triplanes `[1, 3, 64, 64, 40]`.
+- Chair run phase table: density query of a 128³ grid in batches of 8192 took 2.375 seconds; marching cubes 0.058 seconds; vertex colors 0.016 seconds. The same section says marching cubes ran outside that package.
+- That process: 5.26 seconds real, maximum resident set size 1,773,879,296 bytes, peak memory footprint 3,503,343,872 bytes, MLX `Memory.peakMemory` 2,629,506,977 bytes.
 
-Copied from `Vendor/shap-e-mlx-swift/README.md:109`, a sibling CLI run on an Apple M3 Max: 39.42 seconds real, peak memory footprint 5,489,169,280 bytes, maximum resident set size 5,856,296,960 bytes, 9,882 vertices, 19,684 faces, closed, 0 boundary edges. Metal marching cubes 0.052 seconds. CPU marching cubes 0.816 seconds. That is not a run of `MLX3DCLI`.
+Recorded in public `shap-e-mlx-swift` at `d7b6b7aa88d11e265799fc81e5fea1b734571d2b`, a sibling CLI run on an Apple M3 Max: 39.42 seconds real, peak memory footprint 5,489,169,280 bytes, maximum resident set size 5,856,296,960 bytes, 9,882 vertices, 19,684 faces, closed, 0 boundary edges. Metal marching cubes 0.052 seconds. CPU marching cubes 0.816 seconds. That is not a run of `MLX3DCLI`.
 
 The ellipsoid unit test in this repo uses a 32³ synthetic field and checks closure (`Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-67`). It does not record time or memory.
