@@ -40,11 +40,14 @@ flowchart TD
 | Task | Location |
 | --- | --- |
 | Package pins and products | `Package.swift:1-69` |
-| Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:8-111` |
+| Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:16-206` |
+| Shap-E image options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:68-122` |
 | Image decode | `Sources/MLX3DRuntime/ImageTensor.swift:6-107` |
-| CGImage cutout then TripoSR | `Sources/MLX3DRuntime/MLX3DRuntime.swift:140-164` |
+| CGImage cutout then TripoSR | `Sources/MLX3DRuntime/MLX3DRuntime.swift:239-272` |
+| Cutout failure policy | `Sources/MLX3DRuntime/MLX3DRuntime.swift:46-56` |
 | Copied Mesquette cutout | `Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:6-199` |
-| Image-to-mesh and image rank check | `Sources/MLX3DRuntime/MLX3DRuntime.swift:113-244` |
+| Shap-E white prep then image generation | `Sources/MLX3DRuntime/MLX3DRuntime.swift:282-323` |
+| Image-to-mesh and image rank check | `Sources/MLX3DRuntime/MLX3DRuntime.swift:208-470` |
 | Density grid and batches | `Sources/MLX3DRuntime/TripoSRMeshing.swift:5-106` |
 | Sample coordinates and the 512 cap | `Sources/MLX3DRuntime/VolumeGrid.swift:3-68` |
 | Grid rejection and lazy-batch tests | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:104-175` |

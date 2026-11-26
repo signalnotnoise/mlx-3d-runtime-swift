@@ -21,7 +21,12 @@ version tag yet.
   relative path and imports `MLX3DRuntime`, `ShapERuntime`, and `TripoSRRuntime`.
 - `imageToMesh(cgImage:)` runs Mesquette's `foregroundCutout` (ratio 0.85)
   before TripoSR preprocessing. Pass `applyForegroundCutout: false` to skip it.
-  `removeBackground` is copied alongside it and is not used on the TripoSR path.
+  `cutoutFailurePolicy` defaults to `.strict`. `.fallbackToOriginal` logs and
+  uses the original image, matching Mesquette. The file-URL and CLI image
+  paths do not cut out.
+- `imageToMeshShapE(cgImage:)` runs the white-background `removeBackground`
+  prep, then Shap-E image generation. The prep is skippable and is not used
+  by TripoSR. Defaults match Mesquette image mode: guidance 3, 32 steps, grid 64.
 - Unit tests for marching cubes, mesh export, CLI failure exits, foreground
   cutout helpers, and the example package wiring. Real-weight tests skip when
   the files are absent.

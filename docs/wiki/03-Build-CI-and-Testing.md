@@ -47,7 +47,7 @@ xcodebuild build \
 | `CLIExitTests` | `Tests/MLX3DRuntimeTests/CLIExitTests.swift:5-82` | Nonzero exits, including `--grid-size 9999`; locates `MLX3DCLI` via `dladdr` (`Tests/MLX3DRuntimeTests/CLIExitTests.swift:84-105`) |
 | `RuntimeContractTests` | `Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:9-38` | Missing weights, missing bundle, short field |
 | `PublishedWeightTests` | `Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:40-65` | Skipped unless weights or a Shap-E bundle are present |
-| `ImageBackgroundRemovalTests` | `Tests/MLX3DRuntimeTests/ImageBackgroundRemovalTests.swift:7-81` | Mask bounds, square canvas ratio 0.85, skip flag, and a macOS Vision cutout when one is produced |
+| `ImageBackgroundRemovalTests` | `Tests/MLX3DRuntimeTests/ImageBackgroundRemovalTests.swift:7-210` | Mask bounds, square canvas ratio 0.85, TripoSR skip flag, strict versus fallback cutout policy, Shap-E white-prep skip, and a macOS Vision cutout when one is produced |
 
 `PublishedWeightTests` only calls `loadWeights` or `ShapERuntime` init. It does not generate a mesh (`Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:47-64`).
 
