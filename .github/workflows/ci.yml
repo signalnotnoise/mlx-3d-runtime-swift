@@ -1,0 +1,151 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    name: Build, test, and build the example (macOS)
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          if [ -d /Applications/Xcode_26.6.app/Contents/Developer ]; then
+            echo "DEVELOPER_DIR=/Applications/Xcode_26.6.app/Contents/Developer" >> "$GITHUB_ENV"
+          fi
+
+      - name: Show Xcode and Swift
+        run: |
+          set -euo pipefail
+          xcode-select -p
+          xcodebuild -version
+          swift --version
+
+      - name: Ensure Metal toolchain
+        run: |
+          set -euo pipefail
+          if ! xcodebuild -showComponent MetalToolchain; then
+            echo "Metal toolchain is not installed. Downloading it."
+            xcodebuild -downloadComponent MetalToolchain
+            xcodebuild -showComponent MetalToolchain
+          fi
+
+      - name: Resolve packages from GitHub with an empty cache
+        run: |
+          set -euo pipefail
+          if git config --global --get-regexp 'url\..*\.insteadof' >/dev/null 2>&1; then
+            echo "git url.insteadOf is set; refusing a mirrored resolve"
+            git config --global --get-regexp 'url\..*\.insteadof'
+            exit 1
+          fi
+          rm -rf \
+            "${HOME}/Library/Caches/org.swift.swiftpm" \
+            "${HOME}/Library/org.swift.swiftpm" \
+            "${HOME}/Library/Developer/Xcode/DerivedData" \
+            "${HOME}/Library/Caches/com.apple.dt.xcodebuild" \
+            "${HOME}/.swiftpm" \
+            "${RUNNER_TEMP}/SourcePackages" \
+            "${RUNNER_TEMP}/DerivedData" \
+            "${RUNNER_TEMP}/ExampleDerived" \
+            "${RUNNER_TEMP}/ExampleSourcePackages"
+          xcodebuild -resolvePackageDependencies \
+            -scheme MLX3DRuntime-Package \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation
+          python3 - << 'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          resolved = json.loads(Path("Package.resolved").read_text())
+          pins = {pin["identity"]: pin for pin in resolved["pins"]}
+          expected = {
+              "shap-e-mlx-swift": "https://github.com/signalnotnoise/shap-e-mlx-swift",
+              "triposr-mlx-swift": "https://github.com/signalnotnoise/triposr-mlx-swift",
+              "mlx-swift": "https://github.com/ml-explore/mlx-swift",
+          }
+          for identity, prefix in expected.items():
+              pin = pins.get(identity)
+              if pin is None:
+                  sys.exit(f"missing pin {identity}")
+              location = pin["location"]
+              if not location.startswith(prefix) or location.startswith("file:"):
+                  sys.exit(f"{identity} did not resolve from GitHub: {location}")
+              state = pin["state"]
+              if identity != "mlx-swift" and state.get("branch") != "main":
+                  sys.exit(f"{identity} branch is {state.get('branch')!r}, expected main")
+              revision = state.get("revision", "")
+              print(f"resolved {identity} {revision} {location}")
+          PY
+
+      - name: List schemes
+        run: xcodebuild -list -skipPackagePluginValidation
+
+      - name: Build and test
+        run: |
+          set -euo pipefail
+          xcodebuild test \
+            -scheme MLX3DRuntime-Package \
+            -destination 'platform=macOS' \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -parallel-testing-enabled NO \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
+            -derivedDataPath "${RUNNER_TEMP}/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Resolve and build the example from GitHub
+        working-directory: Examples/Integration
+        run: |
+          set -euo pipefail
+          xcodebuild -resolvePackageDependencies \
+            -scheme MLX3DExample \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/ExampleSourcePackages" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation
+          python3 - << 'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          resolved = json.loads(Path("Package.resolved").read_text())
+          pins = {pin["identity"]: pin for pin in resolved["pins"]}
+          for identity, prefix in {
+              "shap-e-mlx-swift": "https://github.com/signalnotnoise/shap-e-mlx-swift",
+              "triposr-mlx-swift": "https://github.com/signalnotnoise/triposr-mlx-swift",
+          }.items():
+              pin = pins[identity]
+              location = pin["location"]
+              if not location.startswith(prefix) or pin["state"].get("branch") != "main":
+                  sys.exit(f"example {identity} did not resolve public main: {pin}")
+              print(f"example resolved {identity} {pin['state']['revision']} {location}")
+          PY
+          xcodebuild build \
+            -scheme MLX3DExample \
+            -destination 'platform=macOS' \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/ExampleSourcePackages" \
+            -derivedDataPath "${RUNNER_TEMP}/ExampleDerived" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Verify documentation anchors
+        working-directory: ${{ github.workspace }}
+        run: python3 scripts/verify_docs.py

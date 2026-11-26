@@ -1,0 +1,34 @@
+mlx-3d-runtime-swift
+Copyright (c) 2026 Ismael Alex Otero
+Licensed under the MIT License; see LICENSE.
+
+signalnotnoise maintains this project.
+
+This package does not vendor Shap-E or TripoSR. It depends on the Swift
+packages below. Their NOTICE files are the notices for those ports and for
+the upstream models.
+
+1. Shap-E (OpenAI)
+   https://github.com/openai/shap-e
+   MIT License, Copyright (c) 2023 OpenAI.
+   Swift package: https://github.com/signalnotnoise/shap-e-mlx-swift
+   Product: ShapERuntime.
+   Upstream notice: NOTICE and licenses/Shap-E.txt in that repository.
+   https://github.com/openai/shap-e/blob/main/LICENSE
+
+2. TripoSR (Tripo AI & Stability AI)
+   https://github.com/VAST-AI-Research/TripoSR
+   MIT License, Copyright (c) 2024 Tripo AI & Stability AI.
+   Swift package: https://github.com/signalnotnoise/triposr-mlx-swift
+   Product: TripoSRRuntime.
+   Upstream notice: NOTICE and LICENSES/TripoSR.txt in that repository.
+   https://github.com/VAST-AI-Research/TripoSR/blob/main/LICENSE
+
+3. MLX and mlx-swift (Apple)
+   https://github.com/ml-explore/mlx
+   https://github.com/ml-explore/mlx-swift
+   MIT License, Copyright (c) 2023 Apple Inc.
+   The resolved version stays inside 0.31.3..<0.31.5 so TripoSRRuntime and
+   ShapERuntime can use one mlx-swift checkout.
+
+Model weights are not in this repository. See README.md.

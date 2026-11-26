@@ -1,0 +1,58 @@
+# Engineering standards
+
+Invariants of this repository. Sibling model code is not specified here.
+
+## Tools and mlx-swift
+
+`Package.swift:1` sets `swift-tools-version: 6.2`.
+
+`Package.swift:29-31` caps `mlx-swift` at `0.31.3..<0.31.5`. The comment states that `0.31.5` and later set Swift tools 6.3. Public `shap-e-mlx-swift` and `triposr-mlx-swift` `main` (commits `d7b6b7aa88d11e265799fc81e5fea1b734571d2b` and `51994056febf3be5ed726e89de169037a2fbf6a6`) both declare that same range. Do not widen this package past `0.31.4`.
+
+## Tensor layout and coordinates
+
+Images accepted by `imageToMesh(image:)` are float RGB in `0...1`, rank 3 `[height, width, 3]` or rank 4 `[1, height, width, 3]` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:182-203`). Rank 3 is reshaped to `[1, H, W, 3]`. The file decoder returns `[1, side, side, 3]` (`Sources/MLX3DRuntime/ImageTensor.swift:20`). Row 0 is the top of the image (`Sources/MLX3DRuntime/ImageTensor.swift:79-80`). Alpha is composited over `background` (`Sources/MLX3DRuntime/ImageTensor.swift:52-59`). This path does not apply ImageNet normalization; that stays inside the sibling `forwardTriplanes`.
+
+`VolumeGrid.positions` is packed `x, y, z` with X slowest and Z fastest. Sample `i` is `min + i / (resolution - 1) * (max - min)` (`Sources/MLX3DRuntime/VolumeGrid.swift:26-47`). TripoSR meshing uses the cube `[-radius, radius]` on each axis (`Sources/MLX3DRuntime/TripoSRMeshing.swift:21-22`). `radius` is `options.radius` or `model.renderer.radius` (`Sources/MLX3DRuntime/TripoSRMeshing.swift:16`). This repo does not hardcode `0.87`.
+
+`VolumeGrid.validate` rejects sizes outside `2...maximum` before weights load or a sample buffer is allocated (`Sources/MLX3DRuntime/VolumeGrid.swift:15-24`). `maximum` cannot exceed `VolumeGrid.maximumResolution` (512) (`Sources/MLX3DRuntime/VolumeGrid.swift:9`). `maximumGridSize` on the text and image options can set a lower cap (`Sources/MLX3DRuntime/MLX3DRuntime.swift:13-14`, `Sources/MLX3DRuntime/MLX3DRuntime.swift:41-42`). The check runs at the start of `textToMesh` and both `imageToMesh` overloads (`Sources/MLX3DRuntime/MLX3DRuntime.swift:74`, `Sources/MLX3DRuntime/MLX3DRuntime.swift:115`, `Sources/MLX3DRuntime/MLX3DRuntime.swift:134`). The CLI runs the same check before it looks up a bundle or weights (`Sources/MLX3DCLI/MLX3DCLI.swift:73-75`, `Sources/MLX3DCLI/MLX3DCLI.swift:117-119`).
+
+Density queries build one batch of positions with `points:` and reshape that batch to `[count, 3]` (`Sources/MLX3DRuntime/TripoSRMeshing.swift:62-68`). The flattened density array must have `count` values (`Sources/MLX3DRuntime/TripoSRMeshing.swift:72-74`). The full density volume is still `resolution`³ floats because marching cubes needs the field. Position storage is one batch. Color queries use mesh vertices, not the volume grid, and require `count * 3` floats (`Sources/MLX3DRuntime/TripoSRMeshing.swift:93-99`). This repo does not assert the MLX rank of `evaluate`'s return value beyond that flat count.
+
+Marching cubes subtracts `threshold` and reshapes the field to `[resolution, resolution, resolution]` (`Sources/MLX3DRuntime/MarchingCubesExtractor.swift:33-37`). Values above the threshold are the interior. The bbox passed to Shap-E is the same min and size as the sample grid (`Sources/MLX3DRuntime/MarchingCubesExtractor.swift:38-44`). Positions come back packed `x,y,z`. Faces are `Int32` (`Sources/MLX3DRuntime/MarchingCubesExtractor.swift:45-53`).
+
+`Mesh.positions` length is `3V`. `Mesh.faces` length is `3F`. `Mesh.vertexColors`, when present, length is `3V` (`Sources/MLX3DRuntime/Mesh.swift:5-10`). Shap-E RGBA (`V * 4`) is stored as RGB, dropping the fourth component (`Sources/MLX3DRuntime/MLX3DRuntime.swift:156-171`).
+
+## Weights
+
+Never commit weights. `.gitignore` ignores `runtime_bundle/`, `triposr_swift_ready.safetensors`, and `*.safetensors`.
+
+The library image path requires the caller to pass a regular file (`Sources/MLX3DRuntime/MLX3DRuntime.swift:174-179`). It does not search the filesystem. `loadWeights(from:)` is the sibling API. This repo does not reimplement shape or unused-key checks. Grid validation runs before that file check (`Sources/MLX3DRuntime/MLX3DRuntime.swift:115-116`).
+
+The library text path requires `manifest.json` in the bundle directory and a BPE file, defaulting to `bpe_simple_vocab_16e6.txt.gz` beside that manifest (`Sources/MLX3DRuntime/MLX3DRuntime.swift:75-83`). Grid validation runs before the bundle is opened (`Sources/MLX3DRuntime/MLX3DRuntime.swift:74`).
+
+CLI image search order is `--weights`, then `TRIPOSR_WEIGHTS_PATH`, then `./triposr_swift_ready.safetensors`, then `./triposr_weights/triposr_swift_ready.safetensors` (`Sources/MLX3DCLI/MLX3DCLI.swift:120-123` and `Sources/MLX3DCLI/MLX3DCLI.swift:165-172`). It does not search the older monorepo paths that the sibling CLI searches. An illegal `--grid-size` fails before that search (`Sources/MLX3DCLI/MLX3DCLI.swift:117-119`).
+
+CLI text search is `--bundle` or `SHAP_E_BUNDLE` (`Sources/MLX3DCLI/MLX3DCLI.swift:76-78`). Optional `--bpe` overrides the bundle default (`Sources/MLX3DCLI/MLX3DCLI.swift:80`). Grid validation runs first (`Sources/MLX3DCLI/MLX3DCLI.swift:73-75`).
+
+Tests also accept `TEST_RUNNER_TRIPOSR_WEIGHTS_PATH` and `TEST_RUNNER_SHAP_E_BUNDLE` (`Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:67-75`).
+
+Canonical files, cited from the vendored sibling READMEs (sibling measurements, not re-hashed here):
+
+- TripoSR: `triposr_swift_ready.safetensors`, 1,674,793,528 bytes, SHA-256 `83563625f39180f505a3ccb855e67b59b65989f6545015672465d7487c4bc2cb`, Hub commit `76f3028746d0b5f39b6ba0205ede9e28835f106d`. Those figures are in the public `triposr-mlx-swift` README at `51994056febf3be5ed726e89de169037a2fbf6a6`. This repo does not re-hash that file.
+- Shap-E: Hub revision `d71f70a09b9c03535188d006a719edda5c19a6eb`, described as 1,104 files. The public `shap-e-mlx-swift` README at `d7b6b7aa88d11e265799fc81e5fea1b734571d2b` says upstream notes record 5,143,254,750 bytes and that the package does not re-measure that payload. This repo does not record a single SHA-256 for that bundle.
+
+## Parity
+
+This repo does not ship Python parity dumps or a `--parity` mode. `MLX3DCLI` has `text` and `image` only (`Sources/MLX3DCLI/MLX3DCLI.swift:49-58`).
+
+The image grid matches the TripoSR extraction convention used by this code: density minus threshold, positive inside, no axis swap (`Sources/MLX3DRuntime/MarchingCubesExtractor.swift:6-12`). Whether that matches a given upstream commit beyond that comment is not re-checked in this repo.
+
+`DINOv2` interpolation and Shap-E diffusion numerics are sibling behavior. Do not change them from this package.
+
+## Memory and Metal
+
+This repo does not set `Memory.cacheLimit` and does not call `Device.setDefault` on the library path. `MLX.eval` is used after triplane construction, each density batch, each color batch, and marching-cubes outputs (`Sources/MLX3DRuntime/MLX3DRuntime.swift:141`, `Sources/MLX3DRuntime/TripoSRMeshing.swift:70`, `Sources/MLX3DRuntime/TripoSRMeshing.swift:96`, `Sources/MLX3DRuntime/MarchingCubesExtractor.swift:45-46`).
+
+Point queries are chunked by `queryBatchSize` (`Sources/MLX3DRuntime/TripoSRMeshing.swift:59-77`). Each density batch allocates only that batch of positions (`Sources/MLX3DRuntime/TripoSRMeshing.swift:62-67`). The image default is 8192 and the text default passed to Shap-E is 65536 (`Sources/MLX3DRuntime/MLX3DRuntime.swift:44-47` and `Sources/MLX3DRuntime/MLX3DRuntime.swift:16-21`). Those are code defaults, not measurements. Grids larger than 512 are rejected (`Sources/MLX3DRuntime/VolumeGrid.swift:9-23`).
+
+Build with `xcodebuild`, not `swift build` / `swift test`, so Metal can produce `default.metallib`. Tests that touch MLX set `Device(.cpu)` in `MarchingCubesTests` and `ImageTensorTests` initializers and in `tripoSRWeightsLoadWhenPresent` (`Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:8-10`, `Tests/MLX3DRuntimeTests/ImageTensorTests.swift:10-12`, `Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:48`).
