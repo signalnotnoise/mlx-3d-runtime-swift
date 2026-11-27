@@ -9,6 +9,20 @@ version tag yet.
 
 ### Added
 
+- Optional `progress` on `textToMesh`, `imageToMesh`, and `imageToMeshShapE`,
+  on both `MLX3DRuntime` and `MLX3DSession`. The closure receives
+  `MLX3DGenerationEvent`: the runtime phase name, step, total, and optional
+  partial meshes. Shap-E partial meshes are forwarded only when
+  `progressInterval` is greater than zero. A nil closure is passed through as
+  a nil Shap-E callback, so those extracts do not run. TripoSR reports
+  `encoding`, `volume`, `meshing`, and `colors` and leaves partial meshes nil.
+  Labels, percentages, and preview drawing stay with the caller.
+- `textToMeshBatch`, which takes a batch count and returns `[Mesh]`.
+  `textToMesh` still returns one `Mesh`. `useMetalMarchingCubes` on text
+  defaults to false. `progressInterval` on text defaults to 0.
+- TripoSR `useMetalMarchingCubes` (default false, the CPU extractor) and
+  `resizeMode` (default `.aspectFit`; `.stretch` matches the previous
+  Mesquette facade). `gridSize` stays caller-set and still defaults to 128.
 - `Examples/ExportHost`, a small macOS and iOS app whose hosted XCTest
   target writes and reads USDZ. Model I/O does not register the USD exporter
   in the SwiftPM test process or in `MLX3DCLI`, so the package tests skip
