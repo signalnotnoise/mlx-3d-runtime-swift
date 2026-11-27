@@ -1,7 +1,9 @@
 // Source: signalnotnoise/Mesquette commit 971d381e32fba2e41feb979d4240b9b79ae01209
 // Path: Mesquette/ImageBackgroundRemoval.swift
-// The body below is copied verbatim from that commit, including the warning
+// The body below is copied from that commit, including the warning
 // that removeBackground's white composite must not feed TripoSR.
+// Adaptation: the UIImage helper maps UIImage.Orientation with an explicit
+// switch. UIKit and CGImagePropertyOrientation do not share raw values.
 
 import Foundation
 import os
@@ -180,10 +182,38 @@ public struct ImageBackgroundRemoval {
 
     // MARK: - Convenience overloads per platform
     #if canImport(UIKit)
-    /// iOS/tvOS/watchOS convenience: accepts UIImage
+    /// Maps `UIImage.Orientation` onto `CGImagePropertyOrientation`.
+    ///
+    /// The cases share names and not raw values. `UIImage.Orientation.up` is 0,
+    /// which is not a valid ImageIO orientation (`CGImagePropertyOrientation.up` is 1).
+    static func cgImagePropertyOrientation(for orientation: UIImage.Orientation) -> CGImagePropertyOrientation {
+        switch orientation {
+        case .up:
+            return .up
+        case .down:
+            return .down
+        case .left:
+            return .left
+        case .right:
+            return .right
+        case .upMirrored:
+            return .upMirrored
+        case .downMirrored:
+            return .downMirrored
+        case .leftMirrored:
+            return .leftMirrored
+        case .rightMirrored:
+            return .rightMirrored
+        @unknown default:
+            return .up
+        }
+    }
+
+    /// iOS/tvOS/watchOS convenience: accepts UIImage.
+    /// The image's orientation is passed to Vision; it is not a raw-value cast.
     public static func removeBackground(from uiImage: UIImage) async throws -> CGImage? {
         guard let cgImage = uiImage.cgImage else { return nil }
-        guard let orientation = CGImagePropertyOrientation(rawValue: UInt32(uiImage.imageOrientation.rawValue)) else {return nil}
+        let orientation = cgImagePropertyOrientation(for: uiImage.imageOrientation)
         return try await removeBackground(from: cgImage, orientation: orientation)
     }
     #endif

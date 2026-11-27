@@ -145,7 +145,7 @@
       {
         "file_path": ".github/workflows/ci.yml",
         "line_start": 16,
-        "line_end": 151
+        "line_end": 235
       },
       {
         "file_path": "Examples/Integration/Package.swift",
@@ -156,8 +156,8 @@
     "foreground_cutout": [
       {
         "file_path": "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift",
-        "line_start": 80,
-        "line_end": 129
+        "line_start": 82,
+        "line_end": 131
       },
       {
         "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
@@ -484,9 +484,9 @@
       "kind": "struct",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift",
-      "line_start": 20,
-      "line_end": 199,
-      "summary": "Verbatim Mesquette cutout. foregroundCutout is the TripoSR path. removeBackground composites on white and must not feed TripoSR."
+      "line_start": 22,
+      "line_end": 229,
+      "summary": "Mesquette cutout. foregroundCutout is the TripoSR path. removeBackground composites on white and must not feed TripoSR. UIImage.Orientation is mapped by an explicit switch."
     },
     {
       "id": "type.CutoutFailurePolicy",
@@ -668,7 +668,8 @@
   "content_hashes": {
     ".github/workflows/ci.yml:104-112": "84dc3291aded2a967fbaa1c85a7f5534062eb9fb9f572f5ed7b0e33a5b7a9df8",
     ".github/workflows/ci.yml:114-147": "c1509c40a08959bbfd84e08fa5281e3807290d4fb35b342b2bed5a1c5e8116e5",
-    ".github/workflows/ci.yml:16-151": "661b1369a43599aaede111f43245e265db344cd44f2781eee0836f8b58c0aa53",
+    ".github/workflows/ci.yml:16-235": "090d03d82d3ccf546c0ed47c48736f80d2ef69453a97720dd239dfecfc7d0742",
+    ".github/workflows/ci.yml:227-235": "2379c5960cbdf474db110d1421a4a1d4c3a4eb7106b742223210daf4d28221bc",
     ".github/workflows/ci.yml:26-31": "58b3c739dee7e7701ad416902daa4de3eb172545f2a6f5979b5585df8c9949f8",
     ".github/workflows/ci.yml:40-47": "62d9951204305e9afba8dcc0580cbd780b9e147bdbe7f06047c9a7530eb5cafb",
     ".github/workflows/ci.yml:49-96": "3760bee72e3428cbe5470e8309a504016820164b24d7d7f27284c4d49791dc3c",
@@ -699,12 +700,13 @@
     "Sources/MLX3DCLI/MLX3DCLI.swift:73-75": "dd06e224421e008f4f70186aef059a212bbafa778b56a10f8585942a9545a485",
     "Sources/MLX3DCLI/MLX3DCLI.swift:73-78": "194f86b4547588db96ce9e7e208128812f78244303d4ed9d04838487073ccf1d",
     "Sources/MLX3DCLI/MLX3DCLI.swift:76-78": "e8f4a46329c7795c63e8dcb93bf53867622ef8541c9edd511480ffa941fc0fd9",
-    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:20-199": "b7fcbabdffa2ec895341e44190bc2f6345c8fa2556c7dd6482dfdfa7ff30f7fd",
-    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:36-68": "b165ec465fdb99c82ffaf8868ff4e9fbc5db71bf3e2ff4008dc6e99af8b9e597",
-    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:6-199": "9054a3408036ae4ff6211734024b3632c6a2e898f833dce651e6760caa5f743e",
-    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:80-129": "0ac9219f2a53515da8345db0bc03901f255338285b75aa00ccb3438d313d580e",
-    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:80-86": "e8d246ebe342bb3ee7534a2b32fedcfa42d9112081bb67e84501fca219c8c745",
-    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:88-129": "0566109145aede25627543cf15a599c6ec74e39576f241244d5d0415081f0c73",
+    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:189-210": "e4f23d24ffd4a1f912e5ab254cc806b146e1bb89fb3418e817ee5ec09e3c545c",
+    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:22-229": "15a3a371b5ab03c92ae2194773419224ff125c2bbdb85e47b5a9a8f30e3bfa4e",
+    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:38-70": "b165ec465fdb99c82ffaf8868ff4e9fbc5db71bf3e2ff4008dc6e99af8b9e597",
+    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:6-229": "fe1ab57d564ce312d6d8efa12877af5c76b9bb87383e3dbbba2b9fed3408035d",
+    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:82-131": "0ac9219f2a53515da8345db0bc03901f255338285b75aa00ccb3438d313d580e",
+    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:82-88": "e8d246ebe342bb3ee7534a2b32fedcfa42d9112081bb67e84501fca219c8c745",
+    "Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:90-131": "0566109145aede25627543cf15a599c6ec74e39576f241244d5d0415081f0c73",
     "Sources/MLX3DRuntime/ImageTensor.swift:11-107": "c8df2f1f0a9dd25d32c519e17ce6206e919d649688ca31c0f2b02f3fd25c3ea3",
     "Sources/MLX3DRuntime/ImageTensor.swift:11-14": "6bcc0cb531242ffd4cfcfad40bf69fb555afff42a19f7d9f3bb4496190312103",
     "Sources/MLX3DRuntime/ImageTensor.swift:11-21": "48f165a180e9a79ef7806374413d2bba9103b37fa7000b946ed21c61a36659b8",
@@ -812,7 +814,7 @@
     "Tests/MLX3DRuntimeTests/CLIExitTests.swift:5-105": "8e1ee65c7ad3444242f49fcde2d4ebd47235280096553f49fcb216ab49e9f4ea",
     "Tests/MLX3DRuntimeTests/CLIExitTests.swift:5-82": "6b5af112b531c76224793e935cf5960265aae869b050d59b517b6c5ee72d5ebc",
     "Tests/MLX3DRuntimeTests/CLIExitTests.swift:84-105": "4462e46a7ead7dbacd6684675de1cb1c73530f080af653f56c64d64dbbd39ed4",
-    "Tests/MLX3DRuntimeTests/ImageBackgroundRemovalTests.swift:7-210": "985846e32894bc5d1b07878df886c534f5143a1cad885f294cc891a058c24671",
+    "Tests/MLX3DRuntimeTests/ImageBackgroundRemovalTests.swift:7-338": "8076b1dac622dd70d734dddf7f41f2d480506b0fd8aef788ec660748868bfb37",
     "Tests/MLX3DRuntimeTests/ImageTensorTests.swift:10-12": "f060d137b343507f3ac6123c55b08c8e90c0873dc17e59ab8f84e23cd98da587",
     "Tests/MLX3DRuntimeTests/ImageTensorTests.swift:9-80": "ceb7f86b01872cbc1bab5de291a226e6aca55c044e864a25d0aa2f88198776af",
     "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:104-175": "e637c957c5a28323cb50fed51cffcb7a94e4ad3f458d45b6b960db6bdd258ba9",

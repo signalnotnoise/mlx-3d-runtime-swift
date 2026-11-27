@@ -149,3 +149,87 @@ jobs:
       - name: Verify documentation anchors
         working-directory: ${{ github.workspace }}
         run: python3 scripts/verify_docs.py
+
+  ios-simulator:
+    name: Build and test (iOS Simulator)
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          if [ -d /Applications/Xcode_26.6.app/Contents/Developer ]; then
+            echo "DEVELOPER_DIR=/Applications/Xcode_26.6.app/Contents/Developer" >> "$GITHUB_ENV"
+          fi
+
+      - name: Show Xcode and Swift
+        run: |
+          set -euo pipefail
+          xcode-select -p
+          xcodebuild -version
+          swift --version
+
+      - name: Ensure Metal toolchain
+        run: |
+          set -euo pipefail
+          if ! xcodebuild -showComponent MetalToolchain; then
+            echo "Metal toolchain is not installed. Downloading it."
+            xcodebuild -downloadComponent MetalToolchain
+            xcodebuild -showComponent MetalToolchain
+          fi
+
+      - name: Resolve packages from GitHub with an empty cache
+        run: |
+          set -euo pipefail
+          if git config --global --get-regexp 'url\..*\.insteadof' >/dev/null 2>&1; then
+            echo "git url.insteadOf is set; refusing a mirrored resolve"
+            git config --global --get-regexp 'url\..*\.insteadof'
+            exit 1
+          fi
+          rm -rf \
+            "${HOME}/Library/Caches/org.swift.swiftpm" \
+            "${HOME}/Library/org.swift.swiftpm" \
+            "${HOME}/Library/Developer/Xcode/DerivedData" \
+            "${HOME}/Library/Caches/com.apple.dt.xcodebuild" \
+            "${HOME}/.swiftpm" \
+            "${RUNNER_TEMP}/SourcePackages" \
+            "${RUNNER_TEMP}/DerivedData"
+          xcodebuild -resolvePackageDependencies \
+            -scheme MLX3DRuntime-Package \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation
+
+      - name: Build and test on an iPhone simulator
+        run: |
+          set -euo pipefail
+          DESTINATION="$(python3 - << 'PY'
+          import json
+          import subprocess
+          import sys
+
+          listing = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"]))
+          runtimes = sorted(key for key in listing["devices"] if "iOS" in key)
+          for runtime in reversed(runtimes):
+              for device in listing["devices"][runtime]:
+                  if device.get("isAvailable") and device.get("name", "").startswith("iPhone"):
+                      print(f"platform=iOS Simulator,id={device['udid']}")
+                      sys.exit(0)
+          sys.exit("no available iPhone simulator")
+          PY
+          )"
+          echo "destination ${DESTINATION}"
+          xcodebuild test \
+            -scheme MLX3DRuntime-Package \
+            -destination "${DESTINATION}" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -parallel-testing-enabled NO \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
+            -derivedDataPath "${RUNNER_TEMP}/DerivedData" \
+            CODE_SIGNING_ALLOWED=NO

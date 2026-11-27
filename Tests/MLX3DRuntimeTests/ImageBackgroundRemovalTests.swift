@@ -2,6 +2,11 @@ import CoreGraphics
 import Foundation
 import Testing
 
+#if canImport(UIKit)
+import CoreImage
+import UIKit
+#endif
+
 @testable import MLX3DRuntime
 
 struct ImageBackgroundRemovalTests {
@@ -207,6 +212,130 @@ struct ImageBackgroundRemovalTests {
         context.fill(CGRect(x: 0, y: 0, width: width, height: height))
         return context.makeImage()!
     }
+
+    #if canImport(UIKit)
+    @Test func uiImageOrientationMapsToCGImagePropertyOrientation() {
+        let cases: [(UIImage.Orientation, CGImagePropertyOrientation)] = [
+            (.up, .up),
+            (.down, .down),
+            (.left, .left),
+            (.right, .right),
+            (.upMirrored, .upMirrored),
+            (.downMirrored, .downMirrored),
+            (.leftMirrored, .leftMirrored),
+            (.rightMirrored, .rightMirrored),
+        ]
+        for (uiOrientation, imageIO) in cases {
+            #expect(ImageBackgroundRemoval.cgImagePropertyOrientation(for: uiOrientation) == imageIO)
+            let cast = CGImagePropertyOrientation(rawValue: UInt32(uiOrientation.rawValue))
+            if uiOrientation == .up {
+                #expect(cast == nil)
+            } else if uiOrientation != .rightMirrored {
+                #expect(cast != imageIO)
+            }
+        }
+    }
+
+    @Test func uiImageRemoveBackgroundNormalizesEveryOrientation() async throws {
+        let source = cornerImage()
+        let uprightTagged = UIImage(cgImage: source, scale: 1, orientation: .up)
+        let uprightDisplay = displayedPixels(of: uprightTagged)
+        #expect(topLeft(uprightDisplay) == (255, 0, 0))
+
+        for uiOrientation in Self.everyUIImageOrientation {
+            let tagged = UIImage(cgImage: source, scale: 1, orientation: uiOrientation)
+            let mapped = ImageBackgroundRemoval.cgImagePropertyOrientation(for: uiOrientation)
+            let displayed = displayedPixels(of: tagged)
+            let oriented = try #require(ciOriented(source, mapped))
+            #expect(displayed.width == oriented.width)
+            #expect(displayed.height == oriented.height)
+            #expect(displayed.width == Int(tagged.size.width))
+            #expect(displayed.height == Int(tagged.size.height))
+            #expect(rgba(displayed) == rgba(oriented))
+
+            let throughHelper = try await ImageBackgroundRemoval.removeBackground(from: tagged)
+            let throughMapped = try await ImageBackgroundRemoval.removeBackground(
+                from: source,
+                orientation: mapped
+            )
+            #expect(rgba(throughHelper) == rgba(throughMapped))
+
+            let uprightEquivalent = UIImage(cgImage: displayed, scale: 1, orientation: .up)
+            let throughUpright = try await ImageBackgroundRemoval.removeBackground(from: uprightEquivalent)
+            #expect(rgba(throughHelper) == rgba(throughUpright))
+            if uiOrientation != .up {
+                #expect(rgba(displayed) != rgba(uprightDisplay))
+            }
+        }
+    }
+
+    private static let everyUIImageOrientation: [UIImage.Orientation] = [
+        .up, .down, .left, .right, .upMirrored, .downMirrored, .leftMirrored, .rightMirrored,
+    ]
+
+    private func cornerImage() -> CGImage {
+        let pixels: [UInt8] = [
+            255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255,
+            255, 255, 0, 255, 0, 255, 255, 255, 255, 255, 255, 255,
+        ]
+        let provider = CGDataProvider(data: Data(pixels) as CFData)!
+        return CGImage(
+            width: 3,
+            height: 2,
+            bitsPerComponent: 8,
+            bitsPerPixel: 32,
+            bytesPerRow: 12,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+            provider: provider,
+            decode: nil,
+            shouldInterpolate: false,
+            intent: .defaultIntent
+        )!
+    }
+
+    private func displayedPixels(of image: UIImage) -> CGImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        format.opaque = true
+        let renderer = UIGraphicsImageRenderer(size: image.size, format: format)
+        let rendered = renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: image.size))
+        }
+        return rendered.cgImage!
+    }
+
+    private func ciOriented(_ image: CGImage, _ orientation: CGImagePropertyOrientation) -> CGImage? {
+        let oriented = CIImage(cgImage: image).oriented(orientation)
+        return CIContext().createCGImage(oriented, from: oriented.extent)
+    }
+
+    private func rgba(_ image: CGImage?) -> [UInt8]? {
+        guard let image else { return nil }
+        let width = image.width
+        let height = image.height
+        var data = [UInt8](repeating: 0, count: width * height * 4)
+        let context = CGContext(
+            data: &data,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: width * 4,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        )
+        guard let context else { return nil }
+        context.translateBy(x: 0, y: CGFloat(height))
+        context.scaleBy(x: 1, y: -1)
+        context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+        return data
+    }
+
+    private func topLeft(_ image: CGImage) -> (UInt8, UInt8, UInt8) {
+        let bytes = rgba(image) ?? []
+        return (bytes[0], bytes[1], bytes[2])
+    }
+    #endif
 }
 
 private struct PrepFailed: Error {}

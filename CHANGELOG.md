@@ -33,6 +33,15 @@ version tag yet.
 - GitHub Actions workflow that builds, tests, and builds the example on macOS.
 - `NOTICE`, `.spi.yml`, and this changelog.
 
+### Fixed
+
+- `removeBackground(from: UIImage)` maps `UIImage.Orientation` onto
+  `CGImagePropertyOrientation` with an explicit switch. The two enums do not
+  share raw values, so the previous cast dropped upright images and
+  mis-labeled the rest. `uiImageOrientationMapsToCGImagePropertyOrientation`
+  and `uiImageRemoveBackgroundNormalizesEveryOrientation` cover all eight
+  orientations and run on the iOS Simulator CI job.
+
 ### Notes
 
 - `shap-e-mlx-swift` and `triposr-mlx-swift` are public and pinned to
