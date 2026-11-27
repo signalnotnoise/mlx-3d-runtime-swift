@@ -482,7 +482,7 @@ public enum MLX3DRuntime {
         return { @Sendable phase, step, total, partials in
             let meshes: [Mesh]?
             if let partials {
-                meshes = partials.compactMap { try? mesh(from: $0) }
+                meshes = ShapEMeshArrays.kept(from: partials)
             } else {
                 meshes = nil
             }
@@ -498,10 +498,10 @@ public enum MLX3DRuntime {
     }
 
     static func mesh(from generated: ShapEMeshResult) throws -> Mesh {
-        let positions = try ShapEMeshArrays.positions(from: generated)
-        let faces = try ShapEMeshArrays.faces(from: generated)
-        let colors = try rgbColors(from: generated)
-        return Mesh(positions: positions, faces: faces, vertexColors: colors)
+        try ShapEMeshArrays.prepare(generated.meshResult.faces)
+        var mesh = try ShapEMeshArrays.mesh(from: generated)
+        mesh.vertexColors = try rgbColors(from: generated)
+        return mesh
     }
 
     private static func rgbColors(from generated: ShapEMeshResult) throws -> [Float]? {

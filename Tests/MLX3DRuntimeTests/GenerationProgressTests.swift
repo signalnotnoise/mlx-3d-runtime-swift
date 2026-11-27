@@ -169,77 +169,60 @@ struct GenerationProgressTests {
     }
 
     @Test func emptyAndDegeneratePartialsAreDroppedWithoutCrashing() throws {
-        let empty = try shapEMesh(vertices: [], vertexShape: [0, 3], faces: [], faceShape: [0, 3])
-        let wrongRank = try shapEMesh(
-            vertices: [0, 0, 0, 1],
-            vertexShape: [2, 2],
-            faces: [0, 1, 2],
-            faceShape: [1, 3]
-        )
-        let emptyFaces = try shapEMesh(
-            vertices: trianglePositions,
-            vertexShape: [3, 3],
-            faces: [],
-            faceShape: [0, 3]
-        )
-        let good = try coloredTriangleResult()
-        let log = ProgressLog()
-        let callback = MLX3DRuntime.shapEProgress { log.record($0) }
+        let emptyVertices = MLXArray([Float](), [0, 3])
+        let emptyFaces = MLXArray([Int32](), [0, 3])
+        let wrongRank = MLXArray([Float(0), 0, 0, 1], [2, 2])
+        let triangleVertices = MLXArray(trianglePositions, [3, 3])
+        let triangleFaces = MLXArray([Int32(0), 1, 2], [1, 3])
+        let rgba = MLXArray(triangleRGBA, [3, 4])
+        let kept = ShapEMeshArrays.kept([
+            ShapEMeshArrays.PartialArrays(vertices: emptyVertices, faces: emptyFaces, rgba: nil),
+            ShapEMeshArrays.PartialArrays(vertices: wrongRank, faces: triangleFaces, rgba: nil),
+            ShapEMeshArrays.PartialArrays(vertices: triangleVertices, faces: emptyFaces, rgba: nil),
+            ShapEMeshArrays.PartialArrays(vertices: triangleVertices, faces: triangleFaces, rgba: rgba),
+        ])
+        let onlyEmpty = ShapEMeshArrays.kept([
+            ShapEMeshArrays.PartialArrays(vertices: emptyVertices, faces: emptyFaces, rgba: nil),
+        ])
 
-        callback?("sampling", 1, 4, [empty, wrongRank, emptyFaces, good])
-        callback?("sampling", 2, 4, [empty])
-
-        #expect(log.events.count == 2)
-        #expect(log.events[0].phase == "sampling")
-        #expect(log.events[0].partialMeshes == [coloredTriangle])
-        #expect(log.events[1].partialMeshes == [])
+        #expect(kept == [coloredTriangle])
+        #expect(onlyEmpty == [])
         #expect(throws: MLX3DRuntimeError.emptyMesh) {
-            _ = try MLX3DRuntime.meshes(from: [empty])
+            _ = try ShapEMeshArrays.mesh(vertices: emptyVertices, faces: emptyFaces, rgba: nil)
         }
         #expect(throws: MLX3DRuntimeError.emptyMesh) {
-            _ = try MLX3DRuntime.mesh(from: emptyFaces)
+            _ = try ShapEMeshArrays.mesh(vertices: triangleVertices, faces: emptyFaces, rgba: nil)
         }
-        let finished = try MLX3DRuntime.meshes(from: [good])
-        #expect(finished == [coloredTriangle])
-        let emptyVertices = try empty.mlxVertices()
+        let finished = try ShapEMeshArrays.mesh(
+            vertices: triangleVertices,
+            faces: triangleFaces,
+            rgba: rgba
+        )
+        #expect(finished == coloredTriangle)
         #expect(throws: MLX3DRuntimeError.emptyMesh) {
             _ = try ShapEMeshArrays.floats(emptyVertices, components: 3)
         }
     }
 
     @Test func badColorsAndOutOfRangeFacesAreDropped() throws {
-        let badColors = try shapEMesh(
-            vertices: trianglePositions,
-            vertexShape: [3, 3],
-            faces: [0, 1, 2],
-            faceShape: [1, 3],
-            rgba: [Float](repeating: 0, count: 9),
-            rgbaShape: [3, 3]
-        )
-        let overflow = try shapEMesh(
-            vertices: trianglePositions,
-            vertexShape: [3, 3],
-            faces64: [0, 1, Int64(Int32.max) + 1],
-            faceShape: [1, 3]
-        )
-        let int64 = try shapEMesh(
-            vertices: trianglePositions,
-            vertexShape: [3, 3],
-            faces64: [0, 1, 2],
-            faceShape: [1, 3],
-            rgba: triangleRGBA,
-            rgbaShape: [3, 4]
-        )
-        let log = ProgressLog()
-        let callback = MLX3DRuntime.shapEProgress { log.record($0) }
-        callback?("sampling", 3, 8, [badColors, overflow, int64])
+        let triangleVertices = MLXArray(trianglePositions, [3, 3])
+        let triangleFaces = MLXArray([Int32(0), 1, 2], [1, 3])
+        let rgba = MLXArray(triangleRGBA, [3, 4])
+        let badColors = MLXArray([Float](repeating: 0, count: 9), [3, 3])
+        let overflow = MLXArray([Int64(0), 1, Int64(Int32.max) + 1], [1, 3])
+        let int64Faces = MLXArray([Int64(0), 1, 2], [1, 3])
+        let kept = ShapEMeshArrays.kept([
+            ShapEMeshArrays.PartialArrays(vertices: triangleVertices, faces: triangleFaces, rgba: badColors),
+            ShapEMeshArrays.PartialArrays(vertices: triangleVertices, faces: overflow, rgba: rgba),
+            ShapEMeshArrays.PartialArrays(vertices: triangleVertices, faces: int64Faces, rgba: rgba),
+        ])
 
-        #expect(log.events[0].partialMeshes == [coloredTriangle])
+        #expect(kept == [coloredTriangle])
         #expect(throws: MLX3DRuntimeError.colorCountMismatch(expected: 8, actual: 9)) {
-            _ = try MLX3DRuntime.mesh(from: badColors)
+            _ = try ShapEMeshArrays.mesh(vertices: triangleVertices, faces: triangleFaces, rgba: badColors)
         }
         #expect(throws: MLX3DRuntimeError.emptyMesh) {
-            _ = try MLX3DRuntime.mesh(from: overflow)
+            _ = try ShapEMeshArrays.mesh(vertices: triangleVertices, faces: overflow, rgba: rgba)
         }
     }
 
@@ -258,13 +241,13 @@ struct GenerationProgressTests {
         let cast = try ShapEMeshArrays.floats(half, components: 3)
         #expect(cast == trianglePositions)
 
-        let storedColors = MLXArray([Float](0..<16), [4, 4])
+        let storedColors = MLXArray(Array(0..<16).map { Float($0) }, [4, 4])
         let stridedColors = storedColors.transposed()
         #expect(stridedColors.strides != [4, 1])
         let colorValues = try ShapEMeshArrays.floats(stridedColors, components: 4)
         #expect(colorValues.count == 16)
 
-        let wide = MLXArray([Float](0..<24), [4, 6])
+        let wide = MLXArray(Array(0..<24).map { Float($0) }, [4, 6])
         let rowSlice = wide[0..., 0..<3]
         #expect(rowSlice.shape == [4, 3])
         #expect(rowSlice.strides != [3, 1])
@@ -438,70 +421,6 @@ private let coloredTriangle = Mesh(
         0.25, 0.5, 0.75,
     ]
 )
-
-private func coloredTriangleResult() throws -> ShapEMeshResult {
-    try shapEMesh(
-        vertices: trianglePositions,
-        vertexShape: [3, 3],
-        faces: [0, 1, 2],
-        faceShape: [1, 3],
-        rgba: triangleRGBA,
-        rgbaShape: [3, 4]
-    )
-}
-
-private func shapEMesh(
-    vertices: [Float],
-    vertexShape: [Int],
-    faces: [Int32] = [],
-    faces64: [Int64]? = nil,
-    faceShape: [Int],
-    rgba: [Float]? = nil,
-    rgbaShape: [Int]? = nil
-) throws -> ShapEMeshResult {
-    let faceTensor: RuntimeTensor
-    if let faces64 {
-        faceTensor = try RuntimeTensor(
-            name: "faces",
-            shape: faceShape,
-            dataType: .int64,
-            data: faces64.withUnsafeBytes { Data($0) }
-        )
-    } else {
-        faceTensor = try RuntimeTensor(
-            name: "faces",
-            shape: faceShape,
-            dataType: .int32,
-            data: faces.withUnsafeBytes { Data($0) }
-        )
-    }
-    var channels: [String: RuntimeTensor]?
-    if let rgba, let rgbaShape {
-        channels = [
-            "RGBA": try RuntimeTensor(
-                name: "RGBA",
-                shape: rgbaShape,
-                dataType: .float32,
-                data: rgba.withUnsafeBytes { Data($0) }
-            )
-        ]
-    }
-    return ShapEMeshResult(
-        meshResult: MeshResult(
-            vertices: try RuntimeTensor(
-                name: "vertices",
-                shape: vertexShape,
-                dataType: .float32,
-                data: vertices.withUnsafeBytes { Data($0) }
-            ),
-            faces: faceTensor,
-            vertexChannels: channels,
-            bbox: BoundingBox(minCorner: [0, 0, 0], maxCorner: [1, 1, 0]),
-            timings: [:],
-            artifactInfo: ArtifactVersionInfo(artifactVersion: 0, manifestPath: "test")
-        )
-    )
-}
 
 private let progressTriangle = Mesh(
     positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
