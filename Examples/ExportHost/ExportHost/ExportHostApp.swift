@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// App host so Model I/O registers its USD exporter. The SwiftPM test
-/// process does not. This target does not generate meshes or load weights.
+/// App host for reading a USDZ back through Model I/O and RealityKit.
+/// This target does not generate meshes or load weights.
 @main
 struct ExportHostApp: App {
     var body: some Scene {

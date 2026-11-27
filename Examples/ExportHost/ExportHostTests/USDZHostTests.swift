@@ -6,16 +6,9 @@ import simd
 
 import MLX3DRuntime
 
-/// USDZ checks that must run inside an application. `MDLAsset.canExportFileExtension("usdz")`
-/// is false in the SwiftPM `xctest` host and in `MLX3DCLI`.
+/// Reads a USDZ produced without `MDLAsset.canExportFileExtension("usdz")`,
+/// which is false even in this app. Model I/O and RealityKit still import it.
 final class USDZHostTests: XCTestCase {
-    func testUSDExporterIsRegisteredInTheApp() {
-        XCTAssertTrue(
-            MDLAsset.canExportFileExtension("usdz"),
-            "Model I/O should register the USD exporter in this app host."
-        )
-    }
-
     func testNativeUSDZRoundTripsPositionsIndicesAndColors() throws {
         let url = try directory().appendingPathComponent("native.usdz")
         try MeshExport.writeUSDZ(figure(), to: url)

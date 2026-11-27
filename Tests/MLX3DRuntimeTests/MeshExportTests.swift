@@ -260,9 +260,31 @@ struct MeshExportTests {
         #expect(yUpOBJ == nativeMTL)
     }
 
-    /// Model I/O registers its USD exporter in an application process. The SwiftPM
-    /// `xctest` host used by this target does not, so `writeUSDZ` fails before it
-    /// writes a file. `Examples/ExportHost` runs the same checks inside an app.
+    @Test func usdzWritesA64ByteAlignedZip() throws {
+        let directory = try makeDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let url = directory.appendingPathComponent("packed.usdz")
+        try MeshExport.write(triangle(colors: true), to: url)
+        let data = try Data(contentsOf: url)
+        #expect(data.prefix(2) == Data([0x50, 0x4b]))
+        var offset = 0
+        var payloads = 0
+        while offset + 30 <= data.count {
+            let signature = littleUInt32(data, offset)
+            if signature != 0x04034b50 { break }
+            let nameLength = Int(littleUInt16(data, offset + 26))
+            let extraLength = Int(littleUInt16(data, offset + 28))
+            let size = Int(littleUInt32(data, offset + 18))
+            let start = offset + 30 + nameLength + extraLength
+            #expect(start.isMultiple(of: 64))
+            payloads += 1
+            offset = start + size
+        }
+        #expect(payloads >= 1)
+    }
+
+    /// Model I/O does not export the `usdz` extension. These reads run in
+    /// `Examples/ExportHost`, where the file is imported again.
     @Test(
         .enabled(
             if: MDLAsset.canExportFileExtension("usdz"),
@@ -365,6 +387,14 @@ struct MeshExportTests {
         #expect(throws: MeshExportError.self) {
             try MeshExport.write(mesh, to: URL(fileURLWithPath: "/tmp/mesh.stl"))
         }
+    }
+
+    private func littleUInt16(_ data: Data, _ offset: Int) -> UInt16 {
+        UInt16(data[offset]) | (UInt16(data[offset + 1]) << 8)
+    }
+
+    private func littleUInt32(_ data: Data, _ offset: Int) -> UInt32 {
+        UInt32(littleUInt16(data, offset)) | (UInt32(littleUInt16(data, offset + 2)) << 16)
     }
 
     private func makeDirectory() throws -> URL {

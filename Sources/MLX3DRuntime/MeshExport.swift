@@ -13,6 +13,9 @@
 
 import Foundation
 import ModelIO
+#if canImport(SceneKit)
+import SceneKit
+#endif
 
 public enum MeshExportError: Error, Equatable, LocalizedError, Sendable {
     case emptyMesh
@@ -120,20 +123,14 @@ public enum MeshExport {
         try text.write(to: url, atomically: true, encoding: .utf8)
     }
 
-    /// Write USDZ via Model I/O. Per-vertex RGB is an MDL color attribute.
-    /// The Model I/O USD exporter must be registered in the process.
+    /// Write USDZ. Model I/O does not export the `usdz` extension. A crate or
+    /// USDA layer is packed into a 64-byte-aligned, uncompressed zip instead.
     public static func writeUSDZ(
         _ mesh: Mesh,
         to url: URL,
         options: MeshExportOptions = MeshExportOptions()
     ) throws {
         let checked = try validated(mesh, upAxis: options.upAxis)
-        guard MDLAsset.canExportFileExtension("usdz") else {
-            throw MeshExportError.exportFailed(
-                "ModelIO cannot export usdz in this process. The USD exporter is registered in an app, and it is absent in a bare command-line tool."
-            )
-        }
-        let asset = try makeMDLAsset(checked)
         try FileManager.default.createDirectory(
             at: url.deletingLastPathComponent(),
             withIntermediateDirectories: true
@@ -141,11 +138,9 @@ public enum MeshExport {
         if FileManager.default.fileExists(atPath: url.path) {
             try FileManager.default.removeItem(at: url)
         }
-        do {
-            try asset.export(to: url)
-        } catch {
-            throw MeshExportError.exportFailed(error.localizedDescription)
-        }
+        if try writeUSDZCrate(checked, to: url) { return }
+        if writeUSDZSceneKit(checked, to: url) { return }
+        try writeUSDZUSDA(checked, upAxis: options.upAxis, to: url)
     }
 
     /// Pick OBJ, PLY, or USDZ from the file extension.
@@ -461,5 +456,288 @@ public enum MeshExport {
             locale: Locale(identifier: "en_US_POSIX"),
             Double(normalized)
         )
+    }
+
+    /// Model I/O exports `usdc`/`usda`, not `usdz`. Zip the crate on 64-byte boundaries.
+    private static func writeUSDZCrate(_ geometry: CheckedMesh, to url: URL) throws -> Bool {
+        let ext: String
+        if MDLAsset.canExportFileExtension("usdc") {
+            ext = "usdc"
+        } else if MDLAsset.canExportFileExtension("usda") {
+            ext = "usda"
+        } else {
+            return false
+        }
+        let temp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("mlx3d-\(UUID().uuidString)")
+            .appendingPathExtension(ext)
+        defer { try? FileManager.default.removeItem(at: temp) }
+        do {
+            try makeMDLAsset(geometry).export(to: temp)
+        } catch {
+            return false
+        }
+        let payload = try Data(contentsOf: temp)
+        guard !payload.isEmpty else { return false }
+        try USDZArchive.pack([("mesh.\(ext)", payload)]).write(to: url, options: .atomic)
+        return true
+    }
+
+    /// SceneKit packages USDZ directly. `canExportFileExtension("usdz")` stays false.
+    private static func writeUSDZSceneKit(_ geometry: CheckedMesh, to url: URL) -> Bool {
+        #if canImport(SceneKit)
+        guard Bundle.main.bundleURL.pathExtension == "app" else { return false }
+        let scene = SCNScene()
+        scene.rootNode.addChildNode(SCNNode(geometry: sceneGeometry(geometry)))
+        guard scene.write(to: url, options: nil, delegate: nil, progressHandler: nil) else {
+            try? FileManager.default.removeItem(at: url)
+            return false
+        }
+        guard let data = try? Data(contentsOf: url), data.starts(with: Data([0x50, 0x4b])) else {
+            try? FileManager.default.removeItem(at: url)
+            return false
+        }
+        return true
+        #else
+        return false
+        #endif
+    }
+
+    private static func writeUSDZUSDA(
+        _ geometry: CheckedMesh,
+        upAxis: MeshExportUpAxis,
+        to url: URL
+    ) throws {
+        let text = usdaText(geometry, upAxis: upAxis)
+        try USDZArchive.pack([("mesh.usda", Data(text.utf8))]).write(to: url, options: .atomic)
+    }
+
+    #if canImport(SceneKit)
+    private static func sceneGeometry(_ geometry: CheckedMesh) -> SCNGeometry {
+        let stride = MemoryLayout<Float>.size * 3
+        var sources = [
+            SCNGeometrySource(
+                data: data(floats: geometry.positions),
+                semantic: .vertex,
+                vectorCount: geometry.vertexCount,
+                usesFloatComponents: true,
+                componentsPerVector: 3,
+                bytesPerComponent: MemoryLayout<Float>.size,
+                dataOffset: 0,
+                dataStride: stride
+            )
+        ]
+        if let colors = geometry.colors {
+            sources.append(
+                SCNGeometrySource(
+                    data: data(floats: colors),
+                    semantic: .color,
+                    vectorCount: geometry.vertexCount,
+                    usesFloatComponents: true,
+                    componentsPerVector: 3,
+                    bytesPerComponent: MemoryLayout<Float>.size,
+                    dataOffset: 0,
+                    dataStride: stride
+                )
+            )
+        }
+        let element = SCNGeometryElement(
+            data: data(indices: geometry.faces),
+            primitiveType: .triangles,
+            primitiveCount: geometry.faceCount,
+            bytesPerIndex: MemoryLayout<UInt32>.size
+        )
+        let mesh = SCNGeometry(sources: sources, elements: [element])
+        mesh.subdivisionLevel = 0
+        return mesh
+    }
+    #endif
+
+    private static func usdaText(_ geometry: CheckedMesh, upAxis: MeshExportUpAxis) -> String {
+        let axis = upAxis == .yUp ? "Y" : "Z"
+        var counts = [String]()
+        counts.reserveCapacity(geometry.faceCount)
+        for _ in 0..<geometry.faceCount {
+            counts.append("3")
+        }
+        var indices = [String]()
+        indices.reserveCapacity(geometry.faces.count)
+        for index in geometry.faces {
+            indices.append(String(index))
+        }
+        var points = [String]()
+        points.reserveCapacity(geometry.vertexCount)
+        for vertex in 0..<geometry.vertexCount {
+            let base = vertex * 3
+            points.append(
+                "(\(formatComponent(geometry.positions[base])), \(formatComponent(geometry.positions[base + 1])), \(formatComponent(geometry.positions[base + 2])))"
+            )
+        }
+        var colors = ""
+        if let values = geometry.colors {
+            var tuples = [String]()
+            tuples.reserveCapacity(geometry.vertexCount)
+            for vertex in 0..<geometry.vertexCount {
+                let base = vertex * 3
+                tuples.append(
+                    "(\(formatComponent(values[base])), \(formatComponent(values[base + 1])), \(formatComponent(values[base + 2])))"
+                )
+            }
+            colors = """
+                color3f[] primvars:displayColor = [\(tuples.joined(separator: ", "))] (
+                    interpolation = "vertex"
+                )
+
+            """
+        }
+        return """
+        #usda 1.0
+        (
+            defaultPrim = "Root"
+            metersPerUnit = 1
+            upAxis = "\(axis)"
+        )
+
+        def Xform "Root"
+        {
+            def Mesh "Mesh"
+            {
+                uniform token subdivisionScheme = "none"
+                int[] faceVertexCounts = [\(counts.joined(separator: ", "))]
+                int[] faceVertexIndices = [\(indices.joined(separator: ", "))]
+                point3f[] points = [\(points.joined(separator: ", "))]
+        \(colors)    }
+        }
+
+        """
+    }
+}
+
+/// Uncompressed zip with each file payload starting on a 64-byte boundary.
+private enum USDZArchive {
+    static func pack(_ entries: [(String, Data)]) -> Data {
+        var local = Data()
+        var central = Data()
+        for (name, payload) in entries {
+            let filename = Data(name.utf8)
+            let crc = crc32(payload)
+            let offset = local.count
+            let padding = extraPadding(offset: offset, nameLength: filename.count)
+            let extra = Data(count: padding)
+            let size = UInt32(payload.count)
+            appendLocalHeader(&local, name: filename, extra: extra, crc: crc, size: size)
+            local.append(payload)
+            appendCentralHeader(
+                &central,
+                name: filename,
+                extra: extra,
+                crc: crc,
+                size: size,
+                localOffset: UInt32(offset)
+            )
+        }
+        let centralOffset = UInt32(local.count)
+        let centralSize = UInt32(central.count)
+        local.append(central)
+        appendEnd(&local, count: UInt16(entries.count), centralSize: centralSize, centralOffset: centralOffset)
+        return local
+    }
+
+    private static func extraPadding(offset: Int, nameLength: Int) -> Int {
+        let remainder = (offset + 30 + nameLength) % 64
+        if remainder == 0 { return 0 }
+        return 64 - remainder
+    }
+
+    private static func appendLocalHeader(
+        _ data: inout Data,
+        name: Data,
+        extra: Data,
+        crc: UInt32,
+        size: UInt32
+    ) {
+        appendUInt32(&data, 0x04034b50)
+        appendUInt16(&data, 20)
+        appendUInt16(&data, 1 << 11)
+        appendUInt16(&data, 0)
+        appendUInt16(&data, 0)
+        appendUInt16(&data, 0)
+        appendUInt32(&data, crc)
+        appendUInt32(&data, size)
+        appendUInt32(&data, size)
+        appendUInt16(&data, UInt16(name.count))
+        appendUInt16(&data, UInt16(extra.count))
+        data.append(name)
+        data.append(extra)
+    }
+
+    private static func appendCentralHeader(
+        _ data: inout Data,
+        name: Data,
+        extra: Data,
+        crc: UInt32,
+        size: UInt32,
+        localOffset: UInt32
+    ) {
+        appendUInt32(&data, 0x02014b50)
+        appendUInt16(&data, 20)
+        appendUInt16(&data, 20)
+        appendUInt16(&data, 1 << 11)
+        appendUInt16(&data, 0)
+        appendUInt16(&data, 0)
+        appendUInt16(&data, 0)
+        appendUInt32(&data, crc)
+        appendUInt32(&data, size)
+        appendUInt32(&data, size)
+        appendUInt16(&data, UInt16(name.count))
+        appendUInt16(&data, UInt16(extra.count))
+        appendUInt16(&data, 0)
+        appendUInt16(&data, 0)
+        appendUInt16(&data, 0)
+        appendUInt32(&data, 0)
+        appendUInt32(&data, localOffset)
+        data.append(name)
+        data.append(extra)
+    }
+
+    private static func appendEnd(
+        _ data: inout Data,
+        count: UInt16,
+        centralSize: UInt32,
+        centralOffset: UInt32
+    ) {
+        appendUInt32(&data, 0x06054b50)
+        appendUInt16(&data, 0)
+        appendUInt16(&data, 0)
+        appendUInt16(&data, count)
+        appendUInt16(&data, count)
+        appendUInt32(&data, centralSize)
+        appendUInt32(&data, centralOffset)
+        appendUInt16(&data, 0)
+    }
+
+    private static func appendUInt16(_ data: inout Data, _ value: UInt16) {
+        var little = value.littleEndian
+        withUnsafeBytes(of: &little) { data.append(contentsOf: $0) }
+    }
+
+    private static func appendUInt32(_ data: inout Data, _ value: UInt32) {
+        var little = value.littleEndian
+        withUnsafeBytes(of: &little) { data.append(contentsOf: $0) }
+    }
+
+    private static func crc32(_ data: Data) -> UInt32 {
+        var crc: UInt32 = 0xFFFF_FFFF
+        for byte in data {
+            crc ^= UInt32(byte)
+            for _ in 0..<8 {
+                if crc & 1 == 1 {
+                    crc = (crc >> 1) ^ 0xEDB8_8320
+                } else {
+                    crc >>= 1
+                }
+            }
+        }
+        return crc ^ 0xFFFF_FFFF
     }
 }

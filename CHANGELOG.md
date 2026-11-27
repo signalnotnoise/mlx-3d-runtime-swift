@@ -82,6 +82,10 @@ version tag yet.
 
 ### Fixed
 
+- USDZ export no longer depends on `MDLAsset.canExportFileExtension("usdz")`.
+  That check is false even inside an app, including the Xcode 26.6 GitHub
+  runner. The file is an uncompressed, 64-byte-aligned zip of a Model I/O
+  `usdc`/`usda` crate, a SceneKit USDZ package, or an ASCII USDA layer.
 - `removeBackground(from: UIImage)` maps `UIImage.Orientation` onto
   `CGImagePropertyOrientation` with an explicit switch. The two enums do not
   share raw values, so the previous cast dropped upright images and
