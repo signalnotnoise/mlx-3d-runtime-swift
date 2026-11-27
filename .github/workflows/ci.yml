@@ -146,6 +146,21 @@ jobs:
             -derivedDataPath "${RUNNER_TEMP}/ExampleDerived" \
             CODE_SIGNING_ALLOWED=NO
 
+      - name: Test USDZ export inside the macOS app host
+        run: |
+          set -euo pipefail
+          xcodebuild test \
+            -project Examples/ExportHost/ExportHost.xcodeproj \
+            -scheme ExportHost \
+            -destination 'platform=macOS' \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -parallel-testing-enabled NO \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
+            -derivedDataPath "${RUNNER_TEMP}/ExportHostDerived" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
+
       - name: Verify documentation anchors
         working-directory: ${{ github.workspace }}
         run: python3 scripts/verify_docs.py
@@ -237,3 +252,34 @@ jobs:
             -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
             -derivedDataPath "${RUNNER_TEMP}/DerivedData" \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Test USDZ export inside the iOS app host
+        run: |
+          set -euo pipefail
+          DESTINATION="$(python3 - << 'PY'
+          import json
+          import subprocess
+          import sys
+
+          listing = json.loads(subprocess.check_output(["xcrun", "simctl", "list", "devices", "available", "-j"]))
+          runtimes = sorted(key for key in listing["devices"] if "iOS" in key)
+          for runtime in reversed(runtimes):
+              for device in listing["devices"][runtime]:
+                  if device.get("isAvailable") and device.get("name", "").startswith("iPhone"):
+                      print(f"platform=iOS Simulator,id={device['udid']}")
+                      sys.exit(0)
+          sys.exit("no available iPhone simulator")
+          PY
+          )"
+          echo "destination ${DESTINATION}"
+          xcodebuild test \
+            -project Examples/ExportHost/ExportHost.xcodeproj \
+            -scheme ExportHost \
+            -destination "${DESTINATION}" \
+            -skipPackagePluginValidation \
+            -skipMacroValidation \
+            -parallel-testing-enabled NO \
+            -clonedSourcePackagesDirPath "${RUNNER_TEMP}/SourcePackages" \
+            -derivedDataPath "${RUNNER_TEMP}/ExportHostDerived" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO

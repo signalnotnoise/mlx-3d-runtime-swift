@@ -145,7 +145,7 @@
       {
         "file_path": "Tests/MLX3DRuntimeTests/MeshExportTests.swift",
         "line_start": 15,
-        "line_end": 613
+        "line_end": 618
       },
       {
         "file_path": "Tests/MLX3DRuntimeTests/CLIExitTests.swift",
@@ -177,7 +177,7 @@
       {
         "file_path": ".github/workflows/ci.yml",
         "line_start": 16,
-        "line_end": 239
+        "line_end": 285
       },
       {
         "file_path": "Examples/Integration/Package.swift",
@@ -759,7 +759,7 @@
       "kind": "tested_by",
       "file_path": "Tests/MLX3DRuntimeTests/MeshExportTests.swift",
       "line_start": 15,
-      "line_end": 613
+      "line_end": 618
     },
     {
       "from": "type.MarchingCubesExtractor",
@@ -796,11 +796,14 @@
   "content_hashes": {
     ".github/workflows/ci.yml:104-112": "84dc3291aded2a967fbaa1c85a7f5534062eb9fb9f572f5ed7b0e33a5b7a9df8",
     ".github/workflows/ci.yml:114-147": "c1509c40a08959bbfd84e08fa5281e3807290d4fb35b342b2bed5a1c5e8116e5",
-    ".github/workflows/ci.yml:16-239": "e3c49afbd39b2253965226f302bc07b1f60546d03b76639d5f1aaad51bf2eb2c",
-    ".github/workflows/ci.yml:227-239": "4e3e522e90303fa68094422537ed4c04d637d6745a3df40a1cad6100d2ae29a6",
+    ".github/workflows/ci.yml:149-162": "9de03f61e9717534f7e767184844d9a6509046415816309977f2766cab9c72c0",
+    ".github/workflows/ci.yml:16-285": "e26134c776efb3b8c380220e508cf9c1d4a9c36de161d98e521f1c46cd2610d5",
+    ".github/workflows/ci.yml:242-254": "4e3e522e90303fa68094422537ed4c04d637d6745a3df40a1cad6100d2ae29a6",
     ".github/workflows/ci.yml:26-31": "58b3c739dee7e7701ad416902daa4de3eb172545f2a6f5979b5585df8c9949f8",
+    ".github/workflows/ci.yml:275-285": "51e96e50f569dbf833ac737ca9b4c77d357226610dbc267da01fb217c2c4833e",
     ".github/workflows/ci.yml:40-47": "62d9951204305e9afba8dcc0580cbd780b9e147bdbe7f06047c9a7530eb5cafb",
     ".github/workflows/ci.yml:49-96": "3760bee72e3428cbe5470e8309a504016820164b24d7d7f27284c4d49791dc3c",
+    "Examples/ExportHost/ExportHostTests/USDZHostTests.swift:11-259": "ad97d3154c4e524c0ceef5001f7a5761a666e4ce7d2dc45944f2973d89b82713",
     "Examples/Integration/Package.swift:1-45": "1ccdb2cc33c39500b1e0d0a035517b5a6d8468e94e37811ed845e30624469a2c",
     "Examples/Integration/Package.swift:18-19": "bb0bbaf31647b73136b1258cb57f097e8472b8bbc4bdcaaeb57562129e1368b0",
     "Examples/Integration/Package.swift:24-33": "07cb9533fbb86ebfdfeb28e67168fee59ec12e483e6a99b304b68b31adf22c3e",
@@ -988,7 +991,7 @@
     "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:7-175": "458b2ddd08522924e2478f468b599a9d0be1eed280e5c92c41e62f2fc30b1799",
     "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:70-93": "8bd7d686e4d8129d0a44973dbc487a90af0596890c907ddc71756fefe4da4514",
     "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:8-10": "f060d137b343507f3ac6123c55b08c8e90c0873dc17e59ab8f84e23cd98da587",
-    "Tests/MLX3DRuntimeTests/MeshExportTests.swift:15-613": "d60cf726da713e1b5dffd3fc5bb1f832561f811cf1913a0d7a4b200c9e17cb15",
+    "Tests/MLX3DRuntimeTests/MeshExportTests.swift:15-618": "0096782cb0075312f2dd48227171366fba2335c850d79c5f8e47016e90a75081",
     "Tests/MLX3DRuntimeTests/MeshTests.swift:6-47": "e64d6f5a0d7e18e026e34d5636f1519d067e805773827471026beb295e9f8fd0",
     "Tests/MLX3DRuntimeTests/ModelCacheTests.swift:234-272": "dbbe3a9ca8f3c736fce713af870a8a241bbbddf3ebcc42db622ff478fa2df12b",
     "Tests/MLX3DRuntimeTests/ModelCacheTests.swift:276-369": "b1c5bfdfb048a6a411e2f84bf893a16b441d7b29b45388fe52fcd10716fb5505",

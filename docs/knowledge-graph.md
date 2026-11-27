@@ -62,6 +62,7 @@ flowchart TD
 | OBJ, PLY, and USDZ | `Sources/MLX3DRuntime/MeshExport.swift:17-465` |
 | CLI | `Sources/MLX3DCLI/MLX3DCLI.swift:18-168` |
 | Example link check | `Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18` |
-| CI | `.github/workflows/ci.yml:16-239` |
+| CI | `.github/workflows/ci.yml:16-285` |
+| App-hosted USDZ tests | `Examples/ExportHost/ExportHostTests/USDZHostTests.swift:11-259` |
 | Public sibling branch pins | `Package.swift:33-41` |
 | Ellipsoid test | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-92` |

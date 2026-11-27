@@ -35,14 +35,17 @@ xcodebuild build \
 
 `scripts/verify_docs.py` checks doc anchors. CI runs it after the example build.
 
-A second job, `ios-simulator`, runs on the same `macos-26` runner (`.github/workflows/ci.yml:153`). It resolves from GitHub into an empty cache, picks an available iPhone simulator, and runs `xcodebuild test -destination 'platform=iOS Simulator,...'` (`.github/workflows/ci.yml:227-239`) for `uiImageOrientationMapsToCGImagePropertyOrientation`, `uiImageRemoveBackgroundNormalizesEveryOrientation`, `sessionUIImageCutoutPathFeedsUprightPixels`, and `sessionUIImageSkippedAndFallbackPathsFeedUprightPixels`. The rest of the suite stays on the macOS job because MLX startup crashes the iOS simulator test runner. The macOS job does not compile UIKit.
+A second job, `ios-simulator`, runs on the same `macos-26` runner (`.github/workflows/ci.yml:168`). It resolves from GitHub into an empty cache, picks an available iPhone simulator, and runs `xcodebuild test -destination 'platform=iOS Simulator,...'` (`.github/workflows/ci.yml:242-254`) for `uiImageOrientationMapsToCGImagePropertyOrientation`, `uiImageRemoveBackgroundNormalizesEveryOrientation`, `sessionUIImageCutoutPathFeedsUprightPixels`, and `sessionUIImageSkippedAndFallbackPathsFeedUprightPixels`. The rest of the package suite stays on the macOS job because MLX startup crashes the iOS simulator test runner. The macOS job does not compile UIKit.
+
+USDZ is not part of that package test run. Model I/O does not register its USD exporter in the SwiftPM `xctest` process, so those checks are skipped there. Both jobs then run `ExportHost`, an app-hosted XCTest target (`Examples/ExportHost/ExportHostTests/USDZHostTests.swift:11-259`). The macOS host command is `.github/workflows/ci.yml:149-162`. The iOS Simulator host command is `.github/workflows/ci.yml:275-285`. `MLX3DCLI` does not write USDZ.
 
 ## What the tests cover
 
 | Suite | File | Covers |
 | --- | --- | --- |
 | `MeshTests` | `Tests/MLX3DRuntimeTests/MeshTests.swift:6-47` | Open triangle, closed tetrahedron, degenerate face |
-| `MeshExportTests` | `Tests/MLX3DRuntimeTests/MeshExportTests.swift:15-613` | OBJ+MTL references, unchanged PLY, legacy vertex-RGB OBJ, USDZ round-trip, Y-up pose and winding |
+| `MeshExportTests` | `Tests/MLX3DRuntimeTests/MeshExportTests.swift:15-618` | OBJ+MTL references, unchanged PLY, legacy vertex-RGB OBJ, Y-up pose and winding. USDZ cases skip unless Model I/O can export `usdz` |
+| `USDZHostTests` | `Examples/ExportHost/ExportHostTests/USDZHostTests.swift:11-259` | App-hosted USDZ round-trip, per-vertex color, Y-up winding, and RealityKit load when available |
 | `MarchingCubesTests` | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:7-102` | Grid corners, empty fields, closed ellipsoid at resolution 32 (`Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:70-93`) |
 | `VolumeGridBatchTests` | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:104-175` | Rejects grids outside 2...512 before weight load, and checks lazy batches match the full point list |
 | `ImageTensorTests` | `Tests/MLX3DRuntimeTests/ImageTensorTests.swift:9-80` | Missing file, opaque red, transparent pixel over 0.5 |

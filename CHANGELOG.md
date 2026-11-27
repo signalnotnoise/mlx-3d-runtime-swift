@@ -9,6 +9,10 @@ version tag yet.
 
 ### Added
 
+- `Examples/ExportHost`, a small macOS and iOS app whose hosted XCTest
+  target writes and reads USDZ. Model I/O does not register the USD exporter
+  in the SwiftPM test process or in `MLX3DCLI`, so the package tests skip
+  USDZ and the CLI does not offer it.
 - OBJ+MTL and USDZ export, adapted from Mesquette's `MeshExporter`.
   `writeOBJ` writes positions-only `v` lines, `mtllib`, `usemtl VertexColorAverage`,
   and a companion `.mtl` whose `Kd` is the average albedo (gray `0.75` when the

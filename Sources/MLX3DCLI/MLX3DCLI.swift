@@ -277,6 +277,8 @@ image options:
 
 Missing weights, a missing bundle, and a failed run exit nonzero.
 
+USDZ is not a CLI format. Model I/O registers that exporter in an app, not in this executable. Use MeshExport.writeUSDZ from an app.
+
 """
 
 let textHelp = """
