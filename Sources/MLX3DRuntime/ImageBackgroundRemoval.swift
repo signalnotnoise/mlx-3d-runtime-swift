@@ -216,6 +216,23 @@ public struct ImageBackgroundRemoval {
         let orientation = cgImagePropertyOrientation(for: uiImage.imageOrientation)
         return try await removeBackground(from: cgImage, orientation: orientation)
     }
+
+    /// Bitmap with `uiImage.imageOrientation` already applied, so the result is `.up`.
+    /// Uses the explicit orientation switch above. `.up` returns the original bitmap.
+    static func uprightCGImage(from uiImage: UIImage) throws -> CGImage {
+        guard let cgImage = uiImage.cgImage else {
+            throw MLX3DRuntimeError.imageUnreadable("UIImage has no CGImage.")
+        }
+        let orientation = cgImagePropertyOrientation(for: uiImage.imageOrientation)
+        guard orientation != .up else {
+            return cgImage
+        }
+        let oriented = CIImage(cgImage: cgImage).oriented(orientation)
+        guard let upright = CIContext().createCGImage(oriented, from: oriented.extent) else {
+            throw MLX3DRuntimeError.imageUnsupported("Could not apply UIImage orientation.")
+        }
+        return upright
+    }
     #endif
 
     #if canImport(AppKit)

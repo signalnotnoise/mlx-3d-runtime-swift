@@ -175,34 +175,12 @@ public enum MLX3DRuntime {
         bpeVocabularyURL: URL? = nil,
         options: TextToMeshOptions = TextToMeshOptions()
     ) async throws -> Mesh {
-        try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
-        let manifest = modelBundleURL.appendingPathComponent("manifest.json")
-        guard FileManager.default.fileExists(atPath: manifest.path) else {
-            throw MLX3DRuntimeError.bundleNotFound(modelBundleURL.path)
-        }
-        let vocabulary = bpeVocabularyURL
-            ?? modelBundleURL.appendingPathComponent("bpe_simple_vocab_16e6.txt.gz")
-        guard FileManager.default.fileExists(atPath: vocabulary.path) else {
-            throw MLX3DRuntimeError.bpeNotFound(vocabulary.path)
-        }
-
-        let runtime = try ShapERuntime(
-            modelBundleURL: modelBundleURL,
-            bpeVocabularyURL: vocabulary
-        )
-        let generated = try await runtime.generate(
+        try await MLX3DSession().textToMesh(
             prompt: prompt,
-            guidanceScale: options.guidanceScale,
-            numInferenceSteps: options.numInferenceSteps,
-            gridSize: options.gridSize,
-            queryBatchSize: options.queryBatchSize,
-            seed: options.seed
+            modelBundleURL: modelBundleURL,
+            bpeVocabularyURL: bpeVocabularyURL,
+            options: options
         )
-        let mesh = try mesh(from: generated)
-        guard mesh.faceCount > 0 else {
-            throw MLX3DRuntimeError.emptyMesh
-        }
-        return mesh
     }
 
     /// Image file to mesh through TripoSR.
@@ -333,9 +311,22 @@ public enum MLX3DRuntime {
     ) throws -> Mesh {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         try requireWeights(weightsURL)
+        let model = try makeTripoSRModel(weightsURL: weightsURL)
+        return try renderTripoSR(model: model, image: image, options: options)
+    }
+
+    static func makeTripoSRModel(weightsURL: URL) throws -> TripoSRModel {
         let model = TripoSRModel()
         MLX.eval(model.parameters())
         try model.loadWeights(from: weightsURL)
+        return model
+    }
+
+    static func renderTripoSR(
+        model: TripoSRModel,
+        image: MLXArray,
+        options: ImageToMeshOptions
+    ) throws -> Mesh {
         let batched = try batchedImage(image)
         let triplanes = model.forwardTriplanes(image: batched)
         eval(triplanes)
@@ -438,7 +429,7 @@ public enum MLX3DRuntime {
         return rgb
     }
 
-    private static func requireWeights(_ weightsURL: URL) throws {
+    static func requireWeights(_ weightsURL: URL) throws {
         var isDirectory: ObjCBool = false
         let exists = FileManager.default.fileExists(atPath: weightsURL.path, isDirectory: &isDirectory)
         guard exists, !isDirectory.boolValue else {

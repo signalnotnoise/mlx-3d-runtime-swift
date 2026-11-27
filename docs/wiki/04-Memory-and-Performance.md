@@ -10,6 +10,8 @@ Density queries build only the current batch of positions (`Sources/MLX3DRuntime
 
 A search of `Sources/` finds no `Memory.cacheLimit` and no `Device.setDefault` on the library or CLI path. Tests set `Device(.cpu)` (`Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:8-10`, `Tests/MLX3DRuntimeTests/ImageTensorTests.swift:10-12`, `Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:48`).
 
+`MLX3DSession` keeps loaded Shap-E and TripoSR objects in process memory until the caller `unload`s or `evict`s them (`Sources/MLX3DRuntime/MLX3DSession.swift:60-101`). There is no global cache. `MLX3DRuntime.textToMesh` allocates a session for that call and drops it (`Sources/MLX3DRuntime/MLX3DRuntime.swift:178-183`). The static image methods construct a new `TripoSRModel` per call (`Sources/MLX3DRuntime/MLX3DRuntime.swift:318-323`). The session does not write a weight cache to disk.
+
 This package has not been timed on device. There is no measured wall clock, resident set, or `Memory.peakMemory` for `textToMesh` or `imageToMesh` in this repo.
 
 ## Sibling measurements (not this binary)

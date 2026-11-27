@@ -14,6 +14,10 @@ public enum MLX3DRuntimeError: Error, Equatable, LocalizedError, Sendable {
     case bundleNotFound(String)
     case bpeNotFound(String)
     case emptyMesh
+    /// ``MLX3DSession/unload(_:)`` or ``MLX3DSession/unloadAll()`` ran while this
+    /// load was still in flight. The finished model was not written back into
+    /// the cache. Call ``MLX3DSession/load(_:)`` or generate again to retry.
+    case modelUnloaded(backend: MLX3DBackend, bundlePath: String)
 
     public var errorDescription: String? {
         switch self {
@@ -44,6 +48,9 @@ public enum MLX3DRuntimeError: Error, Equatable, LocalizedError, Sendable {
             return "CLIP BPE vocabulary not found at \(path)."
         case .emptyMesh:
             return "Mesh extraction produced no triangles."
+        case .modelUnloaded(let backend, let bundlePath):
+            return "Unloaded the \(backend.label) model at \(bundlePath) before that load finished. "
+                + "The model was not cached. Call load again to retry."
         }
     }
 }

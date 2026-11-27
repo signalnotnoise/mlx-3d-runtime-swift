@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import MLX
 import Testing
 
 #if canImport(UIKit)
@@ -214,6 +215,58 @@ struct ImageBackgroundRemovalTests {
     }
 
     #if canImport(UIKit)
+    @Test func sessionUIImageCutoutPathFeedsUprightPixels() async throws {
+        let reference = cornerImage()
+        let expected = rgba(reference)
+        let session = uiImageSession()
+        for orientation in rotatedOrientations {
+            let tagged = uiImage(reference, orientation: orientation)
+            #expect(rgba(displayedPixels(of: tagged)) == expected)
+            let input = try await session.modelInputCGImage(
+                uiImage: tagged,
+                options: ImageToMeshOptions(applyForegroundCutout: true, cutoutFailurePolicy: .strict),
+                foregroundCutout: { image, _, imageOrientation in
+                    #expect(imageOrientation == .up)
+                    #expect(rgba(image) == expected)
+                    return image
+                }
+            )
+            #expect(rgba(input) == expected)
+        }
+    }
+
+    @Test func sessionUIImageSkippedAndFallbackPathsFeedUprightPixels() async throws {
+        let reference = cornerImage()
+        let expected = rgba(reference)
+        let session = uiImageSession()
+        for orientation in rotatedOrientations {
+            let tagged = uiImage(reference, orientation: orientation)
+            #expect(rgba(displayedPixels(of: tagged)) == expected)
+            let skipped = try await session.modelInputCGImage(
+                uiImage: tagged,
+                options: ImageToMeshOptions(applyForegroundCutout: false),
+                foregroundCutout: { _, _, _ in
+                    Issue.record("cutout ran when it was disabled")
+                    return nil
+                }
+            )
+            #expect(rgba(skipped) == expected)
+            let fallback = try await session.modelInputCGImage(
+                uiImage: tagged,
+                options: ImageToMeshOptions(
+                    applyForegroundCutout: true,
+                    cutoutFailurePolicy: .fallbackToOriginal
+                ),
+                foregroundCutout: { image, _, imageOrientation in
+                    #expect(imageOrientation == .up)
+                    #expect(rgba(image) == expected)
+                    return nil
+                }
+            )
+            #expect(rgba(fallback) == expected)
+        }
+    }
+
     @Test func uiImageOrientationMapsToCGImagePropertyOrientation() {
         let cases: [(UIImage.Orientation, CGImagePropertyOrientation)] = [
             (.up, .up),
@@ -264,6 +317,47 @@ struct ImageBackgroundRemovalTests {
             if uiOrientation != .up {
                 #expect(rgba(displayed) != rgba(uprightDisplay))
             }
+        }
+    }
+
+    private var rotatedOrientations: [UIImage.Orientation] {
+        [.right, .left, .down, .upMirrored]
+    }
+
+    private func uiImageSession() -> MLX3DSession {
+        MLX3DSession(
+            shapELoader: { _ in UIKitFakeShapE() },
+            tripoLoader: { _ in UIKitFakeTripo() }
+        )
+    }
+
+    /// Raw bitmap whose UIKit drawing at `orientation` is `reference`.
+    private func uiImage(_ reference: CGImage, orientation: UIImage.Orientation) -> UIImage {
+        let mapped = ImageBackgroundRemoval.cgImagePropertyOrientation(for: orientation)
+        let raw = ciOriented(reference, inverseOrientation(mapped))!
+        return UIImage(cgImage: raw, scale: 1, orientation: orientation)
+    }
+
+    private func inverseOrientation(
+        _ orientation: CGImagePropertyOrientation
+    ) -> CGImagePropertyOrientation {
+        switch orientation {
+        case .up:
+            return .up
+        case .upMirrored:
+            return .upMirrored
+        case .down:
+            return .down
+        case .downMirrored:
+            return .downMirrored
+        case .leftMirrored:
+            return .leftMirrored
+        case .right:
+            return .left
+        case .rightMirrored:
+            return .rightMirrored
+        case .left:
+            return .right
         }
     }
 
@@ -330,6 +424,24 @@ struct ImageBackgroundRemovalTests {
     }
     #endif
 }
+
+#if canImport(UIKit)
+private struct UIKitFakeShapE: SessionShapE {
+    func textMesh(prompt: String, options: TextToMeshOptions) async throws -> Mesh {
+        Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])
+    }
+
+    func imageMeshes(image: CGImage, options: ShapEImageToMeshOptions) async throws -> [Mesh] {
+        [Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])]
+    }
+}
+
+private struct UIKitFakeTripo: SessionTripoSR {
+    func mesh(image: MLXArray, options: ImageToMeshOptions) throws -> Mesh {
+        Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])
+    }
+}
+#endif
 
 private struct PrepFailed: Error {}
 
