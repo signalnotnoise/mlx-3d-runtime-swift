@@ -130,11 +130,14 @@ public enum MeshExport {
 }
 
 public struct TextToMeshOptions: Sendable { /* guidance 15, 64 steps, grid 128, batch 65536, seed 0 */ }
-public struct ImageToMeshOptions: Sendable { /* grid 128, threshold 25, batch 8192, radius nil, side 512, background 0.5 */ }
+public struct ImageToMeshOptions: Sendable { /* grid 128, threshold 25, batch 8192, radius nil, side 512, background 0.5, foreground cutout on at ratio 0.85, cutoutFailurePolicy .strict */ }
+public struct ShapEImageToMeshOptions: Sendable { /* guidance 3, 32 steps, grid 64, seed 0, white-background removal on */ }
 
 public enum MLX3DRuntime {
     public static func textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh
+    public static func imageToMeshShapE(cgImage:modelBundleURL:bpeVocabularyURL:options:) async throws -> [Mesh]
     public static func imageToMesh(imageURL:weightsURL:options:) throws -> Mesh
+    public static func imageToMesh(cgImage:weightsURL:options:) async throws -> Mesh
     public static func imageToMesh(image:weightsURL:options:) throws -> Mesh
 }
 
@@ -162,6 +165,7 @@ public final class MLX3DSession: Sendable {
 
 public enum ImageTensor {
     public static func rgb(contentsOf:side:background:) throws -> MLXArray
+    public static func rgb(cgImage:side:background:) throws -> MLXArray
 }
 
 public enum VolumeGrid {

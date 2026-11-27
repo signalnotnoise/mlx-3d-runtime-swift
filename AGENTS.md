@@ -8,25 +8,26 @@ Products: library `MLX3DRuntime`, executable `MLX3DCLI`, and the separate exampl
 
 Platforms in `Package.swift:13-16`: macOS 14, iOS 17, visionOS 1. Only the macOS `xcodebuild` path has been run. iOS and visionOS are declared and have not been run.
 
-`swift-tools-version: 6.2`. `mlx-swift` is `"0.31.3"..<"0.31.5"` (`Package.swift:32`).
+`swift-tools-version: 6.2`. `mlx-swift` is `"0.31.3"..<"0.31.5"` (`Package.swift:31`).
 
 Public entry points:
 
 - `MLX3DSession` at `Sources/MLX3DRuntime/MLX3DSession.swift:33-168`. The caller creates and holds it. Loaded Shap-E and TripoSR models stay in that session until `unload` or `evict`.
-- `textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:68-80`. Builds a throwaway `MLX3DSession`, so a second static call loads again. The session method checks the grid first (`Sources/MLX3DRuntime/MLX3DSession.swift:96`), then reuses the cached `ShapERuntime`.
-- `imageToMesh(imageURL:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:88-101`. Grid size is checked before the weights file (`Sources/MLX3DRuntime/MLX3DRuntime.swift:93-94`). Decodes a file to `[1, side, side, 3]` float RGB (`Sources/MLX3DRuntime/ImageTensor.swift:20`). This static path does not use the session cache.
-- `imageToMesh(image:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:107-116`. `image` is `[height, width, 3]` or `[1, height, width, 3]` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:173-194`). This overload does not resize. It loads a new `TripoSRModel` on every call.
-- Session `imageToMesh` overloads at `Sources/MLX3DRuntime/MLX3DSession.swift:118-145` are `async` and reuse the loaded TripoSR model for the same weights URL.
+- `textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:172-184`. Builds a throwaway `MLX3DSession`, so a second static call loads again. The session method checks the grid first (`Sources/MLX3DRuntime/MLX3DSession.swift:96`), then reuses the cached `ShapERuntime`.
+- `imageToMeshShapE(cgImage:modelBundleURL:bpeVocabularyURL:options:) async throws -> [Mesh]` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:260-265`. Shap-E image generation only. Default `applyWhiteBackgroundRemoval` runs `removeBackground` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:270-273`). This method is not used by TripoSR. The static entry constructs a new runtime on every call.
+- `imageToMesh(imageURL:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:193-197`. Grid size is checked before weights load (`Sources/MLX3DRuntime/MLX3DRuntime.swift:198-199`). Decodes a file to `[1, side, side, 3]` float RGB (`Sources/MLX3DRuntime/ImageTensor.swift:20`). Does not run a cutout.
+- `imageToMesh(cgImage:weightsURL:options:) async throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:217-221`. Default `applyForegroundCutout` runs `foregroundCutout` at ratio 0.85 (`Sources/MLX3DRuntime/MLX3DRuntime.swift:224-240`), then gray compositing. `cutoutFailurePolicy` defaults to `.strict` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:152`).
+- `imageToMesh(image:weightsURL:options:) throws -> Mesh` at `Sources/MLX3DRuntime/MLX3DRuntime.swift:307-311`. `image` is `[height, width, 3]` or `[1, height, width, 3]` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:440-461`). This overload does not resize or cut out. It loads a new `TripoSRModel` on every call.
+- Session file and tensor `imageToMesh` overloads at `Sources/MLX3DRuntime/MLX3DSession.swift:118-145` reuse the loaded TripoSR model. They do not run a cutout.
 
 `Mesh` packs positions as `x,y,z`, faces as triangle indices, and optional vertex colors as `r,g,b` (`Sources/MLX3DRuntime/Mesh.swift:5-10`).
 
-Image-to-mesh defaults live on `ImageToMeshOptions` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:44-51`): grid 128, threshold 25, query batch 8192, `radius` nil (then `model.renderer.radius`), image side 512, background 0.5, `maximumGridSize` 512. The hard cap is `VolumeGrid.maximumResolution` (`Sources/MLX3DRuntime/VolumeGrid.swift:9`). Density positions are built one batch at a time (`Sources/MLX3DRuntime/TripoSRMeshing.swift:62-67`). The numeric renderer radius is not hardcoded in this repo.
+TripoSR image defaults live on `ImageToMeshOptions` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:142-153`): grid 128, threshold 25, query batch 8192, `radius` nil (then `model.renderer.radius`), image side 512, background 0.5, `maximumGridSize` 512, foreground cutout on, ratio 0.85, `cutoutFailurePolicy` `.strict`. Shap-E image defaults live on `ShapEImageToMeshOptions` (`Sources/MLX3DRuntime/MLX3DRuntime.swift:86-98`): guidance 3, 32 steps, grid 64, seed 0, white-background removal on. The hard cap is `VolumeGrid.maximumResolution` (`Sources/MLX3DRuntime/VolumeGrid.swift:9`). Density positions are built one batch at a time (`Sources/MLX3DRuntime/TripoSRMeshing.swift:62-67`). The numeric renderer radius is not hardcoded in this repo.
 
 ## Out of scope
 
 - Model internals of Shap-E and TripoSR. Those symbols are external. They live in `shap-e-mlx-swift` and `triposr-mlx-swift`.
 - Training, fine-tuning, and Python parity or weight-conversion scripts.
-- Background removal beyond compositing an existing alpha over a flat color (`Sources/MLX3DRuntime/ImageTensor.swift:52-72`).
 - iOS and visionOS execution. The platforms are declared only.
 - Downloads, on-disk weight locations, and preload or unload policy. `MLX3DSession` only exposes `load`, `unload`, and `evict`. The caller decides when to use them.
 

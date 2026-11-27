@@ -20,6 +20,19 @@ public enum ImageTensor {
         return MLXArray(pixels).reshaped([1, side, side, 3])
     }
 
+    /// Same compositing as ``rgb(contentsOf:side:background:)`` for an in-memory image.
+    public static func rgb(
+        cgImage: CGImage,
+        side: Int = 512,
+        background: Float = 0.5
+    ) throws -> MLXArray {
+        guard side >= 1 else {
+            throw MLX3DRuntimeError.imageUnsupported("side must be at least 1, got \(side).")
+        }
+        let pixels = try rasterize(image: cgImage, side: side, background: background)
+        return MLXArray(pixels).reshaped([1, side, side, 3])
+    }
+
     private static func rasterize(url: URL, side: Int, background: Float) throws -> [Float] {
         guard FileManager.default.fileExists(atPath: url.path) else {
             throw MLX3DRuntimeError.imageUnreadable(url.path)
@@ -30,7 +43,10 @@ public enum ImageTensor {
         else {
             throw MLX3DRuntimeError.imageUnreadable(url.path)
         }
+        return try rasterize(image: image, side: side, background: background)
+    }
 
+    private static func rasterize(image: CGImage, side: Int, background: Float) throws -> [Float] {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGBitmapInfo.byteOrder32Big.union(
             CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
