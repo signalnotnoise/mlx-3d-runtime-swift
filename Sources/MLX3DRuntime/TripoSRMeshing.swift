@@ -6,7 +6,8 @@ enum TripoSRMeshing {
     static func extract(
         model: TripoSRModel,
         triplanes: MLXArray,
-        options: ImageToMeshOptions
+        options: ImageToMeshOptions,
+        progress: MLX3DProgressHandler?
     ) throws -> Mesh {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         guard options.queryBatchSize > 0 else {
@@ -26,23 +27,29 @@ enum TripoSRMeshing {
             resolution: options.gridSize,
             min: bboxMin,
             max: bboxMax,
-            batchSize: options.queryBatchSize
+            batchSize: options.queryBatchSize,
+            progress: progress
         )
-        return try MarchingCubesExtractor.extract(
+        GenerationProgress.emit(progress, phase: "meshing", step: 0, totalSteps: 1)
+        var mesh = try MarchingCubesExtractor.extract(
             field: density,
             resolution: options.gridSize,
             threshold: options.threshold,
             bboxMin: bboxMin,
             bboxMax: bboxMax,
-            vertexColorsAt: { positions in
-                try queryColors(
-                    model: model,
-                    triplanes: triplanes,
-                    positions: positions,
-                    batchSize: options.queryBatchSize
-                )
-            }
+            useMetalMarchingCubes: options.useMetalMarchingCubes
         )
+        GenerationProgress.emit(progress, phase: "meshing", step: 1, totalSteps: 1)
+        if mesh.vertexCount > 0 {
+            mesh.vertexColors = try queryColors(
+                model: model,
+                triplanes: triplanes,
+                positions: mesh.positions,
+                batchSize: options.queryBatchSize,
+                progress: progress
+            )
+        }
+        return mesh
     }
 
     private static func queryDensity(
@@ -51,12 +58,15 @@ enum TripoSRMeshing {
         resolution: Int,
         min bboxMin: SIMD3<Float>,
         max bboxMax: SIMD3<Float>,
-        batchSize: Int
+        batchSize: Int,
+        progress: MLX3DProgressHandler?
     ) throws -> [Float] {
         let pointCount = resolution * resolution * resolution
+        let chunkCount = max(1, (pointCount + batchSize - 1) / batchSize)
         var density = [Float]()
         density.reserveCapacity(pointCount)
         var offset = 0
+        var chunkIndex = 0
         while offset < pointCount {
             let count = min(batchSize, pointCount - offset)
             let slice = VolumeGrid.positions(
@@ -74,6 +84,13 @@ enum TripoSRMeshing {
             }
             density.append(contentsOf: values)
             offset += count
+            chunkIndex += 1
+            GenerationProgress.emit(
+                progress,
+                phase: "volume",
+                step: chunkIndex,
+                totalSteps: chunkCount
+            )
         }
         return density
     }
@@ -82,12 +99,15 @@ enum TripoSRMeshing {
         model: TripoSRModel,
         triplanes: MLXArray,
         positions: [Float],
-        batchSize: Int
+        batchSize: Int,
+        progress: MLX3DProgressHandler?
     ) throws -> [Float] {
         let pointCount = positions.count / 3
+        let chunkCount = max(1, (pointCount + batchSize - 1) / batchSize)
         var colors = [Float]()
         colors.reserveCapacity(positions.count)
         var offset = 0
+        var chunkIndex = 0
         while offset < pointCount {
             let count = min(batchSize, pointCount - offset)
             let slice = Array(positions[(offset * 3)..<((offset + count) * 3)])
@@ -100,6 +120,13 @@ enum TripoSRMeshing {
             }
             colors.append(contentsOf: values)
             offset += count
+            chunkIndex += 1
+            GenerationProgress.emit(
+                progress,
+                phase: "colors",
+                step: chunkIndex,
+                totalSteps: chunkCount
+            )
         }
         return colors
     }

@@ -109,36 +109,75 @@ public final class MLX3DSession: Sendable {
         }
     }
 
-    /// Text to mesh through the cached Shap-E runtime for this bundle and BPE file.
+    /// Text to one mesh through the cached Shap-E runtime for this bundle and BPE file.
+    ///
+    /// Always samples one mesh. ``textToMeshBatch(prompt:modelBundleURL:bpeVocabularyURL:batchSize:options:progress:)``
+    /// returns one mesh per row. `progress` is forwarded to Shap-E. Partial meshes
+    /// are produced only when `options.progressInterval` is greater than zero.
     public func textToMesh(
         prompt: String,
         modelBundleURL: URL,
         bpeVocabularyURL: URL? = nil,
-        options: TextToMeshOptions = TextToMeshOptions()
+        options: TextToMeshOptions = TextToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> Mesh {
+        let meshes = try await textToMeshBatch(
+            prompt: prompt,
+            modelBundleURL: modelBundleURL,
+            bpeVocabularyURL: bpeVocabularyURL,
+            batchSize: 1,
+            options: options,
+            progress: progress
+        )
+        guard let mesh = meshes.first else {
+            throw MLX3DRuntimeError.emptyMesh
+        }
+        return mesh
+    }
+
+    /// Text to `batchSize` meshes through the cached Shap-E runtime.
+    /// Each row uses `options.seed + row`.
+    public func textToMeshBatch(
+        prompt: String,
+        modelBundleURL: URL,
+        bpeVocabularyURL: URL? = nil,
+        batchSize: Int,
+        options: TextToMeshOptions = TextToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
+    ) async throws -> [Mesh] {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
+        guard batchSize > 0 else {
+            throw MLX3DRuntimeError.invalidBatchSize(batchSize)
+        }
         let key = MLX3DModelKey.shapE(
             modelBundleURL: modelBundleURL,
             bpeVocabularyURL: bpeVocabularyURL
         )
         let runtime = try await shapECache.model(for: key)
-        return try await runtime.textMesh(prompt: prompt, options: options)
+        return try await runtime.textMesh(
+            prompt: prompt,
+            options: options,
+            batchSize: batchSize,
+            progress: progress
+        )
     }
 
     /// Image file to mesh through the cached TripoSR model.
     public func imageToMesh(
         imageURL: URL,
         weightsURL: URL,
-        options: ImageToMeshOptions = ImageToMeshOptions()
+        options: ImageToMeshOptions = ImageToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> Mesh {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         let cached = try await cachedTripoSR(weightsURL: weightsURL)
         let image = try ImageTensor.rgb(
             contentsOf: imageURL,
             side: options.imageSide,
-            background: options.background
+            background: options.background,
+            resizeMode: options.resizeMode
         )
-        return try cached.mesh(image: image, options: options)
+        return try cached.mesh(image: image, options: options, progress: progress)
     }
 
     /// CGImage to mesh through the cached TripoSR model.
@@ -149,14 +188,16 @@ public final class MLX3DSession: Sendable {
     public func imageToMesh(
         cgImage: CGImage,
         weightsURL: URL,
-        options: ImageToMeshOptions = ImageToMeshOptions()
+        options: ImageToMeshOptions = ImageToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> Mesh {
         try await tripoCGImage(
             cgImage,
             weightsURL: weightsURL,
             options: options,
             orientation: .up,
-            foregroundCutout: nil
+            foregroundCutout: nil,
+            progress: progress
         )
     }
 
@@ -169,13 +210,15 @@ public final class MLX3DSession: Sendable {
     public func imageToMesh(
         uiImage: UIImage,
         weightsURL: URL,
-        options: ImageToMeshOptions = ImageToMeshOptions()
+        options: ImageToMeshOptions = ImageToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> Mesh {
         try await imageToMesh(
             uiImage: uiImage,
             weightsURL: weightsURL,
             options: options,
-            foregroundCutout: nil
+            foregroundCutout: nil,
+            progress: progress
         )
     }
 
@@ -183,7 +226,8 @@ public final class MLX3DSession: Sendable {
         uiImage: UIImage,
         weightsURL: URL,
         options: ImageToMeshOptions,
-        foregroundCutout: (@Sendable (CGImage, CGFloat, CGImagePropertyOrientation) async throws -> CGImage?)?
+        foregroundCutout: (@Sendable (CGImage, CGFloat, CGImagePropertyOrientation) async throws -> CGImage?)?,
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> Mesh {
         let upright = try ImageBackgroundRemoval.uprightCGImage(from: uiImage)
         return try await tripoCGImage(
@@ -191,7 +235,8 @@ public final class MLX3DSession: Sendable {
             weightsURL: weightsURL,
             options: options,
             orientation: .up,
-            foregroundCutout: foregroundCutout
+            foregroundCutout: foregroundCutout,
+            progress: progress
         )
     }
 
@@ -220,14 +265,16 @@ public final class MLX3DSession: Sendable {
         cgImage: CGImage,
         modelBundleURL: URL,
         bpeVocabularyURL: URL? = nil,
-        options: ShapEImageToMeshOptions = ShapEImageToMeshOptions()
+        options: ShapEImageToMeshOptions = ShapEImageToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> [Mesh] {
         try await shapEImage(
             cgImage,
             modelBundleURL: modelBundleURL,
             bpeVocabularyURL: bpeVocabularyURL,
             options: options,
-            removeBackground: nil
+            removeBackground: nil,
+            progress: progress
         )
     }
 
@@ -236,7 +283,8 @@ public final class MLX3DSession: Sendable {
         modelBundleURL: URL,
         bpeVocabularyURL: URL?,
         options: ShapEImageToMeshOptions,
-        removeBackground: (@Sendable (CGImage) async throws -> CGImage?)?
+        removeBackground: (@Sendable (CGImage) async throws -> CGImage?)?,
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> [Mesh] {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         guard options.batchSize > 0 else {
@@ -252,7 +300,7 @@ public final class MLX3DSession: Sendable {
             bpeVocabularyURL: bpeVocabularyURL
         )
         let runtime = try await shapECache.model(for: key)
-        return try await runtime.imageMeshes(image: prepared, options: options)
+        return try await runtime.imageMeshes(image: prepared, options: options, progress: progress)
     }
 
     func tripoCGImage(
@@ -260,7 +308,8 @@ public final class MLX3DSession: Sendable {
         weightsURL: URL,
         options: ImageToMeshOptions,
         orientation: CGImagePropertyOrientation,
-        foregroundCutout: (@Sendable (CGImage, CGFloat, CGImagePropertyOrientation) async throws -> CGImage?)?
+        foregroundCutout: (@Sendable (CGImage, CGFloat, CGImagePropertyOrientation) async throws -> CGImage?)?,
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> Mesh {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         let prepared = try await Self.preparedTripoImage(
@@ -272,10 +321,11 @@ public final class MLX3DSession: Sendable {
         let tensor = try ImageTensor.rgb(
             cgImage: prepared,
             side: options.imageSide,
-            background: options.background
+            background: options.background,
+            resizeMode: options.resizeMode
         )
         let cached = try await cachedTripoSR(weightsURL: weightsURL)
-        return try cached.mesh(image: tensor, options: options)
+        return try cached.mesh(image: tensor, options: options, progress: progress)
     }
 
     private static func preparedTripoImage(
@@ -314,11 +364,12 @@ public final class MLX3DSession: Sendable {
     nonisolated(nonsending) public func imageToMesh(
         image: MLXArray,
         weightsURL: URL,
-        options: ImageToMeshOptions = ImageToMeshOptions()
+        options: ImageToMeshOptions = ImageToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> Mesh {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         let cached = try await cachedTripoSR(weightsURL: weightsURL)
-        return try cached.mesh(image: image, options: options)
+        return try cached.mesh(image: image, options: options, progress: progress)
     }
 
     private func cachedTripoSR(weightsURL: URL) async throws -> any SessionTripoSR {
@@ -355,32 +406,57 @@ final class CachedTripoSRModel: @unchecked Sendable {
 }
 
 protocol SessionShapE: Sendable {
-    func textMesh(prompt: String, options: TextToMeshOptions) async throws -> Mesh
-    func imageMeshes(image: CGImage, options: ShapEImageToMeshOptions) async throws -> [Mesh]
+    func textMesh(
+        prompt: String,
+        options: TextToMeshOptions,
+        batchSize: Int,
+        progress: MLX3DProgressHandler?
+    ) async throws -> [Mesh]
+    func imageMeshes(
+        image: CGImage,
+        options: ShapEImageToMeshOptions,
+        progress: MLX3DProgressHandler?
+    ) async throws -> [Mesh]
 }
 
 protocol SessionTripoSR: Sendable {
-    func mesh(image: MLXArray, options: ImageToMeshOptions) throws -> Mesh
+    func mesh(
+        image: MLXArray,
+        options: ImageToMeshOptions,
+        progress: MLX3DProgressHandler?
+    ) throws -> Mesh
 }
 
 extension ShapERuntime: SessionShapE {
-    func textMesh(prompt: String, options: TextToMeshOptions) async throws -> Mesh {
+    func textMesh(
+        prompt: String,
+        options: TextToMeshOptions,
+        batchSize: Int,
+        progress: MLX3DProgressHandler?
+    ) async throws -> [Mesh] {
+        guard batchSize > 0 else {
+            throw MLX3DRuntimeError.invalidBatchSize(batchSize)
+        }
         let generated = try await generate(
             prompt: prompt,
+            batchSize: batchSize,
             guidanceScale: options.guidanceScale,
             numInferenceSteps: options.numInferenceSteps,
             gridSize: options.gridSize,
             queryBatchSize: options.queryBatchSize,
-            seed: options.seed
+            seed: options.seed,
+            useMetalMarchingCubes: options.useMetalMarchingCubes,
+            progressInterval: options.progressInterval,
+            progress: MLX3DRuntime.shapEProgress(progress)
         )
-        let mesh = try MLX3DRuntime.mesh(from: generated)
-        guard mesh.faceCount > 0 else {
-            throw MLX3DRuntimeError.emptyMesh
-        }
-        return mesh
+        return try MLX3DRuntime.meshes(from: generated)
     }
 
-    func imageMeshes(image: CGImage, options: ShapEImageToMeshOptions) async throws -> [Mesh] {
+    func imageMeshes(
+        image: CGImage,
+        options: ShapEImageToMeshOptions,
+        progress: MLX3DProgressHandler?
+    ) async throws -> [Mesh] {
         let generated = try await generate(
             image: image,
             batchSize: options.batchSize,
@@ -393,21 +469,18 @@ extension ShapERuntime: SessionShapE {
             seed: options.seed,
             useMetalMarchingCubes: options.useMetalMarchingCubes,
             progressInterval: options.progressInterval,
-            progress: nil
+            progress: MLX3DRuntime.shapEProgress(progress)
         )
-        guard !generated.isEmpty else {
-            throw MLX3DRuntimeError.emptyMesh
-        }
-        let meshes = try generated.map { try MLX3DRuntime.mesh(from: $0) }
-        guard meshes.allSatisfy({ $0.faceCount > 0 }) else {
-            throw MLX3DRuntimeError.emptyMesh
-        }
-        return meshes
+        return try MLX3DRuntime.meshes(from: generated)
     }
 }
 
 extension CachedTripoSRModel: SessionTripoSR {
-    func mesh(image: MLXArray, options: ImageToMeshOptions) throws -> Mesh {
-        try MLX3DRuntime.renderTripoSR(model: model, image: image, options: options)
+    func mesh(
+        image: MLXArray,
+        options: ImageToMeshOptions,
+        progress: MLX3DProgressHandler?
+    ) throws -> Mesh {
+        try MLX3DRuntime.renderTripoSR(model: model, image: image, options: options, progress: progress)
     }
 }
