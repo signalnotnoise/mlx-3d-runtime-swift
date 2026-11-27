@@ -6,9 +6,7 @@ signalnotnoise maintains this project. It is an integration layer over those two
 
 ## Install
 
-There is no version tag yet. The sibling packages are public and not tagged yet either.
-
-TODO: switch both sibling dependencies to `from: "0.1.0"` once `shap-e-mlx-swift` and `triposr-mlx-swift` are tagged. Until then `Package.swift` pins both to public branch `main`. The same TODO is in `Package.swift`.
+`Package.swift` depends on `shap-e-mlx-swift` and `triposr-mlx-swift` from `0.1.0`. Add this package the same way:
 
 ```swift
 // swift-tools-version: 6.2
@@ -22,7 +20,7 @@ let package = Package(
         .visionOS(.v1),
     ],
     dependencies: [
-        .package(url: "https://github.com/signalnotnoise/mlx-3d-runtime-swift.git", branch: "main"),
+        .package(url: "https://github.com/signalnotnoise/mlx-3d-runtime-swift.git", from: "0.1.0"),
     ],
     targets: [
         .target(
@@ -37,7 +35,7 @@ let package = Package(
 
 `mlx-swift` is declared as `0.31.3..<0.31.5`. Both public sibling manifests use that same range. `0.31.5` and later set Swift tools 6.3.
 
-Dependencies are the public GitHub URLs, not local paths. CI deletes the SwiftPM cache and resolves `main` from GitHub before it builds.
+Dependencies are the public GitHub URLs, not local paths. CI deletes the SwiftPM cache and resolves sibling `0.1.0` tags from GitHub before it builds.
 
 | Product | Kind |
 | --- | --- |

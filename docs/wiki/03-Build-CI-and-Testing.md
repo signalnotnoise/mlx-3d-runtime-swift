@@ -6,7 +6,7 @@ Do not use `swift build` or `swift test`. Metal's `default.metallib` comes from 
 
 CI runs on `macos-26` (`.github/workflows/ci.yml:18`) and selects `Xcode_26.6` when that app is present (`.github/workflows/ci.yml:26-31`). It installs the Metal toolchain if `xcodebuild -showComponent MetalToolchain` fails (`.github/workflows/ci.yml:40-47`).
 
-The job deletes the SwiftPM and DerivedData caches, then runs `xcodebuild -resolvePackageDependencies` into an empty directory (`.github/workflows/ci.yml:49-96`). It refuses to continue if `git url.insteadOf` is set, and it checks that `shap-e-mlx-swift`, `triposr-mlx-swift`, and `mlx-swift` resolved from their GitHub URLs, with the siblings on branch `main`. `Package.swift` lists those URLs (`Package.swift:31-41`).
+The job deletes the SwiftPM and DerivedData caches, then runs `xcodebuild -resolvePackageDependencies` into an empty directory (`.github/workflows/ci.yml:49-96`). It refuses to continue if `git url.insteadOf` is set, and it checks that `shap-e-mlx-swift`, `triposr-mlx-swift`, and `mlx-swift` resolved from their GitHub URLs, with the siblings at version `0.1.0`. `Package.swift` lists those URLs (`Package.swift:24-32`).
 
 Test command in CI (`.github/workflows/ci.yml:104-112`):
 
@@ -20,7 +20,7 @@ xcodebuild test \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-The example resolves into a second empty checkout directory and then builds (`.github/workflows/ci.yml:114-147`), from `Examples/Integration`:
+The example resolves into a second empty checkout directory, requires the same sibling `0.1.0` versions, and then builds (`.github/workflows/ci.yml:114-147`), from `Examples/Integration`:
 
 ```bash
 xcodebuild build \
@@ -31,7 +31,7 @@ xcodebuild build \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-`MLX3DRuntimeTests` depends on target `MLX3DCLI` (`Package.swift:58-66`), so the test scheme builds the CLI. A direct CLI build uses `-scheme MLX3DCLI` as in [AGENTS.md](../../AGENTS.md). That scheme name was not a separate CI step in `.github/workflows/ci.yml`.
+`MLX3DRuntimeTests` depends on target `MLX3DCLI` (`Package.swift:48-56`), so the test scheme builds the CLI. A direct CLI build uses `-scheme MLX3DCLI` as in [AGENTS.md](../../AGENTS.md). That scheme name was not a separate CI step in `.github/workflows/ci.yml`.
 
 `scripts/verify_docs.py` checks doc anchors. CI runs it after the example build.
 

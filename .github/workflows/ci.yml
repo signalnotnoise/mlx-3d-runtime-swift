@@ -89,8 +89,8 @@ jobs:
               if not location.startswith(prefix) or location.startswith("file:"):
                   sys.exit(f"{identity} did not resolve from GitHub: {location}")
               state = pin["state"]
-              if identity != "mlx-swift" and state.get("branch") != "main":
-                  sys.exit(f"{identity} branch is {state.get('branch')!r}, expected main")
+              if identity != "mlx-swift" and state.get("version") != "0.1.0":
+                  sys.exit(f"{identity} version is {state.get('version')!r}, expected 0.1.0")
               revision = state.get("revision", "")
               print(f"resolved {identity} {revision} {location}")
           PY
@@ -133,8 +133,8 @@ jobs:
           }.items():
               pin = pins[identity]
               location = pin["location"]
-              if not location.startswith(prefix) or pin["state"].get("branch") != "main":
-                  sys.exit(f"example {identity} did not resolve public main: {pin}")
+              if not location.startswith(prefix) or pin["state"].get("version") != "0.1.0":
+                  sys.exit(f"example {identity} did not resolve 0.1.0 from GitHub: {pin}")
               print(f"example resolved {identity} {pin['state']['revision']} {location}")
           PY
           xcodebuild build \

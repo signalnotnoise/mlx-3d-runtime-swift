@@ -2,10 +2,17 @@
 
 All notable changes to this package are documented in this file.
 
-The format is based on Keep a Changelog, and this package does not have a
-version tag yet.
+The format is based on Keep a Changelog.
 
 ## [Unreleased]
+
+### Changed
+
+- `Package.swift` pins `shap-e-mlx-swift` and `triposr-mlx-swift` to
+  `from: "0.1.0"` instead of branch `main`. `Package.resolved` records
+  shap-e `962403e` (the `v0.1.0` tag, which includes the `7ed124d`
+  tensor-byte mesh accessors) and triposr `5199405`. CI checks those
+  version pins after resolving from GitHub.
 
 ### Added
 
@@ -107,7 +114,6 @@ version tag yet.
 ### Notes
 
 - `shap-e-mlx-swift` and `triposr-mlx-swift` are public and pinned to
-  branch `main` until `0.1.0` is tagged. `mlx-swift` is constrained to
-  `0.31.3..<0.31.5`.
+  `from: "0.1.0"`. `mlx-swift` is constrained to `0.31.3..<0.31.5`.
 - CI resolves those URLs from GitHub with an empty SwiftPM cache. There is
   no `Vendor/` mirror.

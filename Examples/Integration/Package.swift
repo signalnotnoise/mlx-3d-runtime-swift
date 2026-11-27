@@ -5,9 +5,6 @@ import PackageDescription
 // imports ShapERuntime and TripoSRRuntime in the same target. Clone this
 // repository as `mlx-3d-runtime-swift` (the default git clone directory) so
 // the path package identity matches the product references below.
-//
-// TODO: Switch the branch pins to `from: "0.1.0"` when the root Package.swift does.
-// Until then both siblings are the public `main` branches.
 
 let package = Package(
     name: "MLX3DExample",
@@ -21,15 +18,13 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../.."),
-        // TODO: from: "0.1.0" once shap-e-mlx-swift is tagged. Public branch main.
         .package(
             url: "https://github.com/signalnotnoise/shap-e-mlx-swift.git",
-            branch: "main"
+            from: "0.1.0"
         ),
-        // TODO: from: "0.1.0" once triposr-mlx-swift is tagged. Public branch main.
         .package(
             url: "https://github.com/signalnotnoise/triposr-mlx-swift.git",
-            branch: "main"
+            from: "0.1.0"
         ),
     ],
     targets: [

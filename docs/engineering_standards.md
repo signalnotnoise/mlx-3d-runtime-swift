@@ -6,7 +6,7 @@ Invariants of this repository. Sibling model code is not specified here.
 
 `Package.swift:1` sets `swift-tools-version: 6.2`.
 
-`Package.swift:29-31` caps `mlx-swift` at `0.31.3..<0.31.5`. The comment states that `0.31.5` and later set Swift tools 6.3. Public `shap-e-mlx-swift` and `triposr-mlx-swift` `main` (commits `7ed124d1a9b408a84d3b96f0df66c53dd48b3de6` and `51994056febf3be5ed726e89de169037a2fbf6a6`) both declare that same range. Do not widen this package past `0.31.4`. `Package.resolved` pins that Shap-E commit. Its scalar mesh accessors read tensor bytes. This package still validates the `MLXArray` before `asArray`.
+`Package.swift:22-24` caps `mlx-swift` at `0.31.3..<0.31.5`. The comment states that `0.31.5` and later set Swift tools 6.3. Public `shap-e-mlx-swift` and `triposr-mlx-swift` `0.1.0` (commits `962403e2ccef75a10c084c09c70c92899e93d328` and `51994056febf3be5ed726e89de169037a2fbf6a6`) both declare that same range. Do not widen this package past `0.31.4`. `Package.resolved` pins Shap-E `v0.1.0` (`962403e`, which includes `7ed124d`). Its scalar mesh accessors read tensor bytes. This package still validates the `MLXArray` before `asArray`.
 
 ## Tensor layout and coordinates
 
