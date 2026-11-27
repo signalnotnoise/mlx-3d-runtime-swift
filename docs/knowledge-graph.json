@@ -85,8 +85,8 @@
       },
       {
         "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
-        "line_start": 37,
-        "line_end": 110
+        "line_start": 38,
+        "line_end": 111
       },
       {
         "file_path": "Tests/MLX3DRuntimeTests/ModelCacheTests.swift",
@@ -97,8 +97,8 @@
     "weight_search": [
       {
         "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
-        "line_start": 313,
-        "line_end": 324
+        "line_start": 314,
+        "line_end": 325
       },
       {
         "file_path": "Sources/MLX3DRuntime/MLX3DRuntime.swift",
@@ -294,8 +294,8 @@
       "kind": "class",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
-      "line_start": 37,
-      "line_end": 330,
+      "line_start": 38,
+      "line_end": 331,
       "summary": "Caller-owned cache of loaded Shap-E and TripoSR models. load, unload, and evict. No download or preload policy."
     },
     {
@@ -321,8 +321,8 @@
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
-      "line_start": 112,
-      "line_end": 125,
+      "line_start": 113,
+      "line_end": 126,
       "summary": "Cached Shap-E text to Mesh. Checks the grid, then reuses the loaded runtime for that key.",
       "tensor_signature": "ShapERuntime.generate -> Mesh positions [V,3] packed, faces [F,3] packed, optional RGB"
     },
@@ -607,8 +607,8 @@
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
-      "line_start": 204,
-      "line_end": 217,
+      "line_start": 205,
+      "line_end": 218,
       "summary": "Cached Shap-E image entry. Same white-background prep as the static method."
     },
     {
@@ -616,8 +616,8 @@
       "kind": "method",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MLX3DSession.swift",
-      "line_start": 148,
-      "line_end": 160,
+      "line_start": 149,
+      "line_end": 161,
       "summary": "Cached TripoSR CGImage entry. Runs foregroundCutout with CutoutFailurePolicy, then the cached model."
     }
   ],
@@ -890,20 +890,20 @@
     "Sources/MLX3DRuntime/MLX3DRuntimeError.swift:17-20": "0bbbf98fc9e9ebff990596a3600a78a6c5d4c12d3b5056697732dd7522e79515",
     "Sources/MLX3DRuntime/MLX3DRuntimeError.swift:3-56": "87bc5b9108c0f2d9cb8cef79d5dfd29f6c3b6c73ede320e6a84a4df5e45493a9",
     "Sources/MLX3DRuntime/MLX3DRuntimeError.swift:51-53": "da1a9d6a62f79a48af78992b4a00ff8d09bc614abc59d15a36671c7b5cf0cfd8",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:1-398": "17c6ff72c68c1ce6e9419662f38f6e486ff67c3008ed52e7558cf41f49a3b5b9",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:112-125": "f985e9b6e0a5784f8c41dc824677cbbed4bd0b6e6da3cb19b26b84984edf2a9f",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:128-141": "4d131123c9789080c60b674922f87630309bd84aefe2b16edef0c750cd05af17",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:148-160": "c6bddef076e11b2bf06552e705519c142bb99324ce36c340bd797fe9ac862d36",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:167-178": "9dc470691f26f1b5987983e3879a2fdec081abcba7faf325bd21af4a15792c34",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:204-217": "99ca0c876290b925ddbb90e75a985e40bb31138033dd8976a77a4680da009d04",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:299-307": "b5eaa85611a74dcaccdc4a65b3b4e0787434dcd96dea55a1e76b034a46db2d83",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:313-324": "0562cb412428c9dc8ee74d96a936e2a66128c12ba6c28e688c1224d72e24031e",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:326-329": "20940e821325e4683834a79b09bf4c0f23a1b8f6d4ccefad1bd97c9e643e58dd",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:362-364": "3a624651218878ac45745f4249b7bb4cd1d835f383ece62714374dedc23aad5f",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:37-110": "be70f84c4ee5769128bf9e35ed66deb0df0af66114667632616647734322f816",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:37-330": "c4b9dba0246c9328bf0d2ad13f2d2ca3f932f6807db0b9ff61070f932c4c555e",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:37-67": "6bd0428fd2c496a5ce68d07da81d8ebea95e1948f37fde15861c7c3aae959690",
-    "Sources/MLX3DRuntime/MLX3DSession.swift:59-100": "e51a2e1addb62ace2787d278cad8dacb307ee6d5e354e1cc829484db85c13f3e",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:113-126": "f985e9b6e0a5784f8c41dc824677cbbed4bd0b6e6da3cb19b26b84984edf2a9f",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:129-142": "4d131123c9789080c60b674922f87630309bd84aefe2b16edef0c750cd05af17",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:149-161": "c6bddef076e11b2bf06552e705519c142bb99324ce36c340bd797fe9ac862d36",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:168-179": "9dc470691f26f1b5987983e3879a2fdec081abcba7faf325bd21af4a15792c34",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:2-399": "700ce7351cfd9729de13925e3d6d22b0ed0cc8caaa81f84fb039e1ca31c7ecfa",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:205-218": "99ca0c876290b925ddbb90e75a985e40bb31138033dd8976a77a4680da009d04",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:300-308": "b5eaa85611a74dcaccdc4a65b3b4e0787434dcd96dea55a1e76b034a46db2d83",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:314-325": "0562cb412428c9dc8ee74d96a936e2a66128c12ba6c28e688c1224d72e24031e",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:327-330": "20940e821325e4683834a79b09bf4c0f23a1b8f6d4ccefad1bd97c9e643e58dd",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:363-365": "3a624651218878ac45745f4249b7bb4cd1d835f383ece62714374dedc23aad5f",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:38-111": "be70f84c4ee5769128bf9e35ed66deb0df0af66114667632616647734322f816",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:38-331": "c4b9dba0246c9328bf0d2ad13f2d2ca3f932f6807db0b9ff61070f932c4c555e",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:38-68": "6bd0428fd2c496a5ce68d07da81d8ebea95e1948f37fde15861c7c3aae959690",
+    "Sources/MLX3DRuntime/MLX3DSession.swift:60-101": "e51a2e1addb62ace2787d278cad8dacb307ee6d5e354e1cc829484db85c13f3e",
     "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:13-73": "15c50197e85852123e37fe8d407b91b8db0e348ce568b55992ba2d3f2cbddf87",
     "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:33-37": "c18d71c3c3467b1424bb2b81b7d079139f7dbc113e99821cd6b1d0974b8d372d",
     "Sources/MLX3DRuntime/MarchingCubesExtractor.swift:38-44": "c77daeb2f0387de787ecd4a06e9f782e44ff16bd64b84d56cdcbef79d3b49296",

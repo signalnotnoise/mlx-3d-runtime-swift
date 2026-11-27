@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import ImageIO
 @preconcurrency import MLX
 import ShapERuntime
 @preconcurrency import TripoSRRuntime

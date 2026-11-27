@@ -43,7 +43,7 @@ flowchart TD
 | --- | --- |
 | Package pins and products | `Package.swift:1-68` |
 | Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:16-184` |
-| Caller-owned loaded-model session | `Sources/MLX3DRuntime/MLX3DSession.swift:1-398` |
+| Caller-owned loaded-model session | `Sources/MLX3DRuntime/MLX3DSession.swift:2-399` |
 | Model key | `Sources/MLX3DRuntime/MLX3DModelKey.swift:1-78` |
 | In-memory load cache | `Sources/MLX3DRuntime/MLX3DModelCache.swift:1-168` |
 | Shap-E image options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:68-122` |
