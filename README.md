@@ -82,6 +82,8 @@ await session.unload(key)
 
 The Shap-E key is the bundle directory plus the BPE file (default `bpe_simple_vocab_16e6.txt.gz` inside the bundle). The TripoSR key is the safetensors URL. Prompt, seed, grid size, and steps are not part of the key.
 
+`session.imageToMesh(cgImage:)` runs the same foreground cutout as `MLX3DRuntime.imageToMesh(cgImage:)`, including `cutoutFailurePolicy` (`.strict` by default), then reuses the cached TripoSR model. `session.imageToMeshShapE` runs the same white-background `removeBackground` prep, then reuses the cached Shap-E runtime. On UIKit, `imageToMesh(uiImage:)` maps `UIImage.Orientation` with the explicit switch from `ImageBackgroundRemoval`.
+
 `Mesh.positions` and `Mesh.vertexColors` are packed `x, y, z` and `r, g, b`. `Mesh.faces` are packed triangle indices. `vertexColors` is `nil` when a path has no colors. Shap-E's RGBA channel is stored as RGB.
 
 Image-to-mesh decodes the file, composites alpha over gray `0.5`, and aspect-fits it into a 512×512 RGB tensor. It then queries TripoSR density on a 128³ grid in batches of 8192, runs marching cubes at threshold 25, and queries TripoSR for a color at each vertex. Positions for each density batch are built when that batch runs. `--grid-size` must be from 2 through 512 (`VolumeGrid.maximumResolution`). A larger size fails before weights load. `ImageToMeshOptions.maximumGridSize` can set a lower cap. It cannot raise 512. The default radius is the model's renderer radius, `0.87`.
@@ -160,7 +162,9 @@ public final class MLX3DSession: Sendable {
     public func evictAll() async
     public func textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh
     public func imageToMesh(imageURL:weightsURL:options:) async throws -> Mesh
+    public func imageToMesh(cgImage:weightsURL:options:) async throws -> Mesh
     public func imageToMesh(image:weightsURL:options:) async throws -> Mesh
+    public func imageToMeshShapE(cgImage:modelBundleURL:bpeVocabularyURL:options:) async throws -> [Mesh]
 }
 
 public enum ImageTensor {

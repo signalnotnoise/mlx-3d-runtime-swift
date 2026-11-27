@@ -18,6 +18,11 @@ version tag yet.
   `evict` drops a ready model and leaves an in-flight load alone. The session
   does not download weights or choose a preload policy. Static `textToMesh`
   uses a throwaway session. Static `imageToMesh` still loads on every call.
+- `MLX3DSession.imageToMesh(cgImage:)` runs the foreground cutout with
+  `CutoutFailurePolicy` (`.strict` by default) and then the cached TripoSR
+  model. `MLX3DSession.imageToMeshShapE` runs the white-background prep and
+  then the cached Shap-E runtime. On UIKit, `imageToMesh(uiImage:)` uses the
+  explicit `UIImage.Orientation` mapping.
 - Swift package `MLX3DRuntime` with library product `MLX3DRuntime` and
   executable product `MLX3DCLI`.
 - `Mesh` (positions, faces, optional vertex colors) plus OBJ and PLY export.

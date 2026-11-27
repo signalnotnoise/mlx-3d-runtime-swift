@@ -36,6 +36,8 @@ actor MLX3DModelCache<Model: Sendable> {
     /// refuses to store its model.
     private var generations: [MLX3DModelKey: UInt64] = [:]
     private var coalescedJoins = 0
+    /// New loader tasks started. A cache hit or a joined in-flight load does not increment this.
+    private(set) var loadsStarted = 0
 
     init(loader: @escaping Loader) {
         self.loader = loader
@@ -53,6 +55,7 @@ actor MLX3DModelCache<Model: Sendable> {
         }
 
         let generation = generations[key] ?? 0
+        loadsStarted += 1
         let load = loader
         let task = Task.detached {
             try await load(key)

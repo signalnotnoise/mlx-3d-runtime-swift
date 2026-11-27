@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import MLX
 import Testing
 
 #if canImport(UIKit)
@@ -214,6 +215,31 @@ struct ImageBackgroundRemovalTests {
     }
 
     #if canImport(UIKit)
+    @Test func sessionUIImageCutoutUsesMappedOrientation() async throws {
+        let source = solidImage(width: 4, height: 4, red: 10, green: 20, blue: 30, alpha: 255)
+        let tagged = UIImage(cgImage: source, scale: 1, orientation: .right)
+        let seen = OrientationBox()
+        let session = MLX3DSession(
+            shapELoader: { _ in UIKitFakeShapE() },
+            tripoLoader: { _ in UIKitFakeTripo() }
+        )
+        await #expect(
+            throws: MLX3DRuntimeError.imageUnsupported("Vision foreground cutout produced no subject.")
+        ) {
+            try await session.imageToMesh(
+                uiImage: tagged,
+                weightsURL: URL(fileURLWithPath: "/tmp/mlx3d/ui-weights.safetensors"),
+                options: ImageToMeshOptions(gridSize: 8, cutoutFailurePolicy: .strict),
+                foregroundCutout: { _, _, orientation in
+                    seen.value = orientation
+                    return nil
+                }
+            )
+        }
+        #expect(seen.value == .right)
+        #expect(await session.loadsStarted(for: .tripoSR) == 0)
+    }
+
     @Test func uiImageOrientationMapsToCGImagePropertyOrientation() {
         let cases: [(UIImage.Orientation, CGImagePropertyOrientation)] = [
             (.up, .up),
@@ -330,6 +356,28 @@ struct ImageBackgroundRemovalTests {
     }
     #endif
 }
+
+#if canImport(UIKit)
+private final class OrientationBox: @unchecked Sendable {
+    var value: CGImagePropertyOrientation?
+}
+
+private struct UIKitFakeShapE: SessionShapE {
+    func textMesh(prompt: String, options: TextToMeshOptions) async throws -> Mesh {
+        Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])
+    }
+
+    func imageMeshes(image: CGImage, options: ShapEImageToMeshOptions) async throws -> [Mesh] {
+        [Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])]
+    }
+}
+
+private struct UIKitFakeTripo: SessionTripoSR {
+    func mesh(image: MLXArray, options: ImageToMeshOptions) throws -> Mesh {
+        Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])
+    }
+}
+#endif
 
 private struct PrepFailed: Error {}
 

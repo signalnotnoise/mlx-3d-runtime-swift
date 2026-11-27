@@ -1,7 +1,11 @@
+import CoreGraphics
 import Foundation
 @preconcurrency import MLX
 import ShapERuntime
 @preconcurrency import TripoSRRuntime
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Caller-owned cache of loaded Shap-E and TripoSR weights.
 ///
@@ -31,16 +35,23 @@ import ShapERuntime
 /// actor. Image tensors stay on the caller side of that actor because
 /// `MLXArray` is not `Sendable`.
 public final class MLX3DSession: Sendable {
-    private let shapECache: MLX3DModelCache<ShapERuntime>
-    private let tripoCache: MLX3DModelCache<CachedTripoSRModel>
+    private let shapECache: MLX3DModelCache<any SessionShapE>
+    private let tripoCache: MLX3DModelCache<any SessionTripoSR>
 
-    public init() {
-        self.shapECache = MLX3DModelCache { key in
-            try Self.loadShapE(key)
-        }
-        self.tripoCache = MLX3DModelCache { key in
-            try Self.loadTripoSR(key)
-        }
+    public convenience init() {
+        self.init(
+            shapELoader: { key in try Self.loadShapE(key) },
+            tripoLoader: { key in try Self.loadTripoSR(key) }
+        )
+    }
+
+    /// Test seam. Production `init` uses the real weight loaders.
+    init(
+        shapELoader: @escaping MLX3DModelCache<any SessionShapE>.Loader,
+        tripoLoader: @escaping MLX3DModelCache<any SessionTripoSR>.Loader
+    ) {
+        self.shapECache = MLX3DModelCache(loader: shapELoader)
+        self.tripoCache = MLX3DModelCache(loader: tripoLoader)
     }
 
     /// Loads and caches the model for `key`. A ready entry returns without
@@ -86,6 +97,17 @@ public final class MLX3DSession: Sendable {
         await tripoCache.evictAll()
     }
 
+    /// How many times this session started a new load for `backend`.
+    /// A reused slot does not increment the count.
+    func loadsStarted(for backend: MLX3DBackend) async -> Int {
+        switch backend {
+        case .shapE:
+            await shapECache.loadsStarted
+        case .tripoSR:
+            await tripoCache.loadsStarted
+        }
+    }
+
     /// Text to mesh through the cached Shap-E runtime for this bundle and BPE file.
     public func textToMesh(
         prompt: String,
@@ -99,19 +121,7 @@ public final class MLX3DSession: Sendable {
             bpeVocabularyURL: bpeVocabularyURL
         )
         let runtime = try await shapECache.model(for: key)
-        let generated = try await runtime.generate(
-            prompt: prompt,
-            guidanceScale: options.guidanceScale,
-            numInferenceSteps: options.numInferenceSteps,
-            gridSize: options.gridSize,
-            queryBatchSize: options.queryBatchSize,
-            seed: options.seed
-        )
-        let mesh = try MLX3DRuntime.mesh(from: generated)
-        guard mesh.faceCount > 0 else {
-            throw MLX3DRuntimeError.emptyMesh
-        }
-        return mesh
+        return try await runtime.textMesh(prompt: prompt, options: options)
     }
 
     /// Image file to mesh through the cached TripoSR model.
@@ -127,7 +137,159 @@ public final class MLX3DSession: Sendable {
             side: options.imageSide,
             background: options.background
         )
-        return try MLX3DRuntime.renderTripoSR(model: cached.model, image: image, options: options)
+        return try cached.mesh(image: image, options: options)
+    }
+
+    /// CGImage to mesh through the cached TripoSR model.
+    ///
+    /// Cutout behavior matches ``MLX3DRuntime/imageToMesh(cgImage:weightsURL:options:)``:
+    /// ``CutoutFailurePolicy/strict`` by default, ``ImageBackgroundRemoval/foregroundCutout(from:ratio:orientation:)``
+    /// when the flag is on, then gray compositing. This method never calls `removeBackground`.
+    public func imageToMesh(
+        cgImage: CGImage,
+        weightsURL: URL,
+        options: ImageToMeshOptions = ImageToMeshOptions()
+    ) async throws -> Mesh {
+        try await tripoCGImage(
+            cgImage,
+            weightsURL: weightsURL,
+            options: options,
+            orientation: .up,
+            foregroundCutout: nil
+        )
+    }
+
+    #if canImport(UIKit)
+    /// UIImage to mesh through the cached TripoSR model.
+    ///
+    /// Orientation uses ``ImageBackgroundRemoval``'s explicit `UIImage.Orientation`
+    /// mapping, the same switch as `removeBackground(from: UIImage)`. It is not a raw-value cast.
+    public func imageToMesh(
+        uiImage: UIImage,
+        weightsURL: URL,
+        options: ImageToMeshOptions = ImageToMeshOptions()
+    ) async throws -> Mesh {
+        try await imageToMesh(
+            uiImage: uiImage,
+            weightsURL: weightsURL,
+            options: options,
+            foregroundCutout: nil
+        )
+    }
+
+    func imageToMesh(
+        uiImage: UIImage,
+        weightsURL: URL,
+        options: ImageToMeshOptions,
+        foregroundCutout: (@Sendable (CGImage, CGFloat, CGImagePropertyOrientation) async throws -> CGImage?)?
+    ) async throws -> Mesh {
+        guard let cgImage = uiImage.cgImage else {
+            throw MLX3DRuntimeError.imageUnreadable("UIImage has no CGImage.")
+        }
+        let orientation = ImageBackgroundRemoval.cgImagePropertyOrientation(for: uiImage.imageOrientation)
+        return try await tripoCGImage(
+            cgImage,
+            weightsURL: weightsURL,
+            options: options,
+            orientation: orientation,
+            foregroundCutout: foregroundCutout
+        )
+    }
+    #endif
+
+    /// CGImage to meshes through the cached Shap-E runtime.
+    ///
+    /// White-background prep matches ``MLX3DRuntime/imageToMeshShapE(cgImage:modelBundleURL:bpeVocabularyURL:options:)``.
+    /// This method never calls `foregroundCutout`.
+    public func imageToMeshShapE(
+        cgImage: CGImage,
+        modelBundleURL: URL,
+        bpeVocabularyURL: URL? = nil,
+        options: ShapEImageToMeshOptions = ShapEImageToMeshOptions()
+    ) async throws -> [Mesh] {
+        try await shapEImage(
+            cgImage,
+            modelBundleURL: modelBundleURL,
+            bpeVocabularyURL: bpeVocabularyURL,
+            options: options,
+            removeBackground: nil
+        )
+    }
+
+    func shapEImage(
+        _ cgImage: CGImage,
+        modelBundleURL: URL,
+        bpeVocabularyURL: URL?,
+        options: ShapEImageToMeshOptions,
+        removeBackground: (@Sendable (CGImage) async throws -> CGImage?)?
+    ) async throws -> [Mesh] {
+        try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
+        guard options.batchSize > 0 else {
+            throw MLX3DRuntimeError.invalidBatchSize(options.batchSize)
+        }
+        let prepared = await MLX3DRuntime.prepareShapEImage(
+            cgImage,
+            applyWhiteBackgroundRemoval: options.applyWhiteBackgroundRemoval,
+            removeBackground: removeBackground
+        )
+        let key = MLX3DModelKey.shapE(
+            modelBundleURL: modelBundleURL,
+            bpeVocabularyURL: bpeVocabularyURL
+        )
+        let runtime = try await shapECache.model(for: key)
+        return try await runtime.imageMeshes(image: prepared, options: options)
+    }
+
+    func tripoCGImage(
+        _ cgImage: CGImage,
+        weightsURL: URL,
+        options: ImageToMeshOptions,
+        orientation: CGImagePropertyOrientation,
+        foregroundCutout: (@Sendable (CGImage, CGFloat, CGImagePropertyOrientation) async throws -> CGImage?)?
+    ) async throws -> Mesh {
+        try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
+        let prepared = try await Self.preparedTripoImage(
+            cgImage,
+            options: options,
+            orientation: orientation,
+            foregroundCutout: foregroundCutout
+        )
+        let tensor = try ImageTensor.rgb(
+            cgImage: prepared,
+            side: options.imageSide,
+            background: options.background
+        )
+        let cached = try await cachedTripoSR(weightsURL: weightsURL)
+        return try cached.mesh(image: tensor, options: options)
+    }
+
+    private static func preparedTripoImage(
+        _ cgImage: CGImage,
+        options: ImageToMeshOptions,
+        orientation: CGImagePropertyOrientation,
+        foregroundCutout: (@Sendable (CGImage, CGFloat, CGImagePropertyOrientation) async throws -> CGImage?)?
+    ) async throws -> CGImage {
+        guard options.applyForegroundCutout else {
+            return cgImage
+        }
+        let cut = foregroundCutout ?? { image, ratio, orientation in
+            try await ImageBackgroundRemoval.foregroundCutout(
+                from: image,
+                ratio: ratio,
+                orientation: orientation
+            )
+        }
+        let outcome: Result<CGImage?, Error>
+        do {
+            outcome = .success(try await cut(cgImage, options.foregroundRatio, orientation))
+        } catch {
+            outcome = .failure(error)
+        }
+        return try MLX3DRuntime.resolveForegroundCutout(
+            source: cgImage,
+            outcome: outcome,
+            policy: options.cutoutFailurePolicy
+        )
     }
 
     /// Image tensor to mesh through the cached TripoSR model.
@@ -141,10 +303,10 @@ public final class MLX3DSession: Sendable {
     ) async throws -> Mesh {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         let cached = try await cachedTripoSR(weightsURL: weightsURL)
-        return try MLX3DRuntime.renderTripoSR(model: cached.model, image: image, options: options)
+        return try cached.mesh(image: image, options: options)
     }
 
-    private func cachedTripoSR(weightsURL: URL) async throws -> CachedTripoSRModel {
+    private func cachedTripoSR(weightsURL: URL) async throws -> any SessionTripoSR {
         try await tripoCache.model(for: MLX3DModelKey.tripoSR(weightsURL: weightsURL))
     }
 
@@ -174,5 +336,63 @@ final class CachedTripoSRModel: @unchecked Sendable {
 
     init(_ model: TripoSRModel) {
         self.model = model
+    }
+}
+
+protocol SessionShapE: Sendable {
+    func textMesh(prompt: String, options: TextToMeshOptions) async throws -> Mesh
+    func imageMeshes(image: CGImage, options: ShapEImageToMeshOptions) async throws -> [Mesh]
+}
+
+protocol SessionTripoSR: Sendable {
+    func mesh(image: MLXArray, options: ImageToMeshOptions) throws -> Mesh
+}
+
+extension ShapERuntime: SessionShapE {
+    func textMesh(prompt: String, options: TextToMeshOptions) async throws -> Mesh {
+        let generated = try await generate(
+            prompt: prompt,
+            guidanceScale: options.guidanceScale,
+            numInferenceSteps: options.numInferenceSteps,
+            gridSize: options.gridSize,
+            queryBatchSize: options.queryBatchSize,
+            seed: options.seed
+        )
+        let mesh = try MLX3DRuntime.mesh(from: generated)
+        guard mesh.faceCount > 0 else {
+            throw MLX3DRuntimeError.emptyMesh
+        }
+        return mesh
+    }
+
+    func imageMeshes(image: CGImage, options: ShapEImageToMeshOptions) async throws -> [Mesh] {
+        let generated = try await generate(
+            image: image,
+            batchSize: options.batchSize,
+            guidanceScale: options.guidanceScale,
+            numInferenceSteps: options.numInferenceSteps,
+            sigmaMin: options.sigmaMin,
+            sigmaMax: options.sigmaMax,
+            gridSize: options.gridSize,
+            queryBatchSize: options.queryBatchSize,
+            seed: options.seed,
+            useMetalMarchingCubes: options.useMetalMarchingCubes,
+            progressInterval: options.progressInterval,
+            progress: nil
+        )
+        guard !generated.isEmpty else {
+            throw MLX3DRuntimeError.emptyMesh
+        }
+        let meshes = try generated.map { try MLX3DRuntime.mesh(from: $0) }
+        guard meshes.allSatisfy({ $0.faceCount > 0 }) else {
+            throw MLX3DRuntimeError.emptyMesh
+        }
+        return meshes
+    }
+}
+
+extension CachedTripoSRModel: SessionTripoSR {
+    func mesh(image: MLXArray, options: ImageToMeshOptions) throws -> Mesh {
+        try MLX3DRuntime.renderTripoSR(model: model, image: image, options: options)
     }
 }

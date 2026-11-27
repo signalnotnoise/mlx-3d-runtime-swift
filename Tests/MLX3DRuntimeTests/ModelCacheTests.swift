@@ -1,4 +1,6 @@
+import CoreGraphics
 import Foundation
+import MLX
 import Testing
 
 @testable import MLX3DRuntime
@@ -269,6 +271,150 @@ struct SessionLoadTests {
         await session.evict(key)
         await session.evictAll()
     }
+}
+
+struct SessionImageCacheTests {
+    init() {
+        Device.setDefault(device: Device(.cpu))
+    }
+
+    @Test func shapEImageThrowsWhenTheBundleIsMissing() async {
+        let session = MLX3DSession()
+        let bundle = URL(fileURLWithPath: "/nonexistent/shap-e-bundle")
+        let key = MLX3DModelKey.shapE(modelBundleURL: bundle)
+        await #expect(throws: MLX3DRuntimeError.bundleNotFound(key.bundleURL.path)) {
+            try await session.imageToMeshShapE(
+                cgImage: solidCGImage(width: 4, height: 4),
+                modelBundleURL: bundle,
+                options: ShapEImageToMeshOptions(gridSize: 8, applyWhiteBackgroundRemoval: false)
+            )
+        }
+    }
+
+    @Test func tripoCutoutStrictNilDoesNotLoadAndFallbackDoes() async throws {
+        let image = solidCGImage(width: 4, height: 4)
+        let weights = URL(fileURLWithPath: "/tmp/mlx3d/session-weights.safetensors")
+        let strict = testSession()
+        await #expect(
+            throws: MLX3DRuntimeError.imageUnsupported("Vision foreground cutout produced no subject.")
+        ) {
+            try await strict.tripoCGImage(
+                image,
+                weightsURL: weights,
+                options: ImageToMeshOptions(gridSize: 8, cutoutFailurePolicy: .strict),
+                orientation: .up
+            ) { _, _, _ in
+                nil
+            }
+        }
+        #expect(await strict.loadsStarted(for: .tripoSR) == 0)
+
+        let thrown = testSession()
+        await #expect(throws: SessionPrepFailed.self) {
+            try await thrown.tripoCGImage(
+                image,
+                weightsURL: weights,
+                options: ImageToMeshOptions(gridSize: 8, cutoutFailurePolicy: .strict),
+                orientation: .up
+            ) { _, _, _ in
+                throw SessionPrepFailed()
+            }
+        }
+        #expect(await thrown.loadsStarted(for: .tripoSR) == 0)
+
+        let fallback = testSession()
+        let mesh = try await fallback.tripoCGImage(
+            image,
+            weightsURL: weights,
+            options: ImageToMeshOptions(gridSize: 8, cutoutFailurePolicy: .fallbackToOriginal),
+            orientation: .up
+        ) { _, _, _ in
+            nil
+        }
+        #expect(mesh.faceCount == 1)
+        #expect(await fallback.loadsStarted(for: .tripoSR) == 1)
+    }
+
+    @Test func secondShapEImageCallReusesTheSessionSlot() async throws {
+        let session = testSession()
+        let image = solidCGImage(width: 4, height: 4)
+        let bundle = URL(fileURLWithPath: "/tmp/mlx3d/session-bundle")
+        let options = ShapEImageToMeshOptions(gridSize: 8, applyWhiteBackgroundRemoval: false)
+        let first = try await session.imageToMeshShapE(
+            cgImage: image,
+            modelBundleURL: bundle,
+            options: options
+        )
+        let second = try await session.imageToMeshShapE(
+            cgImage: image,
+            modelBundleURL: bundle,
+            options: options
+        )
+        #expect(first.count == 1)
+        #expect(second == first)
+        #expect(await session.loadsStarted(for: .shapE) == 1)
+    }
+
+    @Test func secondTripoImageCallReusesTheSessionSlot() async throws {
+        let session = testSession()
+        let image = solidCGImage(width: 4, height: 4)
+        let weights = URL(fileURLWithPath: "/tmp/mlx3d/session-weights.safetensors")
+        let options = ImageToMeshOptions(gridSize: 8, applyForegroundCutout: false)
+        let first = try await session.imageToMesh(cgImage: image, weightsURL: weights, options: options)
+        let second = try await session.imageToMesh(cgImage: image, weightsURL: weights, options: options)
+        #expect(first.faceCount == 1)
+        #expect(second == first)
+        #expect(await session.loadsStarted(for: .tripoSR) == 1)
+    }
+}
+
+private func testSession() -> MLX3DSession {
+    MLX3DSession(
+        shapELoader: { _ in FakeSessionShapE() },
+        tripoLoader: { _ in FakeSessionTripo() }
+    )
+}
+
+private struct FakeSessionShapE: SessionShapE {
+    func textMesh(prompt: String, options: TextToMeshOptions) async throws -> Mesh {
+        sessionTriangle
+    }
+
+    func imageMeshes(image: CGImage, options: ShapEImageToMeshOptions) async throws -> [Mesh] {
+        [sessionTriangle]
+    }
+}
+
+private struct FakeSessionTripo: SessionTripoSR {
+    func mesh(image: MLXArray, options: ImageToMeshOptions) throws -> Mesh {
+        sessionTriangle
+    }
+}
+
+private let sessionTriangle = Mesh(
+    positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
+    faces: [0, 1, 2]
+)
+
+private struct SessionPrepFailed: Error {}
+
+private func solidCGImage(width: Int, height: Int) -> CGImage {
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
+    let bitmapInfo = CGBitmapInfo.byteOrder32Big.union(
+        CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+    )
+    let context = CGContext(
+        data: nil,
+        width: width,
+        height: height,
+        bitsPerComponent: 8,
+        bytesPerRow: width * 4,
+        space: colorSpace,
+        bitmapInfo: bitmapInfo.rawValue
+    )!
+    context.setFillColor(red: 0.2, green: 0.4, blue: 0.6, alpha: 1)
+    context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+    return context.makeImage()!
 }
 
 private func waitForJoins(_ cache: MLX3DModelCache<Int>, count: Int) async throws {

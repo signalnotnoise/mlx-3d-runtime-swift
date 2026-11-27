@@ -35,7 +35,7 @@ xcodebuild build \
 
 `scripts/verify_docs.py` checks doc anchors. CI runs it after the example build.
 
-A second job, `ios-simulator`, runs on the same `macos-26` runner (`.github/workflows/ci.yml:153`). It resolves from GitHub into an empty cache, picks an available iPhone simulator, and runs `xcodebuild test -destination 'platform=iOS Simulator,...'` (`.github/workflows/ci.yml:227-237`) for `uiImageOrientationMapsToCGImagePropertyOrientation` and `uiImageRemoveBackgroundNormalizesEveryOrientation`. The rest of the suite stays on the macOS job because MLX startup crashes the iOS simulator test runner. The macOS job does not compile UIKit.
+A second job, `ios-simulator`, runs on the same `macos-26` runner (`.github/workflows/ci.yml:153`). It resolves from GitHub into an empty cache, picks an available iPhone simulator, and runs `xcodebuild test -destination 'platform=iOS Simulator,...'` (`.github/workflows/ci.yml:227-238`) for `uiImageOrientationMapsToCGImagePropertyOrientation`, `uiImageRemoveBackgroundNormalizesEveryOrientation`, and `sessionUIImageCutoutUsesMappedOrientation`. The rest of the suite stays on the macOS job because MLX startup crashes the iOS simulator test runner. The macOS job does not compile UIKit.
 
 ## What the tests cover
 
@@ -51,7 +51,8 @@ A second job, `ios-simulator`, runs on the same `macos-26` runner (`.github/work
 | `ModelCacheTests` | `Tests/MLX3DRuntimeTests/ModelCacheTests.swift:8-232` | Fake loaders: reuse, single-flight load, failed load is retried, `unload` does not republish an in-flight model |
 | `SessionLoadTests` | `Tests/MLX3DRuntimeTests/ModelCacheTests.swift:234-272` | Missing bundle and weights throw on `MLX3DSession.load` and are not kept as a successful load |
 | `PublishedWeightTests` | `Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:40-65` | Skipped unless weights or a Shap-E bundle are present |
-| `ImageBackgroundRemovalTests` | `Tests/MLX3DRuntimeTests/ImageBackgroundRemovalTests.swift:7-338` | Mask bounds, square canvas ratio 0.85, TripoSR skip flag, strict versus fallback cutout policy, Shap-E white-prep skip, a macOS Vision cutout when one is produced, and the eight UIImage orientations on iOS |
+| `SessionImageCacheTests` | `Tests/MLX3DRuntimeTests/ModelCacheTests.swift:276-369` | Session image paths: missing Shap-E bundle, strict and fallback cutout policy, and a second call reuses the loaded slot |
+| `ImageBackgroundRemovalTests` | `Tests/MLX3DRuntimeTests/ImageBackgroundRemovalTests.swift:13-358` | Mask bounds, square canvas ratio 0.85, TripoSR skip flag, strict versus fallback cutout policy, Shap-E white-prep skip, a macOS Vision cutout when one is produced, the eight UIImage orientations on iOS, and the session UIImage orientation mapping |
 
 `PublishedWeightTests` only calls `loadWeights` or `ShapERuntime` init. It does not generate a mesh (`Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:47-64`).
 
