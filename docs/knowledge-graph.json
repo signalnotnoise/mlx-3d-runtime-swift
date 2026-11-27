@@ -61,8 +61,8 @@
       },
       {
         "file_path": "Sources/MLX3DRuntime/MeshExport.swift",
-        "line_start": 23,
-        "line_end": 120
+        "line_start": 20,
+        "line_end": 743
       }
     ],
     "cli_text_and_image": [
@@ -144,8 +144,8 @@
       },
       {
         "file_path": "Tests/MLX3DRuntimeTests/MeshExportTests.swift",
-        "line_start": 6,
-        "line_end": 98
+        "line_start": 15,
+        "line_end": 648
       },
       {
         "file_path": "Tests/MLX3DRuntimeTests/CLIExitTests.swift",
@@ -177,7 +177,7 @@
       {
         "file_path": ".github/workflows/ci.yml",
         "line_start": 16,
-        "line_end": 239
+        "line_end": 285
       },
       {
         "file_path": "Examples/Integration/Package.swift",
@@ -481,18 +481,36 @@
       "kind": "enum",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MeshExport.swift",
-      "line_start": 23,
-      "line_end": 172,
-      "summary": "OBJ and ASCII PLY writers."
+      "line_start": 81,
+      "line_end": 614,
+      "summary": "OBJ+MTL, ASCII PLY, and USDZ. Default up axis is native."
     },
     {
       "id": "type.MeshExportError",
       "kind": "enum",
       "target": "MLX3DRuntime",
       "file_path": "Sources/MLX3DRuntime/MeshExport.swift",
-      "line_start": 3,
-      "line_end": 21,
-      "summary": "emptyMesh, inconsistentCounts, faceVertexMismatch, unsupportedFormat."
+      "line_start": 20,
+      "line_end": 41,
+      "summary": "emptyMesh, inconsistentCounts, faceVertexMismatch, unsupportedFormat, exportFailed."
+    },
+    {
+      "id": "type.MeshExportUpAxis",
+      "kind": "enum",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MeshExport.swift",
+      "line_start": 43,
+      "line_end": 54,
+      "summary": "native Z-up, or explicit yUp rotation (x, z, -y) at export only."
+    },
+    {
+      "id": "type.MeshExportOptions",
+      "kind": "struct",
+      "target": "MLX3DRuntime",
+      "file_path": "Sources/MLX3DRuntime/MeshExport.swift",
+      "line_start": 67,
+      "line_end": 79,
+      "summary": "upAxis defaults to native. objColors defaults to materialAverage."
     },
     {
       "id": "type.MLX3DRuntimeError",
@@ -794,8 +812,8 @@
       "to": "type.MeshExportTests",
       "kind": "tested_by",
       "file_path": "Tests/MLX3DRuntimeTests/MeshExportTests.swift",
-      "line_start": 6,
-      "line_end": 98
+      "line_start": 15,
+      "line_end": 648
     },
     {
       "from": "type.MarchingCubesExtractor",
@@ -832,11 +850,14 @@
   "content_hashes": {
     ".github/workflows/ci.yml:104-112": "84dc3291aded2a967fbaa1c85a7f5534062eb9fb9f572f5ed7b0e33a5b7a9df8",
     ".github/workflows/ci.yml:114-147": "c1509c40a08959bbfd84e08fa5281e3807290d4fb35b342b2bed5a1c5e8116e5",
-    ".github/workflows/ci.yml:16-239": "e3c49afbd39b2253965226f302bc07b1f60546d03b76639d5f1aaad51bf2eb2c",
-    ".github/workflows/ci.yml:227-239": "4e3e522e90303fa68094422537ed4c04d637d6745a3df40a1cad6100d2ae29a6",
+    ".github/workflows/ci.yml:149-162": "9de03f61e9717534f7e767184844d9a6509046415816309977f2766cab9c72c0",
+    ".github/workflows/ci.yml:16-285": "e26134c776efb3b8c380220e508cf9c1d4a9c36de161d98e521f1c46cd2610d5",
+    ".github/workflows/ci.yml:242-254": "4e3e522e90303fa68094422537ed4c04d637d6745a3df40a1cad6100d2ae29a6",
     ".github/workflows/ci.yml:26-31": "58b3c739dee7e7701ad416902daa4de3eb172545f2a6f5979b5585df8c9949f8",
+    ".github/workflows/ci.yml:275-285": "51e96e50f569dbf833ac737ca9b4c77d357226610dbc267da01fb217c2c4833e",
     ".github/workflows/ci.yml:40-47": "62d9951204305e9afba8dcc0580cbd780b9e147bdbe7f06047c9a7530eb5cafb",
     ".github/workflows/ci.yml:49-96": "3760bee72e3428cbe5470e8309a504016820164b24d7d7f27284c4d49791dc3c",
+    "Examples/ExportHost/ExportHostTests/USDZHostTests.swift:11-323": "e7ee5bdd7b0edfc2f282ba7ac7344601442ba3988c3980ce8f22511ba6cac531",
     "Examples/Integration/Package.swift:1-45": "1ccdb2cc33c39500b1e0d0a035517b5a6d8468e94e37811ed845e30624469a2c",
     "Examples/Integration/Package.swift:18-19": "bb0bbaf31647b73136b1258cb57f097e8472b8bbc4bdcaaeb57562129e1368b0",
     "Examples/Integration/Package.swift:24-33": "07cb9533fbb86ebfdfeb28e67168fee59ec12e483e6a99b304b68b31adf22c3e",
@@ -989,12 +1010,25 @@
     "Sources/MLX3DRuntime/Mesh.swift:5-75": "6676f2dd9fff42e1ff301bf37a0007184bc87d31f2b345d13f57617e5b3ad5b8",
     "Sources/MLX3DRuntime/Mesh.swift:5-90": "59d180ba995e42f245a7614db268d36f39ae51fec8dbbbf3f513bbc76b2abff4",
     "Sources/MLX3DRuntime/Mesh.swift:77-90": "c4b22916abf33d7e79cd3ad132a0c69dad85b63d21710e15a6d7c0986aa1df7f",
-    "Sources/MLX3DRuntime/MeshExport.swift:113-118": "102cb7b4f22beadebadadf2d9a465ac0e082e826bc7662ddae54b352b058fce1",
-    "Sources/MLX3DRuntime/MeshExport.swift:23-120": "fb2d5dc1936559b0f0db9013884aa509955b77bcb87f00901b0fbabe31d1be02",
-    "Sources/MLX3DRuntime/MeshExport.swift:23-172": "334daaa32173a660028212f8fbcada836d5b5501fc40442fe189cea2ceadaaa6",
-    "Sources/MLX3DRuntime/MeshExport.swift:23-46": "82afda8f80eb61f155b3300216e37ea4699e382da9bd50c22c8a64b0638c6202",
-    "Sources/MLX3DRuntime/MeshExport.swift:3-21": "73c40ce1a4f04091b7f11bb081289e78ec2a548b4d7731cb6245b8c2fd35648d",
-    "Sources/MLX3DRuntime/MeshExport.swift:72-78": "83f1aed8f19e1b6c9e577774840bb502efadf16f13342049d8d7cf27f38f77dd",
+    "Sources/MLX3DRuntime/MeshExport.swift:112-114": "ecb69c5b71923b3f7cf8caaaa464e8c29bd09fc7e974e1b4aa27dac7b195820f",
+    "Sources/MLX3DRuntime/MeshExport.swift:128-144": "85400fe923031ce1bf025bc710a99d17541f7bc3d2bc39edbfae545e88a0f603",
+    "Sources/MLX3DRuntime/MeshExport.swift:166-189": "c47fa32d3cdb5c572509fdc1dc011c517b348cf186d86ff4d81f40c76ee12ea5",
+    "Sources/MLX3DRuntime/MeshExport.swift:192-213": "a4f10892d86e3526124b587a4fa5316f543773d4454738ea4f65525b972a2e9c",
+    "Sources/MLX3DRuntime/MeshExport.swift:192-229": "0ecbee6ac4f376ad95b36ef36a84ebfc014d489e6153dbf24d982df25c19c04b",
+    "Sources/MLX3DRuntime/MeshExport.swift:20-41": "01f2e259a20cf42e03a2d178efc68d232bc3c8a93595dba20bb5936e31b0eba2",
+    "Sources/MLX3DRuntime/MeshExport.swift:20-743": "4c300ac57fb7823b441dded43a216b4838cffa351bc3336a10ebeb312f4072ab",
+    "Sources/MLX3DRuntime/MeshExport.swift:216-229": "055d5e99e58f330688d6c477aa2a9fab1b9696aa9d24428560ec333bb001d9ae",
+    "Sources/MLX3DRuntime/MeshExport.swift:231-266": "3a1e30fa213abea950190f38042d62b5ae5653f18c70a880d5c9c4c4fcf4bf31",
+    "Sources/MLX3DRuntime/MeshExport.swift:307-321": "c3935d8cc6a13f7bab3b1a22aa973e35ea54874b02211c19be3dab88dec05426",
+    "Sources/MLX3DRuntime/MeshExport.swift:324-343": "8b8d2200c0f72838fc2df1f039744427255cb1fa7aee91ef797c4ebdc3387e17",
+    "Sources/MLX3DRuntime/MeshExport.swift:345-388": "a485692907f869114e85f65ea36f9b8cfc0b78f0d70a55f5106d17a2725cbbf6",
+    "Sources/MLX3DRuntime/MeshExport.swift:421-432": "52b92230dcc4e8080e6f6f84ac06713c4251e3c4dc3c32831c4f570d0e1f73a5",
+    "Sources/MLX3DRuntime/MeshExport.swift:43-54": "ecc10034d630d5fcb9ec091bda5f03df5bb06e95f108d1907b1bd9e83508eb10",
+    "Sources/MLX3DRuntime/MeshExport.swift:617-743": "41c71b81810665d959d5f7ae06c58cc2ee41e02e3d5cc96639d6198458a4b66f",
+    "Sources/MLX3DRuntime/MeshExport.swift:67-79": "a5dc8b1ce1ba65685fcfa54df1f96d94361e3e252a40ef32b998f2fb75400c8e",
+    "Sources/MLX3DRuntime/MeshExport.swift:81-162": "977ddd881681400e5d1353afedab9b4524113f88d485f5a1a74d6638a77661f5",
+    "Sources/MLX3DRuntime/MeshExport.swift:81-614": "56a4c5e65117f405fb218dce6295f5f78ffd4cd8e2039273488f9744f3104fc7",
+    "Sources/MLX3DRuntime/MeshExport.swift:87-114": "2c7e718eaabf15012862d2a50689e88a43b1bb6e760a8d92c7a4de0773a8ab30",
     "Sources/MLX3DRuntime/TripoSRMeshing.swift:109-116": "563bd3fe3625529b18c662c7449872cc734df8dbf8609c98d11e091edb73e906",
     "Sources/MLX3DRuntime/TripoSRMeshing.swift:113-119": "813fd49ebbf56a9a23b86480b162fd2fdb47e0ada377184562cf19e62a4ab4a7",
     "Sources/MLX3DRuntime/TripoSRMeshing.swift:116-116": "61accc803e0e04a77a34168f268356a333ad1bef3ee09a3cc25705da119d3aa2",
@@ -1035,7 +1069,7 @@
     "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:7-175": "458b2ddd08522924e2478f468b599a9d0be1eed280e5c92c41e62f2fc30b1799",
     "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:70-93": "8bd7d686e4d8129d0a44973dbc487a90af0596890c907ddc71756fefe4da4514",
     "Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:8-10": "f060d137b343507f3ac6123c55b08c8e90c0873dc17e59ab8f84e23cd98da587",
-    "Tests/MLX3DRuntimeTests/MeshExportTests.swift:6-98": "b39dab25cec7e18291be115393f5473d1155e75a79ca1492b3b1c6c7a413f69c",
+    "Tests/MLX3DRuntimeTests/MeshExportTests.swift:15-648": "856cbda61188d2a897c54ff9b04d5257302ec3c0a3c0127e9db08c6236c26647",
     "Tests/MLX3DRuntimeTests/MeshTests.swift:6-47": "e64d6f5a0d7e18e026e34d5636f1519d067e805773827471026beb295e9f8fd0",
     "Tests/MLX3DRuntimeTests/ModelCacheTests.swift:234-272": "dbbe3a9ca8f3c736fce713af870a8a241bbbddf3ebcc42db622ff478fa2df12b",
     "Tests/MLX3DRuntimeTests/ModelCacheTests.swift:276-369": "b1c5bfdfb048a6a411e2f84bf893a16b441d7b29b45388fe52fcd10716fb5505",

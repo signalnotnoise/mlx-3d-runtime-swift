@@ -60,9 +60,10 @@ flowchart TD
 | Loaded-model cache tests | `Tests/MLX3DRuntimeTests/ModelCacheTests.swift:8-272` |
 | Marching cubes | `Sources/MLX3DRuntime/MarchingCubesExtractor.swift:5-85` |
 | Mesh topology | `Sources/MLX3DRuntime/Mesh.swift:5-90` |
-| OBJ and PLY | `Sources/MLX3DRuntime/MeshExport.swift:23-172` |
+| OBJ, PLY, and USDZ | `Sources/MLX3DRuntime/MeshExport.swift:20-743` |
 | CLI | `Sources/MLX3DCLI/MLX3DCLI.swift:18-168` |
 | Example link check | `Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18` |
-| CI | `.github/workflows/ci.yml:16-239` |
+| CI | `.github/workflows/ci.yml:16-285` |
+| App-hosted USDZ tests | `Examples/ExportHost/ExportHostTests/USDZHostTests.swift:11-323` |
 | Public sibling branch pins | `Package.swift:33-41` |
 | Ellipsoid test | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-92` |

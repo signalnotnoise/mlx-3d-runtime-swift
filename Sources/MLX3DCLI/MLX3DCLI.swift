@@ -257,7 +257,7 @@ text options:
   --bundle <dir>               Shap-E bundle with manifest.json (or SHAP_E_BUNDLE)
   --bpe <file>                 CLIP BPE file. Default: <bundle>/bpe_simple_vocab_16e6.txt.gz
   --output <file>              Default mesh.obj
-  --format obj|ply             Default follows --output, otherwise obj
+  --format obj|ply             Default follows --output, otherwise obj. obj also writes a sibling .mtl
   --grid-size <int>            Default 128. Must be 2...512 (VolumeGrid.maximumResolution)
   --max-grid-size <int>        Optional lower cap. Cannot raise the hard cap of 512
   --steps <int>                Default 64
@@ -269,7 +269,7 @@ image options:
   --input <image>              Required
   --weights <file>             safetensors file, TRIPOSR_WEIGHTS_PATH, or ./triposr_swift_ready.safetensors
   --output <file>              Default mesh.obj
-  --format obj|ply             Default follows --output, otherwise obj
+  --format obj|ply             Default follows --output, otherwise obj. obj also writes a sibling .mtl
   --grid-size <int>            Default 128. Must be 2...512 (VolumeGrid.maximumResolution)
   --max-grid-size <int>        Optional lower cap. Cannot raise the hard cap of 512
   --threshold <float>          Default 25
@@ -277,18 +277,20 @@ image options:
 
 Missing weights, a missing bundle, and a failed run exit nonzero.
 
+USDZ is not a CLI format. Call MeshExport.writeUSDZ from an app. This executable writes OBJ and PLY.
+
 """
 
 let textHelp = """
 MLX3DCLI text --prompt <text> --bundle <runtime-bundle> [--output mesh.obj]
 
-Runs Shap-E and writes an OBJ or PLY mesh. See MLX3DCLI --help.
+Runs Shap-E and writes an OBJ (plus MTL) or PLY mesh in native coordinates. See MLX3DCLI --help.
 
 """
 
 let imageHelp = """
 MLX3DCLI image --input <image> --weights <triposr_swift_ready.safetensors> [--output mesh.obj]
 
-Runs TripoSR, samples density on a grid, and writes an OBJ or PLY mesh. See MLX3DCLI --help.
+Runs TripoSR, samples density on a grid, and writes an OBJ (plus MTL) or PLY mesh in native coordinates. See MLX3DCLI --help.
 
 """

@@ -1,6 +1,6 @@
 # MLX3DRuntime
 
-Swift package for text-to-3D and image-to-3D on Apple Silicon. Text prompts go through [shap-e-mlx-swift](https://github.com/signalnotnoise/shap-e-mlx-swift) (`ShapERuntime`). Images go through [triposr-mlx-swift](https://github.com/signalnotnoise/triposr-mlx-swift) (`TripoSRRuntime`). Both paths return one `Mesh` and can write OBJ or PLY.
+Swift package for text-to-3D and image-to-3D on Apple Silicon. Text prompts go through [shap-e-mlx-swift](https://github.com/signalnotnoise/shap-e-mlx-swift) (`ShapERuntime`). Images go through [triposr-mlx-swift](https://github.com/signalnotnoise/triposr-mlx-swift) (`TripoSRRuntime`). Both paths return one `Mesh`. Export writes OBJ+MTL, PLY, or USDZ.
 
 signalnotnoise maintains this project. It is an integration layer over those two packages. It does not modify them.
 
@@ -66,7 +66,14 @@ let scanned = try MLX3DRuntime.imageToMesh(
     weightsURL: weightsURL
 )
 try MeshExport.writePLY(scanned, to: URL(fileURLWithPath: "scan.ply"))
+try MeshExport.writeUSDZ(
+    mesh,
+    to: URL(fileURLWithPath: "chair.usdz"),
+    options: MeshExportOptions(upAxis: .yUp)
+)
 ```
+
+`writeOBJ` also writes `chair.mtl` beside the OBJ. The MTL `Kd` is the average vertex color. `upAxis` defaults to `.native`, so this sample's OBJ and PLY keep the mesh's Z-up coordinates. `.yUp` is opt-in and applies only to the file being written.
 
 Those static calls load weights on every request. Hold an `MLX3DSession` when the same weights should stay loaded. A second call with the same key reuses the model. Concurrent calls for that key share one in-flight load. A failed load is not cached. `unload` drops the model and, if a load is still running, does not put it back; waiters throw `MLX3DRuntimeError.modelUnloaded`. `evict` drops a model that is already loaded and leaves an in-flight load alone. The session does not download weights or decide when to preload.
 
@@ -91,6 +98,10 @@ Shap-E image generation already defaults Metal marching cubes to true and `progr
 `session.imageToMesh(cgImage:)` runs the same foreground cutout as `MLX3DRuntime.imageToMesh(cgImage:)`, including `cutoutFailurePolicy` (`.strict` by default), then reuses the cached TripoSR model. `session.imageToMeshShapE` runs the same white-background `removeBackground` prep, then reuses the cached Shap-E runtime. On UIKit, `imageToMesh(uiImage:)` uses that same switch to render an upright bitmap before the cutout. A skipped cutout and a fallback both send those upright pixels to TripoSR.
 
 `Mesh.positions` and `Mesh.vertexColors` are packed `x, y, z` and `r, g, b`. `Mesh.faces` are packed triangle indices. `vertexColors` is `nil` when a path has no colors. Shap-E's RGBA channel is stored as RGB.
+
+Shap-E and TripoSR meshes are Z-up: the body runs from the legs to the back along Z, and the back is toward +Z. Export does not change that unless you pass `upAxis: .yUp`. That option rotates `(x, y, z)` to `(x, z, -y)` while writing OBJ, PLY, or USDZ. It is a right-handed turn, so winding stays the same. The `Mesh` value itself is not modified. There is no implicit axis conversion.
+
+OBJ colors follow the Mesquette export invariant. `writeOBJ` writes positions only and a companion `.mtl` whose `Kd` is the average albedo (`0.75 0.75 0.75` when the mesh has no colors). Per-vertex color is kept in USDZ and in PLY. The older `v x y z r g b` OBJ is still available as `MeshExport.objText` or `MeshExportOptions(objColors: .vertexRGB)`. That option does not write an MTL, because the extra `v` components are not a standard OBJ file. The CLI writes the default OBJ+MTL (and PLY) in native coordinates. It does not write USDZ: Model I/O does not register that exporter in a command-line process. An app calls `MeshExport.writeUSDZ`. `.yUp` is a library option on every format the library writes. Share sheets and scene placement stay in the app. Package tests skip USDZ for the same process limitation. `Examples/ExportHost` is the app-hosted check, and CI runs it on macOS and on the iOS Simulator.
 
 Image-to-mesh decodes the file, composites alpha over gray `0.5`, and aspect-fits it into a 512×512 RGB tensor. It then queries TripoSR density on a 128³ grid in batches of 8192, runs marching cubes at threshold 25, and queries TripoSR for a color at each vertex. Positions for each density batch are built when that batch runs. `--grid-size` must be from 2 through 512 (`VolumeGrid.maximumResolution`). A larger size fails before weights load. `ImageToMeshOptions.maximumGridSize` can set a lower cap. It cannot raise 512. The default radius is the model's renderer radius, `0.87`.
 
@@ -131,10 +142,23 @@ public struct Mesh: Equatable, Sendable {
     public var isClosed: Bool { get }
 }
 
+public enum MeshExportUpAxis: Sendable, Equatable { case native, yUp }
+public enum MeshOBJColors: Sendable, Equatable { case materialAverage, vertexRGB }
+public struct MeshExportOptions: Sendable, Equatable {
+    public var upAxis: MeshExportUpAxis       // default .native
+    public var objColors: MeshOBJColors       // default .materialAverage
+}
+
 public enum MeshExport {
-    public static func writeOBJ(_ mesh: Mesh, to url: URL, comment: String? = nil) throws
-    public static func writePLY(_ mesh: Mesh, to url: URL) throws
-    public static func write(_ mesh: Mesh, to url: URL) throws
+    public static let materialName: String
+    public static func writeOBJ(_ mesh: Mesh, to url: URL, comment: String? = nil, options: MeshExportOptions = .init()) throws
+    public static func writePLY(_ mesh: Mesh, to url: URL, options: MeshExportOptions = .init()) throws
+    public static func writeUSDZ(_ mesh: Mesh, to url: URL, options: MeshExportOptions = .init()) throws
+    public static func write(_ mesh: Mesh, to url: URL, options: MeshExportOptions = .init()) throws
+    public static func materialURL(forOBJ url: URL) -> URL
+    public static func objText(_ mesh: Mesh, comment: String? = nil, options: MeshExportOptions = .init()) throws -> String
+    public static func wavefrontText(_ mesh: Mesh, mtlFileName: String, objectName: String, comment: String? = nil, options: MeshExportOptions = .init()) throws -> String
+    public static func materialText(for mesh: Mesh) throws -> String
 }
 
 public struct MLX3DGenerationEvent: Sendable, Equatable {
@@ -216,7 +240,7 @@ xcodebuild test \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-Unit tests cover mesh topology, OBJ and PLY export, a synthetic ellipsoid through marching cubes (closed, 0 boundary edges), image decoding, aspect-fit versus stretch, CLI exits when the bundle or weights are missing, the loaded-model cache, and generation progress. A missing bundle or weights file still throws, and the progress closure is not called. A test seam checks that phase events arrive in order and that a nil closure does not build a Shap-E callback. Cache tests inject a fake loader. They do not read weight files. They check reuse, one shared in-flight load, a failed load that is retried, and `unload` discarding a load that was already running. Loading real weights is optional: those tests skip when `TRIPOSR_WEIGHTS_PATH` / `triposr_swift_ready.safetensors` or `SHAP_E_BUNDLE` is absent. `xcodebuild` only forwards variables prefixed with `TEST_RUNNER_` into the test process.
+Unit tests cover mesh topology, OBJ+MTL and PLY export, a Y-up conversion that keeps winding, a synthetic ellipsoid through marching cubes (closed, 0 boundary edges), image decoding, aspect-fit versus stretch, CLI exits when the bundle or weights are missing, the loaded-model cache, and generation progress. USDZ round-trip runs in the app host, not in this package process. A missing bundle or weights file still throws, and the progress closure is not called. A test seam checks that phase events arrive in order and that a nil closure does not build a Shap-E callback. Cache tests inject a fake loader. They do not read weight files. They check reuse, one shared in-flight load, a failed load that is retried, and `unload` discarding a load that was already running. Loading real weights is optional: those tests skip when `TRIPOSR_WEIGHTS_PATH` / `triposr_swift_ready.safetensors` or `SHAP_E_BUNDLE` is absent. `xcodebuild` only forwards variables prefixed with `TEST_RUNNER_` into the test process.
 
 ## Scope
 
@@ -230,4 +254,4 @@ Shap-E and TripoSR weight files stay outside git. A full text-to-mesh or image-t
 
 MIT, Copyright (c) 2026 Ismael Alex Otero. See [LICENSE](LICENSE).
 
-Upstream Shap-E is MIT, Copyright (c) 2023 OpenAI. Upstream TripoSR is MIT, Copyright (c) 2024 Tripo AI & Stability AI. Attribution for both, and for MLX, is in [NOTICE](NOTICE).
+Upstream Shap-E is MIT, Copyright (c) 2023 OpenAI. Upstream TripoSR is MIT, Copyright (c) 2024 Tripo AI & Stability AI. The OBJ+MTL and USDZ writer is adapted from Mesquette, MIT, Copyright (c) 2026 signalnotnoise. Attribution is in [NOTICE](NOTICE).

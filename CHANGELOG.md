@@ -23,6 +23,18 @@ version tag yet.
 - TripoSR `useMetalMarchingCubes` (default false, the CPU extractor) and
   `resizeMode` (default `.aspectFit`; `.stretch` matches the previous
   Mesquette facade). `gridSize` stays caller-set and still defaults to 128.
+- `Examples/ExportHost`, a small macOS and iOS app whose hosted XCTest
+  target writes and reads USDZ. Model I/O does not register the USD exporter
+  in the SwiftPM test process or in `MLX3DCLI`, so the package tests skip
+  USDZ and the CLI does not offer it.
+- OBJ+MTL and USDZ export, adapted from Mesquette's `MeshExporter`.
+  `writeOBJ` writes positions-only `v` lines, `mtllib`, `usemtl VertexColorAverage`,
+  and a companion `.mtl` whose `Kd` is the average albedo (gray `0.75` when the
+  mesh has no colors). USDZ keeps per-vertex RGB through Model I/O. PLY is unchanged.
+  `MeshExportOptions.upAxis` defaults to `.native`. `.yUp` rotates Z-up meshes to
+  Y-up at export only: `(x, y, z)` becomes `(x, z, -y)`. Shap-E and TripoSR stay
+  Z-up in memory, legs to back along Z, back toward +Z. The historical
+  `v x y z r g b` OBJ remains `objText` and `objColors: .vertexRGB` (no MTL).
 - `MLX3DSession`, a caller-owned in-memory cache of loaded Shap-E and TripoSR
   models. The key is the backend, the bundle URL, and any other file the
   loader reads (the Shap-E BPE vocabulary). A second request reuses the loaded
@@ -62,8 +74,18 @@ version tag yet.
 - GitHub Actions workflow that builds, tests, and builds the example on macOS.
 - `NOTICE`, `.spi.yml`, and this changelog.
 
+### Changed
+
+- `MeshExport.writeOBJ` and `MeshExport.write` for a `.obj` URL no longer emit
+  vertex RGB on `v` lines. They write the Mesquette OBJ+MTL pair instead.
+  Pass `MeshExportOptions(objColors: .vertexRGB)` for the previous file.
+
 ### Fixed
 
+- USDZ export no longer depends on `MDLAsset.canExportFileExtension("usdz")`.
+  That check is false even inside an app, including the Xcode 26.6 GitHub
+  runner. The file is an uncompressed, 64-byte-aligned zip of a Model I/O
+  `usdc`/`usda` crate, a SceneKit USDZ package, or an ASCII USDA layer.
 - `removeBackground(from: UIImage)` maps `UIImage.Orientation` onto
   `CGImagePropertyOrientation` with an explicit switch. The two enums do not
   share raw values, so the previous cast dropped upright images and

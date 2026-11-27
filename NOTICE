@@ -31,4 +31,12 @@ the upstream models.
    The resolved version stays inside 0.31.3..<0.31.5 so TripoSRRuntime and
    ShapERuntime can use one mlx-swift checkout.
 
+4. Mesquette OBJ and USDZ export
+   https://github.com/signalnotnoise/Mesquette
+   MIT License, Copyright (c) 2026 signalnotnoise.
+   File: Mesquette/MeshExporter.swift at 971d381e32fba2e41feb979d4240b9b79ae01209.
+   This package copies the OBJ+MTL layout and the Model I/O USDZ mesh.
+   Share sheets, ZIP packaging, file naming, and scene placement stay in
+   the app. The copy in this repository is Copyright (c) 2026 Ismael Alex Otero.
+
 Model weights are not in this repository. See README.md.
