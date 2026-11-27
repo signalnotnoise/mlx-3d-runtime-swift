@@ -427,17 +427,29 @@ struct ImageBackgroundRemovalTests {
 
 #if canImport(UIKit)
 private struct UIKitFakeShapE: SessionShapE {
-    func textMesh(prompt: String, options: TextToMeshOptions) async throws -> Mesh {
-        Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])
+    func textMesh(
+        prompt: String,
+        options: TextToMeshOptions,
+        progress: MLX3DProgressHandler?
+    ) async throws -> [Mesh] {
+        [Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])]
     }
 
-    func imageMeshes(image: CGImage, options: ShapEImageToMeshOptions) async throws -> [Mesh] {
+    func imageMeshes(
+        image: CGImage,
+        options: ShapEImageToMeshOptions,
+        progress: MLX3DProgressHandler?
+    ) async throws -> [Mesh] {
         [Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])]
     }
 }
 
 private struct UIKitFakeTripo: SessionTripoSR {
-    func mesh(image: MLXArray, options: ImageToMeshOptions) throws -> Mesh {
+    func mesh(
+        image: MLXArray,
+        options: ImageToMeshOptions,
+        progress: MLX3DProgressHandler?
+    ) throws -> Mesh {
         Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])
     }
 }

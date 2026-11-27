@@ -55,11 +55,11 @@ TripoSR reads `triposr_swift_ready.safetensors` from [signalNotNoise/triposr-mlx
 ```swift
 import MLX3DRuntime
 
-let mesh = try await MLX3DRuntime.textToMesh(
+let meshes = try await MLX3DRuntime.textToMesh(
     prompt: "a red chair",
     modelBundleURL: bundleURL
 )
-try MeshExport.writeOBJ(mesh, to: URL(fileURLWithPath: "chair.obj"))
+try MeshExport.writeOBJ(meshes[0], to: URL(fileURLWithPath: "chair.obj"))
 
 let scanned = try MLX3DRuntime.imageToMesh(
     imageURL: imageURL,
@@ -77,10 +77,17 @@ try await session.load(key)
 
 let first = try await session.textToMesh(prompt: "a red chair", modelBundleURL: bundleURL)
 let second = try await session.textToMesh(prompt: "a blue lamp", modelBundleURL: bundleURL)
+// `first` and `second` are `[Mesh]`. The default batch size is 1.
 await session.unload(key)
 ```
 
 The Shap-E key is the bundle directory plus the BPE file (default `bpe_simple_vocab_16e6.txt.gz` inside the bundle). The TripoSR key is the safetensors URL. Prompt, seed, grid size, and steps are not part of the key.
+
+`textToMesh` returns one mesh per batch row. `TextToMeshOptions.batchSize` defaults to 1, `useMetalMarchingCubes` defaults to false, and `progressInterval` defaults to 0. Pass a `progress` closure to receive Shap-E phase and step events. Partial meshes are included only when `progressInterval` is greater than zero. A nil closure does not ask Shap-E to build that callback.
+
+TripoSR `imageToMesh` takes the same kind of closure. It reports `encoding`, `volume`, `meshing`, and `colors`, and the partial-mesh field stays nil. `ImageToMeshOptions.gridSize` defaults to 128. `useMetalMarchingCubes` defaults to false. `resizeMode` defaults to `.aspectFit`; `.stretch` fills the square the way Mesquette's previous TripoSR facade did. The tensor overload does not resize.
+
+Shap-E image generation already defaults Metal marching cubes to true and `progressInterval` to 0. Its `progress` closure is the same event type. Labels, percentages, and preview drawing stay with the caller.
 
 `session.imageToMesh(cgImage:)` runs the same foreground cutout as `MLX3DRuntime.imageToMesh(cgImage:)`, including `cutoutFailurePolicy` (`.strict` by default), then reuses the cached TripoSR model. `session.imageToMeshShapE` runs the same white-background `removeBackground` prep, then reuses the cached Shap-E runtime. On UIKit, `imageToMesh(uiImage:)` uses that same switch to render an upright bitmap before the cutout. A skipped cutout and a fallback both send those upright pixels to TripoSR.
 
@@ -131,16 +138,27 @@ public enum MeshExport {
     public static func write(_ mesh: Mesh, to url: URL) throws
 }
 
-public struct TextToMeshOptions: Sendable { /* guidance 15, 64 steps, grid 128, batch 65536, seed 0 */ }
-public struct ImageToMeshOptions: Sendable { /* grid 128, threshold 25, batch 8192, radius nil, side 512, background 0.5, foreground cutout on at ratio 0.85, cutoutFailurePolicy .strict */ }
-public struct ShapEImageToMeshOptions: Sendable { /* guidance 3, 32 steps, grid 64, seed 0, white-background removal on */ }
+public struct MLX3DGenerationEvent: Sendable, Equatable {
+    public var phase: String
+    public var step: Int
+    public var totalSteps: Int
+    public var partialMeshes: [Mesh]?
+}
+
+public typealias MLX3DProgressHandler = @Sendable (MLX3DGenerationEvent) -> Void
+
+public enum ImageResizeMode { case aspectFit, stretch }
+
+public struct TextToMeshOptions: Sendable { /* guidance 15, 64 steps, grid 128, batch 65536, seed 0, batchSize 1, CPU marching cubes, progressInterval 0 */ }
+public struct ImageToMeshOptions: Sendable { /* grid 128, threshold 25, batch 8192, radius nil, side 512, background 0.5, CPU marching cubes, aspectFit, foreground cutout on at ratio 0.85, cutoutFailurePolicy .strict */ }
+public struct ShapEImageToMeshOptions: Sendable { /* guidance 3, 32 steps, grid 64, seed 0, Metal marching cubes, progressInterval 0, white-background removal on */ }
 
 public enum MLX3DRuntime {
-    public static func textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh
-    public static func imageToMeshShapE(cgImage:modelBundleURL:bpeVocabularyURL:options:) async throws -> [Mesh]
-    public static func imageToMesh(imageURL:weightsURL:options:) throws -> Mesh
-    public static func imageToMesh(cgImage:weightsURL:options:) async throws -> Mesh
-    public static func imageToMesh(image:weightsURL:options:) throws -> Mesh
+    public static func textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:progress:) async throws -> [Mesh]
+    public static func imageToMeshShapE(cgImage:modelBundleURL:bpeVocabularyURL:options:progress:) async throws -> [Mesh]
+    public static func imageToMesh(imageURL:weightsURL:options:progress:) throws -> Mesh
+    public static func imageToMesh(cgImage:weightsURL:options:progress:) async throws -> Mesh
+    public static func imageToMesh(image:weightsURL:options:progress:) throws -> Mesh
 }
 
 public enum MLX3DBackend { case shapE, tripoSR }
@@ -160,16 +178,16 @@ public final class MLX3DSession: Sendable {
     public func unloadAll() async
     public func evict(_ key: MLX3DModelKey) async
     public func evictAll() async
-    public func textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:) async throws -> Mesh
-    public func imageToMesh(imageURL:weightsURL:options:) async throws -> Mesh
-    public func imageToMesh(cgImage:weightsURL:options:) async throws -> Mesh
-    public func imageToMesh(image:weightsURL:options:) async throws -> Mesh
-    public func imageToMeshShapE(cgImage:modelBundleURL:bpeVocabularyURL:options:) async throws -> [Mesh]
+    public func textToMesh(prompt:modelBundleURL:bpeVocabularyURL:options:progress:) async throws -> [Mesh]
+    public func imageToMesh(imageURL:weightsURL:options:progress:) async throws -> Mesh
+    public func imageToMesh(cgImage:weightsURL:options:progress:) async throws -> Mesh
+    public func imageToMesh(image:weightsURL:options:progress:) async throws -> Mesh
+    public func imageToMeshShapE(cgImage:modelBundleURL:bpeVocabularyURL:options:progress:) async throws -> [Mesh]
 }
 
 public enum ImageTensor {
-    public static func rgb(contentsOf:side:background:) throws -> MLXArray
-    public static func rgb(cgImage:side:background:) throws -> MLXArray
+    public static func rgb(contentsOf:side:background:resizeMode:) throws -> MLXArray
+    public static func rgb(cgImage:side:background:resizeMode:) throws -> MLXArray
 }
 
 public enum VolumeGrid {
@@ -197,7 +215,7 @@ xcodebuild test \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-Unit tests cover mesh topology, OBJ and PLY export, a synthetic ellipsoid through marching cubes (closed, 0 boundary edges), image decoding, CLI exits when the bundle or weights are missing, and the loaded-model cache. Cache tests inject a fake loader. They do not read weight files. They check reuse, one shared in-flight load, a failed load that is retried, and `unload` discarding a load that was already running. Loading real weights is optional: those tests skip when `TRIPOSR_WEIGHTS_PATH` / `triposr_swift_ready.safetensors` or `SHAP_E_BUNDLE` is absent. `xcodebuild` only forwards variables prefixed with `TEST_RUNNER_` into the test process.
+Unit tests cover mesh topology, OBJ and PLY export, a synthetic ellipsoid through marching cubes (closed, 0 boundary edges), image decoding, aspect-fit versus stretch, CLI exits when the bundle or weights are missing, the loaded-model cache, and generation progress. A missing bundle or weights file still throws, and the progress closure is not called. A test seam checks that phase events arrive in order and that a nil closure does not build a Shap-E callback. Cache tests inject a fake loader. They do not read weight files. They check reuse, one shared in-flight load, a failed load that is retried, and `unload` discarding a load that was already running. Loading real weights is optional: those tests skip when `TRIPOSR_WEIGHTS_PATH` / `triposr_swift_ready.safetensors` or `SHAP_E_BUNDLE` is absent. `xcodebuild` only forwards variables prefixed with `TEST_RUNNER_` into the test process.
 
 ## Scope
 

@@ -16,6 +16,7 @@ public enum MarchingCubesExtractor {
         threshold: Float = 0,
         bboxMin: SIMD3<Float>,
         bboxMax: SIMD3<Float>,
+        useMetalMarchingCubes: Bool = false,
         vertexColorsAt: (([Float]) throws -> [Float])? = nil
     ) throws -> Mesh {
         guard resolution >= 2 else {
@@ -37,11 +38,21 @@ public enum MarchingCubesExtractor {
         let sdf = MLXArray(sdfValues).reshaped([resolution, resolution, resolution])
         let bboxMinArray = MLXArray([bboxMin.x, bboxMin.y, bboxMin.z])
         let bboxSizeArray = MLXArray([extent.x, extent.y, extent.z])
-        let (vertices, faces) = MarchingCubes.extract(
-            sdf: sdf,
-            bboxMin: bboxMinArray,
-            bboxSize: bboxSizeArray
-        )
+        let vertices: MLXArray
+        let faces: MLXArray
+        if useMetalMarchingCubes {
+            (vertices, faces) = try MetalMarchingCubes.extract(
+                sdf: sdf,
+                bboxMin: bboxMinArray,
+                bboxSize: bboxSizeArray
+            )
+        } else {
+            (vertices, faces) = MarchingCubes.extract(
+                sdf: sdf,
+                bboxMin: bboxMinArray,
+                bboxSize: bboxSizeArray
+            )
+        }
         let faceIndices = faces.asType(.int32)
         eval(vertices, faceIndices)
 

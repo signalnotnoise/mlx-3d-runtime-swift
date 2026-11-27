@@ -21,6 +21,14 @@ public struct TextToMeshOptions: Sendable {
     public var seed: Int
     /// Upper bound checked before Shap-E loads. Cannot exceed `VolumeGrid.maximumResolution`.
     public var maximumGridSize: Int
+    /// How many meshes to sample. Each row uses `seed + row`. Default 1.
+    public var batchSize: Int
+    /// Metal marching cubes for the final extract. Partials stay on the CPU inside Shap-E.
+    /// Default false, which is the extract the previous single-mesh call used.
+    public var useMetalMarchingCubes: Bool
+    /// How often Shap-E attaches a latent for a partial mesh. `0` reports steps and
+    /// does not extract partials. Ignored when the progress handler is nil.
+    public var progressInterval: Int
 
     public init(
         guidanceScale: Float = 15,
@@ -28,7 +36,10 @@ public struct TextToMeshOptions: Sendable {
         gridSize: Int = 128,
         queryBatchSize: Int = 65536,
         seed: Int = 0,
-        maximumGridSize: Int = VolumeGrid.maximumResolution
+        maximumGridSize: Int = VolumeGrid.maximumResolution,
+        batchSize: Int = 1,
+        useMetalMarchingCubes: Bool = false,
+        progressInterval: Int = 0
     ) {
         self.guidanceScale = guidanceScale
         self.numInferenceSteps = numInferenceSteps
@@ -36,6 +47,9 @@ public struct TextToMeshOptions: Sendable {
         self.queryBatchSize = queryBatchSize
         self.seed = seed
         self.maximumGridSize = maximumGridSize
+        self.batchSize = batchSize
+        self.useMetalMarchingCubes = useMetalMarchingCubes
+        self.progressInterval = progressInterval
     }
 }
 
@@ -122,6 +136,8 @@ public struct ShapEImageToMeshOptions: Sendable {
 }
 
 public struct ImageToMeshOptions: Sendable {
+    /// Density grid resolution. The default is 128. A caller passes its own value.
+    /// Mesquette's previous TripoSR facade used 256.
     public var gridSize: Int
     public var threshold: Float
     public var queryBatchSize: Int
@@ -131,6 +147,11 @@ public struct ImageToMeshOptions: Sendable {
     public var background: Float
     /// Upper bound checked before TripoSR weights load. Cannot exceed `VolumeGrid.maximumResolution`.
     public var maximumGridSize: Int
+    /// Metal marching cubes for the final extract. Default false keeps the CPU extractor.
+    public var useMetalMarchingCubes: Bool
+    /// How a non-square image is drawn into the square tensor. Default ``ImageResizeMode/aspectFit``.
+    /// The tensor `imageToMesh` overload does not resize, so it ignores this flag.
+    public var resizeMode: ImageResizeMode
     /// When true, `imageToMesh(cgImage:)` runs `foregroundCutout` before TripoSR preprocessing.
     /// `imageToMesh(imageURL:)` and `imageToMesh(image:)` ignore this flag.
     public var applyForegroundCutout: Bool
@@ -147,6 +168,8 @@ public struct ImageToMeshOptions: Sendable {
         imageSide: Int = 512,
         background: Float = 0.5,
         maximumGridSize: Int = VolumeGrid.maximumResolution,
+        useMetalMarchingCubes: Bool = false,
+        resizeMode: ImageResizeMode = .aspectFit,
         applyForegroundCutout: Bool = true,
         foregroundRatio: CGFloat = 0.85,
         cutoutFailurePolicy: CutoutFailurePolicy = .strict
@@ -158,6 +181,8 @@ public struct ImageToMeshOptions: Sendable {
         self.imageSide = imageSide
         self.background = background
         self.maximumGridSize = maximumGridSize
+        self.useMetalMarchingCubes = useMetalMarchingCubes
+        self.resizeMode = resizeMode
         self.applyForegroundCutout = applyForegroundCutout
         self.foregroundRatio = foregroundRatio
         self.cutoutFailurePolicy = cutoutFailurePolicy
@@ -165,59 +190,70 @@ public struct ImageToMeshOptions: Sendable {
 }
 
 public enum MLX3DRuntime {
-    /// Text to mesh through Shap-E.
+    /// Text to one or more meshes through Shap-E.
     ///
     /// `bpeVocabularyURL` defaults to `bpe_simple_vocab_16e6.txt.gz` inside `modelBundleURL`.
-    /// Vertex colors are RGB copied from Shap-E's RGBA channel.
+    /// Vertex colors are RGB copied from Shap-E's RGBA channel. `options.batchSize`
+    /// defaults to 1. `progress` receives Shap-E's phase and step. Partial meshes
+    /// are included only when `options.progressInterval` is greater than zero.
     public static func textToMesh(
         prompt: String,
         modelBundleURL: URL,
         bpeVocabularyURL: URL? = nil,
-        options: TextToMeshOptions = TextToMeshOptions()
-    ) async throws -> Mesh {
+        options: TextToMeshOptions = TextToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
+    ) async throws -> [Mesh] {
         try await MLX3DSession().textToMesh(
             prompt: prompt,
             modelBundleURL: modelBundleURL,
             bpeVocabularyURL: bpeVocabularyURL,
-            options: options
+            options: options,
+            progress: progress
         )
     }
 
     /// Image file to mesh through TripoSR.
     ///
-    /// The file is decoded, composited over `options.background`, and aspect-fit to
-    /// `options.imageSide` (512 by default). Density is sampled on a `gridSize`³ grid
-    /// (128 by default) in batches of `queryBatchSize` (8192). Marching cubes uses
-    /// `threshold` (25). Vertex colors come from TripoSR's color query.
-    /// This entry does not run `foregroundCutout`. Cutout options on `options` are ignored.
+    /// The file is decoded, composited over `options.background`, and drawn with
+    /// `options.resizeMode` (aspect-fit by default) into `options.imageSide` (512).
+    /// Density is sampled on a `gridSize`³ grid (128 by default) in batches of
+    /// `queryBatchSize` (8192). Marching cubes uses `threshold` (25). Pass
+    /// `useMetalMarchingCubes` to select the extractor. Vertex colors come from
+    /// TripoSR's color query. `progress` receives `encoding`, `volume`, `meshing`,
+    /// and `colors`. This entry does not run `foregroundCutout`. Cutout options
+    /// on `options` are ignored.
     public static func imageToMesh(
         imageURL: URL,
         weightsURL: URL,
-        options: ImageToMeshOptions = ImageToMeshOptions()
+        options: ImageToMeshOptions = ImageToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) throws -> Mesh {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         try requireWeights(weightsURL)
         let image = try ImageTensor.rgb(
             contentsOf: imageURL,
             side: options.imageSide,
-            background: options.background
+            background: options.background,
+            resizeMode: options.resizeMode
         )
-        return try imageToMesh(image: image, weightsURL: weightsURL, options: options)
+        return try imageToMesh(image: image, weightsURL: weightsURL, options: options, progress: progress)
     }
 
     /// CGImage to mesh through TripoSR.
     ///
     /// When `options.applyForegroundCutout` is true (the default), this runs
     /// `ImageBackgroundRemoval.foregroundCutout` at `options.foregroundRatio`
-    /// (0.85). The cutout stays transparent; ``ImageTensor/rgb(cgImage:side:background:)``
-    /// then composites it over gray (`background` 0.5). ``CutoutFailurePolicy/strict``
+    /// (0.85). The cutout stays transparent; ``ImageTensor/rgb(cgImage:side:background:resizeMode:)``
+    /// then composites it over gray (`background` 0.5) using `options.resizeMode`.
+    /// ``CutoutFailurePolicy/strict``
     /// (the default) throws when Vision returns nil or throws. ``CutoutFailurePolicy/fallbackToOriginal``
     /// logs and passes the original image, matching Mesquette. Set the cutout flag
     /// false for an image that is already prepared. This path never calls `removeBackground`.
     public static func imageToMesh(
         cgImage: CGImage,
         weightsURL: URL,
-        options: ImageToMeshOptions = ImageToMeshOptions()
+        options: ImageToMeshOptions = ImageToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> Mesh {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         let prepared: CGImage
@@ -244,9 +280,10 @@ public enum MLX3DRuntime {
         let image = try ImageTensor.rgb(
             cgImage: prepared,
             side: options.imageSide,
-            background: options.background
+            background: options.background,
+            resizeMode: options.resizeMode
         )
-        return try imageToMesh(image: image, weightsURL: weightsURL, options: options)
+        return try imageToMesh(image: image, weightsURL: weightsURL, options: options, progress: progress)
     }
 
     /// CGImage to one or more meshes through Shap-E's image pipeline.
@@ -255,13 +292,16 @@ public enum MLX3DRuntime {
     /// `ImageBackgroundRemoval.removeBackground` (mask composited on solid white).
     /// A nil mask or a thrown error keeps the original image and, on a throw, logs
     /// Mesquette's picker message. The flag false skips that prep. The resulting
-    /// image is passed to `ShapERuntime.generate(image:)`. This method never calls
+    /// image is passed to `ShapERuntime.generate(image:)`. `progress` receives
+    /// Shap-E's phase and step. Partial meshes ride along only when
+    /// `options.progressInterval` is greater than zero. This method never calls
     /// `foregroundCutout` and is not reachable from the TripoSR entries.
     public static func imageToMeshShapE(
         cgImage: CGImage,
         modelBundleURL: URL,
         bpeVocabularyURL: URL? = nil,
-        options: ShapEImageToMeshOptions = ShapEImageToMeshOptions()
+        options: ShapEImageToMeshOptions = ShapEImageToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> [Mesh] {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         guard options.batchSize > 0 else {
@@ -288,31 +328,26 @@ public enum MLX3DRuntime {
             seed: options.seed,
             useMetalMarchingCubes: options.useMetalMarchingCubes,
             progressInterval: options.progressInterval,
-            progress: nil
+            progress: shapEProgress(progress)
         )
-        guard !generated.isEmpty else {
-            throw MLX3DRuntimeError.emptyMesh
-        }
-        let meshes = try generated.map { try mesh(from: $0) }
-        guard meshes.allSatisfy({ $0.faceCount > 0 }) else {
-            throw MLX3DRuntimeError.emptyMesh
-        }
-        return meshes
+        return try meshes(from: generated)
     }
 
     /// Image tensor to mesh through TripoSR.
     ///
     /// `image` is float RGB in `0...1`, either `[height, width, 3]` or `[1, height, width, 3]`.
-    /// This overload does not resize or cut out. Use ``imageToMesh(imageURL:weightsURL:options:)`` to decode a file.
+    /// This overload does not resize or cut out, so `options.resizeMode` is ignored.
+    /// Use ``imageToMesh(imageURL:weightsURL:options:progress:)`` to decode a file.
     public static func imageToMesh(
         image: MLXArray,
         weightsURL: URL,
-        options: ImageToMeshOptions = ImageToMeshOptions()
+        options: ImageToMeshOptions = ImageToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) throws -> Mesh {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
         try requireWeights(weightsURL)
         let model = try makeTripoSRModel(weightsURL: weightsURL)
-        return try renderTripoSR(model: model, image: image, options: options)
+        return try renderTripoSR(model: model, image: image, options: options, progress: progress)
     }
 
     static func makeTripoSRModel(weightsURL: URL) throws -> TripoSRModel {
@@ -325,12 +360,20 @@ public enum MLX3DRuntime {
     static func renderTripoSR(
         model: TripoSRModel,
         image: MLXArray,
-        options: ImageToMeshOptions
+        options: ImageToMeshOptions,
+        progress: MLX3DProgressHandler?
     ) throws -> Mesh {
         let batched = try batchedImage(image)
+        GenerationProgress.emit(progress, phase: "encoding", step: 0, totalSteps: 1)
         let triplanes = model.forwardTriplanes(image: batched)
         eval(triplanes)
-        let mesh = try TripoSRMeshing.extract(model: model, triplanes: triplanes, options: options)
+        GenerationProgress.emit(progress, phase: "encoding", step: 1, totalSteps: 1)
+        let mesh = try TripoSRMeshing.extract(
+            model: model,
+            triplanes: triplanes,
+            options: options,
+            progress: progress
+        )
         guard mesh.faceCount > 0 else {
             throw MLX3DRuntimeError.emptyMesh
         }
@@ -402,6 +445,40 @@ public enum MLX3DRuntime {
             throw MLX3DRuntimeError.bpeNotFound(vocabulary.path)
         }
         return vocabulary
+    }
+
+    static func meshes(from generated: [ShapEMeshResult]) throws -> [Mesh] {
+        guard !generated.isEmpty else {
+            throw MLX3DRuntimeError.emptyMesh
+        }
+        let meshes = try generated.map { try mesh(from: $0) }
+        guard meshes.allSatisfy({ $0.faceCount > 0 }) else {
+            throw MLX3DRuntimeError.emptyMesh
+        }
+        return meshes
+    }
+
+    /// Nil stays nil, so Shap-E does not build a sampler callback or extract partials.
+    static func shapEProgress(
+        _ progress: MLX3DProgressHandler?
+    ) -> ShapERuntime.ShapEProgressCallback? {
+        guard let progress else { return nil }
+        return { @Sendable phase, step, total, partials in
+            let meshes: [Mesh]?
+            if let partials {
+                meshes = partials.compactMap { try? mesh(from: $0) }
+            } else {
+                meshes = nil
+            }
+            progress(
+                MLX3DGenerationEvent(
+                    phase: phase,
+                    step: step,
+                    totalSteps: total,
+                    partialMeshes: meshes
+                )
+            )
+        }
     }
 
     static func mesh(from generated: ShapEMeshResult) throws -> Mesh {

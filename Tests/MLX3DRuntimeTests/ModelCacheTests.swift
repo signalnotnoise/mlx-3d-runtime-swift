@@ -376,17 +376,29 @@ private func testSession() -> MLX3DSession {
 }
 
 private struct FakeSessionShapE: SessionShapE {
-    func textMesh(prompt: String, options: TextToMeshOptions) async throws -> Mesh {
-        sessionTriangle
+    func textMesh(
+        prompt: String,
+        options: TextToMeshOptions,
+        progress: MLX3DProgressHandler?
+    ) async throws -> [Mesh] {
+        Array(repeating: sessionTriangle, count: max(options.batchSize, 1))
     }
 
-    func imageMeshes(image: CGImage, options: ShapEImageToMeshOptions) async throws -> [Mesh] {
+    func imageMeshes(
+        image: CGImage,
+        options: ShapEImageToMeshOptions,
+        progress: MLX3DProgressHandler?
+    ) async throws -> [Mesh] {
         [sessionTriangle]
     }
 }
 
 private struct FakeSessionTripo: SessionTripoSR {
-    func mesh(image: MLXArray, options: ImageToMeshOptions) throws -> Mesh {
+    func mesh(
+        image: MLXArray,
+        options: ImageToMeshOptions,
+        progress: MLX3DProgressHandler?
+    ) throws -> Mesh {
         sessionTriangle
     }
 }

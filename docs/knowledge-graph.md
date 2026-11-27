@@ -42,25 +42,26 @@ flowchart TD
 | Task | Location |
 | --- | --- |
 | Package pins and products | `Package.swift:1-68` |
-| Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:16-184` |
-| Caller-owned loaded-model session | `Sources/MLX3DRuntime/MLX3DSession.swift:2-413` |
+| Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:16-213` |
+| Caller-owned loaded-model session | `Sources/MLX3DRuntime/MLX3DSession.swift:2-454` |
+| Generation progress event | `Sources/MLX3DRuntime/GenerationProgress.swift:9-26` |
 | Model key | `Sources/MLX3DRuntime/MLX3DModelKey.swift:1-78` |
 | In-memory load cache | `Sources/MLX3DRuntime/MLX3DModelCache.swift:1-168` |
-| Shap-E image options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:68-122` |
-| Image decode | `Sources/MLX3DRuntime/ImageTensor.swift:6-107` |
-| CGImage cutout then TripoSR | `Sources/MLX3DRuntime/MLX3DRuntime.swift:217-250` |
-| Cutout failure policy | `Sources/MLX3DRuntime/MLX3DRuntime.swift:46-56` |
+| Shap-E image options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:82-136` |
+| Image decode | `Sources/MLX3DRuntime/ImageTensor.swift:14-135` |
+| CGImage cutout then TripoSR | `Sources/MLX3DRuntime/MLX3DRuntime.swift:252-287` |
+| Cutout failure policy | `Sources/MLX3DRuntime/MLX3DRuntime.swift:60-70` |
 | Copied Mesquette cutout | `Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:6-246` |
-| Shap-E white prep then image generation | `Sources/MLX3DRuntime/MLX3DRuntime.swift:260-301` |
-| Image-to-mesh and image rank check | `Sources/MLX3DRuntime/MLX3DRuntime.swift:186-462` |
-| Density grid and batches | `Sources/MLX3DRuntime/TripoSRMeshing.swift:5-106` |
+| Shap-E white prep then image generation | `Sources/MLX3DRuntime/MLX3DRuntime.swift:299-334` |
+| Image-to-mesh and image rank check | `Sources/MLX3DRuntime/MLX3DRuntime.swift:215-539` |
+| Density grid and batches | `Sources/MLX3DRuntime/TripoSRMeshing.swift:5-133` |
 | Sample coordinates and the 512 cap | `Sources/MLX3DRuntime/VolumeGrid.swift:3-68` |
 | Grid rejection and lazy-batch tests | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:104-175` |
 | Loaded-model cache tests | `Tests/MLX3DRuntimeTests/ModelCacheTests.swift:8-272` |
-| Marching cubes | `Sources/MLX3DRuntime/MarchingCubesExtractor.swift:5-74` |
+| Marching cubes | `Sources/MLX3DRuntime/MarchingCubesExtractor.swift:5-85` |
 | Mesh topology | `Sources/MLX3DRuntime/Mesh.swift:5-90` |
 | OBJ and PLY | `Sources/MLX3DRuntime/MeshExport.swift:23-172` |
-| CLI | `Sources/MLX3DCLI/MLX3DCLI.swift:18-168` |
+| CLI | `Sources/MLX3DCLI/MLX3DCLI.swift:18-171` |
 | Example link check | `Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18` |
 | CI | `.github/workflows/ci.yml:16-239` |
 | Public sibling branch pins | `Package.swift:33-41` |

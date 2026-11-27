@@ -29,6 +29,30 @@ struct ImageTensorTests {
         #expect(abs(values[2]) < 0.02)
     }
 
+    @Test func aspectFitLetterboxesAndStretchFillsAWideImage() throws {
+        let image = solidImage(width: 4, height: 2, red: 255, green: 0, blue: 0)
+        let fit = try ImageTensor.rgb(
+            cgImage: image,
+            side: 4,
+            background: 0,
+            resizeMode: .aspectFit
+        )
+        let stretch = try ImageTensor.rgb(
+            cgImage: image,
+            side: 4,
+            background: 0,
+            resizeMode: .stretch
+        )
+        let fitValues = fit.asArray(Float.self)
+        let stretchValues = stretch.asArray(Float.self)
+        #expect(fitValues[0] < 0.05)
+        #expect(stretchValues[0] > 0.95)
+        let center = (2 * 4 + 2) * 3
+        #expect(fitValues[center] > 0.95)
+        #expect(stretchValues[center] > 0.95)
+        #expect(ImageToMeshOptions().resizeMode == .aspectFit)
+    }
+
     @Test func transparentPixelUsesBackground() throws {
         let url = try writePNG(pixels: [0, 0, 0, 0], width: 1, height: 1)
         defer { try? FileManager.default.removeItem(at: url) }
@@ -38,6 +62,30 @@ struct ImageTensorTests {
         for value in values {
             #expect(abs(value - 0.5) < 0.02)
         }
+    }
+
+    private func solidImage(width: Int, height: Int, red: UInt8, green: UInt8, blue: UInt8) -> CGImage {
+        let bytesPerRow = width * 4
+        var pixels = [UInt8](repeating: 255, count: height * bytesPerRow)
+        for pixel in 0..<(width * height) {
+            pixels[pixel * 4] = red
+            pixels[pixel * 4 + 1] = green
+            pixels[pixel * 4 + 2] = blue
+        }
+        let provider = CGDataProvider(data: Data(pixels) as CFData)!
+        return CGImage(
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bitsPerPixel: 32,
+            bytesPerRow: bytesPerRow,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue),
+            provider: provider,
+            decode: nil,
+            shouldInterpolate: false,
+            intent: .defaultIntent
+        )!
     }
 
     private func writePNG(pixels: [UInt8], width: Int, height: Int) throws -> URL {
