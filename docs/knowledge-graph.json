@@ -127,8 +127,8 @@
       },
       {
         "file_path": "Tests/MLX3DRuntimeTests/CLIExitTests.swift",
-        "line_start": 5,
-        "line_end": 105
+        "line_start": 6,
+        "line_end": 106
       },
       {
         "file_path": "Tests/MLX3DRuntimeTests/RuntimeContractTests.swift",
@@ -811,9 +811,9 @@
     "Sources/MLX3DRuntime/VolumeGrid.swift:30-50": "239a40257449f5334a398ecd753f7064df0bf26a39d15a642a6c69479171940f",
     "Sources/MLX3DRuntime/VolumeGrid.swift:9-23": "ec93f090eddcaad8d43112bb71df56a9f5058ee119fc5cd80e4a42c01a72408a",
     "Sources/MLX3DRuntime/VolumeGrid.swift:9-24": "c0e62322c3c3e54ea4cf1decf4cd43b943ecac902541843caaa198b28e1d5c45",
-    "Tests/MLX3DRuntimeTests/CLIExitTests.swift:5-105": "8e1ee65c7ad3444242f49fcde2d4ebd47235280096553f49fcb216ab49e9f4ea",
-    "Tests/MLX3DRuntimeTests/CLIExitTests.swift:5-82": "6b5af112b531c76224793e935cf5960265aae869b050d59b517b6c5ee72d5ebc",
-    "Tests/MLX3DRuntimeTests/CLIExitTests.swift:84-105": "4462e46a7ead7dbacd6684675de1cb1c73530f080af653f56c64d64dbbd39ed4",
+    "Tests/MLX3DRuntimeTests/CLIExitTests.swift:6-106": "8e1ee65c7ad3444242f49fcde2d4ebd47235280096553f49fcb216ab49e9f4ea",
+    "Tests/MLX3DRuntimeTests/CLIExitTests.swift:6-83": "6b5af112b531c76224793e935cf5960265aae869b050d59b517b6c5ee72d5ebc",
+    "Tests/MLX3DRuntimeTests/CLIExitTests.swift:85-106": "4462e46a7ead7dbacd6684675de1cb1c73530f080af653f56c64d64dbbd39ed4",
     "Tests/MLX3DRuntimeTests/ImageBackgroundRemovalTests.swift:7-338": "8076b1dac622dd70d734dddf7f41f2d480506b0fd8aef788ec660748868bfb37",
     "Tests/MLX3DRuntimeTests/ImageTensorTests.swift:10-12": "f060d137b343507f3ac6123c55b08c8e90c0873dc17e59ab8f84e23cd98da587",
     "Tests/MLX3DRuntimeTests/ImageTensorTests.swift:9-80": "ceb7f86b01872cbc1bab5de291a226e6aca55c044e864a25d0aa2f88198776af",

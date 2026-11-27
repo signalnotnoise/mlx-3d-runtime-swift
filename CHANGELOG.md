@@ -40,7 +40,8 @@ version tag yet.
   share raw values, so the previous cast dropped upright images and
   mis-labeled the rest. `uiImageOrientationMapsToCGImagePropertyOrientation`
   and `uiImageRemoveBackgroundNormalizesEveryOrientation` cover all eight
-  orientations and run on the iOS Simulator CI job.
+  orientations and run on the iOS Simulator CI job. CLI process
+  tests stay on macOS because `Foundation.Process` is unavailable on iOS.
 
 ### Notes
 

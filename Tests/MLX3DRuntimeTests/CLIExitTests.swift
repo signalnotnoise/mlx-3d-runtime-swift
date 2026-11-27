@@ -2,6 +2,7 @@ import Darwin
 import Foundation
 import Testing
 
+#if os(macOS)
 struct CLIExitTests {
     @Test func missingSubcommandExitsNonzero() throws {
         let result = try runCLI([])
@@ -103,3 +104,4 @@ func builtExecutable(_ name: String) -> URL? {
     }
     return nil
 }
+#endif
