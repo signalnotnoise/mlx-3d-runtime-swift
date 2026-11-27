@@ -498,14 +498,14 @@ public enum MLX3DRuntime {
     }
 
     static func mesh(from generated: ShapEMeshResult) throws -> Mesh {
-        let positions = try generated.verticesArray()
-        let faces = try generated.facesArray()
+        let positions = try ShapEMeshArrays.positions(from: generated)
+        let faces = try ShapEMeshArrays.faces(from: generated)
         let colors = try rgbColors(from: generated)
         return Mesh(positions: positions, faces: faces, vertexColors: colors)
     }
 
     private static func rgbColors(from generated: ShapEMeshResult) throws -> [Float]? {
-        guard let rgba = try generated.colorsArray() else {
+        guard let rgba = try ShapEMeshArrays.rgba(from: generated) else {
             return nil
         }
         let vertexCount = rgba.count / 4

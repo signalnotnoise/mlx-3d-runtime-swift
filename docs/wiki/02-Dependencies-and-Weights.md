@@ -10,7 +10,7 @@
 
 TODO in `Package.swift:4-9` and again at `Package.swift:32` and `Package.swift:37`: switch both sibling pins to `from: "0.1.0"` once those repositories are tagged. The example manifest repeats public `main` and the same TODO (`Examples/Integration/Package.swift:9-10` and `Examples/Integration/Package.swift:24-33`).
 
-`Package.resolved` records the revisions resolved from those `main` branches. CI resolves again from GitHub with an empty cache (`.github/workflows/ci.yml:49-96`). There is no `Vendor/` mirror.
+`Package.resolved` records the revisions resolved from those `main` branches. The Shap-E pin is `7ed124d1a9b408a84d3b96f0df66c53dd48b3de6`, whose `verticesArray`, `facesArray`, and `colorsArray` read tensor bytes instead of `MLXArray.asArray`. CI resolves again from GitHub with an empty cache (`.github/workflows/ci.yml:49-96`). There is no `Vendor/` mirror.
 
 `Examples/Integration/Package.swift:22` depends on this repo by `path: "../.."`. The package identity is the checkout directory name `mlx-3d-runtime-swift` (`Examples/Integration/Package.swift:5-7` and `Examples/Integration/Package.swift:38`).
 

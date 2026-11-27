@@ -45,6 +45,7 @@ flowchart TD
 | Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:16-229` |
 | Caller-owned loaded-model session | `Sources/MLX3DRuntime/MLX3DSession.swift:2-486` |
 | Generation progress event | `Sources/MLX3DRuntime/GenerationProgress.swift:9-26` |
+| Shap-E partial array guard | `Sources/MLX3DRuntime/ShapEMeshArrays.swift:16-87` |
 | Model key | `Sources/MLX3DRuntime/MLX3DModelKey.swift:1-78` |
 | In-memory load cache | `Sources/MLX3DRuntime/MLX3DModelCache.swift:1-168` |
 | Shap-E image options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:78-132` |
