@@ -20,7 +20,7 @@ xcodebuild test \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-The example resolves into a second empty checkout directory and then builds (`.github/workflows/ci.yml:114-147`), from `Examples/Integration`:
+The example resolves into a second empty checkout directory, requires the same sibling `0.1.0` versions, and then builds (`.github/workflows/ci.yml:114-147`), from `Examples/Integration`:
 
 ```bash
 xcodebuild build \
