@@ -17,9 +17,9 @@ version tag yet.
   a nil Shap-E callback, so those extracts do not run. TripoSR reports
   `encoding`, `volume`, `meshing`, and `colors` and leaves partial meshes nil.
   Labels, percentages, and preview drawing stay with the caller.
-- Shap-E text `batchSize` (default 1). `textToMesh` returns `[Mesh]`, one mesh
-  per batch row. `useMetalMarchingCubes` on text defaults to false.
-  `progressInterval` on text defaults to 0.
+- `textToMeshBatch`, which takes a batch count and returns `[Mesh]`.
+  `textToMesh` still returns one `Mesh`. `useMetalMarchingCubes` on text
+  defaults to false. `progressInterval` on text defaults to 0.
 - TripoSR `useMetalMarchingCubes` (default false, the CPU extractor) and
   `resizeMode` (default `.aspectFit`; `.stretch` matches the previous
   Mesquette facade). `gridSize` stays caller-set and still defaults to 128.

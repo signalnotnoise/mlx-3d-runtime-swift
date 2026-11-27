@@ -430,6 +430,7 @@ private struct UIKitFakeShapE: SessionShapE {
     func textMesh(
         prompt: String,
         options: TextToMeshOptions,
+        batchSize: Int,
         progress: MLX3DProgressHandler?
     ) async throws -> [Mesh] {
         [Mesh(positions: [0, 0, 0, 1, 0, 0, 0, 1, 0], faces: [0, 1, 2])]

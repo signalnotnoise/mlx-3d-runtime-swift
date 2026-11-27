@@ -13,7 +13,6 @@ struct GenerationProgressTests {
 
     @Test func generationDefaultsKeepThePreviousBehavior() {
         let text = TextToMeshOptions()
-        #expect(text.batchSize == 1)
         #expect(text.useMetalMarchingCubes == false)
         #expect(text.progressInterval == 0)
         #expect(text.gridSize == 128)
@@ -89,10 +88,10 @@ struct GenerationProgressTests {
             tripoLoader: { _ in OrderedTripo() }
         )
         await #expect(throws: MLX3DRuntimeError.invalidBatchSize(0)) {
-            _ = try await session.textToMesh(
+            _ = try await session.textToMeshBatch(
                 prompt: "a chair",
                 modelBundleURL: URL(fileURLWithPath: "/tmp/mlx3d/progress-bundle"),
-                options: TextToMeshOptions(batchSize: 0),
+                batchSize: 0,
                 progress: { log.record($0) }
             )
         }
@@ -106,11 +105,11 @@ struct GenerationProgressTests {
             shapELoader: { _ in PresenceShapE(seen: seen) },
             tripoLoader: { _ in OrderedTripo() }
         )
-        let meshes = try await session.textToMesh(
+        let mesh = try await session.textToMesh(
             prompt: "a chair",
             modelBundleURL: URL(fileURLWithPath: "/tmp/mlx3d/progress-bundle")
         )
-        #expect(meshes.count == 1)
+        #expect(mesh == progressTriangle)
         #expect(seen.wasNil == true)
     }
 
@@ -120,10 +119,11 @@ struct GenerationProgressTests {
             shapELoader: { _ in OrderedShapE() },
             tripoLoader: { _ in OrderedTripo() }
         )
-        let meshes = try await session.textToMesh(
+        let meshes = try await session.textToMeshBatch(
             prompt: "a chair",
             modelBundleURL: URL(fileURLWithPath: "/tmp/mlx3d/progress-bundle"),
-            options: TextToMeshOptions(batchSize: 2, progressInterval: 5),
+            batchSize: 2,
+            options: TextToMeshOptions(progressInterval: 5),
             progress: { log.record($0) }
         )
         #expect(meshes.count == 2)
@@ -228,6 +228,7 @@ private struct OrderedShapE: SessionShapE {
     func textMesh(
         prompt: String,
         options: TextToMeshOptions,
+        batchSize: Int,
         progress: MLX3DProgressHandler?
     ) async throws -> [Mesh] {
         for (index, phase) in Self.phases.enumerated() {
@@ -241,7 +242,7 @@ private struct OrderedShapE: SessionShapE {
                 )
             )
         }
-        return Array(repeating: progressTriangle, count: options.batchSize)
+        return Array(repeating: progressTriangle, count: batchSize)
     }
 
     func imageMeshes(
@@ -259,10 +260,11 @@ private struct PresenceShapE: SessionShapE {
     func textMesh(
         prompt: String,
         options: TextToMeshOptions,
+        batchSize: Int,
         progress: MLX3DProgressHandler?
     ) async throws -> [Mesh] {
         seen.setWasNil(progress == nil)
-        return [progressTriangle]
+        return Array(repeating: progressTriangle, count: batchSize)
     }
 
     func imageMeshes(
@@ -278,6 +280,7 @@ private struct ThrowingShapE: SessionShapE {
     func textMesh(
         prompt: String,
         options: TextToMeshOptions,
+        batchSize: Int,
         progress: MLX3DProgressHandler?
     ) async throws -> [Mesh] {
         progress?(MLX3DGenerationEvent(phase: "embedding", step: 0, totalSteps: 1))

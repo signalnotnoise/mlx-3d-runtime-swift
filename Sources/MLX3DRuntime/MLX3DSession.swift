@@ -109,27 +109,57 @@ public final class MLX3DSession: Sendable {
         }
     }
 
-    /// Text to one or more meshes through the cached Shap-E runtime for this bundle and BPE file.
+    /// Text to one mesh through the cached Shap-E runtime for this bundle and BPE file.
     ///
-    /// `options.batchSize` defaults to 1. `progress` is forwarded to Shap-E.
-    /// Partial meshes are produced only when `options.progressInterval` is greater than zero.
+    /// Always samples one mesh. ``textToMeshBatch(prompt:modelBundleURL:bpeVocabularyURL:batchSize:options:progress:)``
+    /// returns one mesh per row. `progress` is forwarded to Shap-E. Partial meshes
+    /// are produced only when `options.progressInterval` is greater than zero.
     public func textToMesh(
         prompt: String,
         modelBundleURL: URL,
         bpeVocabularyURL: URL? = nil,
         options: TextToMeshOptions = TextToMeshOptions(),
         progress: MLX3DProgressHandler? = nil
+    ) async throws -> Mesh {
+        let meshes = try await textToMeshBatch(
+            prompt: prompt,
+            modelBundleURL: modelBundleURL,
+            bpeVocabularyURL: bpeVocabularyURL,
+            batchSize: 1,
+            options: options,
+            progress: progress
+        )
+        guard let mesh = meshes.first else {
+            throw MLX3DRuntimeError.emptyMesh
+        }
+        return mesh
+    }
+
+    /// Text to `batchSize` meshes through the cached Shap-E runtime.
+    /// Each row uses `options.seed + row`.
+    public func textToMeshBatch(
+        prompt: String,
+        modelBundleURL: URL,
+        bpeVocabularyURL: URL? = nil,
+        batchSize: Int,
+        options: TextToMeshOptions = TextToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
     ) async throws -> [Mesh] {
         try VolumeGrid.validate(resolution: options.gridSize, maximum: options.maximumGridSize)
-        guard options.batchSize > 0 else {
-            throw MLX3DRuntimeError.invalidBatchSize(options.batchSize)
+        guard batchSize > 0 else {
+            throw MLX3DRuntimeError.invalidBatchSize(batchSize)
         }
         let key = MLX3DModelKey.shapE(
             modelBundleURL: modelBundleURL,
             bpeVocabularyURL: bpeVocabularyURL
         )
         let runtime = try await shapECache.model(for: key)
-        return try await runtime.textMesh(prompt: prompt, options: options, progress: progress)
+        return try await runtime.textMesh(
+            prompt: prompt,
+            options: options,
+            batchSize: batchSize,
+            progress: progress
+        )
     }
 
     /// Image file to mesh through the cached TripoSR model.
@@ -379,6 +409,7 @@ protocol SessionShapE: Sendable {
     func textMesh(
         prompt: String,
         options: TextToMeshOptions,
+        batchSize: Int,
         progress: MLX3DProgressHandler?
     ) async throws -> [Mesh]
     func imageMeshes(
@@ -400,14 +431,15 @@ extension ShapERuntime: SessionShapE {
     func textMesh(
         prompt: String,
         options: TextToMeshOptions,
+        batchSize: Int,
         progress: MLX3DProgressHandler?
     ) async throws -> [Mesh] {
-        guard options.batchSize > 0 else {
-            throw MLX3DRuntimeError.invalidBatchSize(options.batchSize)
+        guard batchSize > 0 else {
+            throw MLX3DRuntimeError.invalidBatchSize(batchSize)
         }
         let generated = try await generate(
             prompt: prompt,
-            batchSize: options.batchSize,
+            batchSize: batchSize,
             guidanceScale: options.guidanceScale,
             numInferenceSteps: options.numInferenceSteps,
             gridSize: options.gridSize,

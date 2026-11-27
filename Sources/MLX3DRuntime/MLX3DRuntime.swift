@@ -21,8 +21,6 @@ public struct TextToMeshOptions: Sendable {
     public var seed: Int
     /// Upper bound checked before Shap-E loads. Cannot exceed `VolumeGrid.maximumResolution`.
     public var maximumGridSize: Int
-    /// How many meshes to sample. Each row uses `seed + row`. Default 1.
-    public var batchSize: Int
     /// Metal marching cubes for the final extract. Partials stay on the CPU inside Shap-E.
     /// Default false, which is the extract the previous single-mesh call used.
     public var useMetalMarchingCubes: Bool
@@ -37,7 +35,6 @@ public struct TextToMeshOptions: Sendable {
         queryBatchSize: Int = 65536,
         seed: Int = 0,
         maximumGridSize: Int = VolumeGrid.maximumResolution,
-        batchSize: Int = 1,
         useMetalMarchingCubes: Bool = false,
         progressInterval: Int = 0
     ) {
@@ -47,7 +44,6 @@ public struct TextToMeshOptions: Sendable {
         self.queryBatchSize = queryBatchSize
         self.seed = seed
         self.maximumGridSize = maximumGridSize
-        self.batchSize = batchSize
         self.useMetalMarchingCubes = useMetalMarchingCubes
         self.progressInterval = progressInterval
     }
@@ -190,11 +186,12 @@ public struct ImageToMeshOptions: Sendable {
 }
 
 public enum MLX3DRuntime {
-    /// Text to one or more meshes through Shap-E.
+    /// Text to one mesh through Shap-E.
     ///
     /// `bpeVocabularyURL` defaults to `bpe_simple_vocab_16e6.txt.gz` inside `modelBundleURL`.
-    /// Vertex colors are RGB copied from Shap-E's RGBA channel. `options.batchSize`
-    /// defaults to 1. `progress` receives Shap-E's phase and step. Partial meshes
+    /// Vertex colors are RGB copied from Shap-E's RGBA channel. This entry always
+    /// samples one mesh. Use ``textToMeshBatch(prompt:modelBundleURL:bpeVocabularyURL:batchSize:options:progress:)``
+    /// for more than one. `progress` receives Shap-E's phase and step. Partial meshes
     /// are included only when `options.progressInterval` is greater than zero.
     public static func textToMesh(
         prompt: String,
@@ -202,11 +199,30 @@ public enum MLX3DRuntime {
         bpeVocabularyURL: URL? = nil,
         options: TextToMeshOptions = TextToMeshOptions(),
         progress: MLX3DProgressHandler? = nil
-    ) async throws -> [Mesh] {
+    ) async throws -> Mesh {
         try await MLX3DSession().textToMesh(
             prompt: prompt,
             modelBundleURL: modelBundleURL,
             bpeVocabularyURL: bpeVocabularyURL,
+            options: options,
+            progress: progress
+        )
+    }
+
+    /// Text to `batchSize` meshes through Shap-E. Each row uses `options.seed + row`.
+    public static func textToMeshBatch(
+        prompt: String,
+        modelBundleURL: URL,
+        bpeVocabularyURL: URL? = nil,
+        batchSize: Int,
+        options: TextToMeshOptions = TextToMeshOptions(),
+        progress: MLX3DProgressHandler? = nil
+    ) async throws -> [Mesh] {
+        try await MLX3DSession().textToMeshBatch(
+            prompt: prompt,
+            modelBundleURL: modelBundleURL,
+            bpeVocabularyURL: bpeVocabularyURL,
+            batchSize: batchSize,
             options: options,
             progress: progress
         )

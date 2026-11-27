@@ -379,9 +379,10 @@ private struct FakeSessionShapE: SessionShapE {
     func textMesh(
         prompt: String,
         options: TextToMeshOptions,
+        batchSize: Int,
         progress: MLX3DProgressHandler?
     ) async throws -> [Mesh] {
-        Array(repeating: sessionTriangle, count: max(options.batchSize, 1))
+        Array(repeating: sessionTriangle, count: max(batchSize, 1))
     }
 
     func imageMeshes(

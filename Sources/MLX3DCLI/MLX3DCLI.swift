@@ -85,7 +85,7 @@ struct MLX3DCLI {
         let format = try parser.format(defaultOutput: "mesh.obj")
         let output = URL(fileURLWithPath: parser.values["output"] ?? format.defaultFileName)
 
-        let meshes = try await MLX3DRuntime.textToMesh(
+        let mesh = try await MLX3DRuntime.textToMesh(
             prompt: prompt,
             modelBundleURL: bundle,
             bpeVocabularyURL: bpe,
@@ -98,9 +98,6 @@ struct MLX3DCLI {
                 maximumGridSize: maximumGridSize
             )
         )
-        guard let mesh = meshes.first else {
-            throw CLIError.failed("Mesh extraction produced no triangles.")
-        }
         try write(mesh, to: output, format: format.kind)
         report(mesh, url: output)
     }
