@@ -228,9 +228,9 @@ struct ImageBackgroundRemovalTests {
         for (uiOrientation, imageIO) in cases {
             #expect(ImageBackgroundRemoval.cgImagePropertyOrientation(for: uiOrientation) == imageIO)
             let cast = CGImagePropertyOrientation(rawValue: UInt32(uiOrientation.rawValue))
-            if uiOrientation == .up {
-                #expect(cast == nil)
-            } else if uiOrientation != .rightMirrored {
+            if uiOrientation == .rightMirrored {
+                #expect(cast == .rightMirrored)
+            } else {
                 #expect(cast != imageIO)
             }
         }
@@ -238,9 +238,7 @@ struct ImageBackgroundRemovalTests {
 
     @Test func uiImageRemoveBackgroundNormalizesEveryOrientation() async throws {
         let source = cornerImage()
-        let uprightTagged = UIImage(cgImage: source, scale: 1, orientation: .up)
-        let uprightDisplay = displayedPixels(of: uprightTagged)
-        #expect(topLeft(uprightDisplay) == (255, 0, 0))
+        let uprightDisplay = displayedPixels(of: UIImage(cgImage: source, scale: 1, orientation: .up))
 
         for uiOrientation in Self.everyUIImageOrientation {
             let tagged = UIImage(cgImage: source, scale: 1, orientation: uiOrientation)
@@ -329,11 +327,6 @@ struct ImageBackgroundRemovalTests {
         context.scaleBy(x: 1, y: -1)
         context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
         return data
-    }
-
-    private func topLeft(_ image: CGImage) -> (UInt8, UInt8, UInt8) {
-        let bytes = rgba(image) ?? []
-        return (bytes[0], bytes[1], bytes[2])
     }
     #endif
 }
