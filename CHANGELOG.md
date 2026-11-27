@@ -86,6 +86,16 @@ version tag yet.
   That check is false even inside an app, including the Xcode 26.6 GitHub
   runner. The file is an uncompressed, 64-byte-aligned zip of a Model I/O
   `usdc`/`usda` crate, a SceneKit USDZ package, or an ASCII USDA layer.
+- Shap-E progress partials no longer crash the process when a sampler step
+  extracts an empty or non-contiguous mesh. `mesh(from:)` validates the
+  vertex, face, and color `MLXArray`s (`size > 0`, rank, last dimension 3 or
+  4, dtype) and calls `asType` and `contiguous()` before `asArray`. A partial
+  that fails that check is omitted, so `partialMeshes` may be empty. The
+  finished mesh still throws `emptyMesh` when extraction produces no
+  triangles. `Package.resolved` pins `shap-e-mlx-swift` at `7ed124d`, where
+  the scalar accessors read tensor bytes instead of `MLXArray.asArray`.
+  Int64 face indices that do not fit in `Int32` throw `emptyMesh` instead of
+  truncating.
 - `removeBackground(from: UIImage)` maps `UIImage.Orientation` onto
   `CGImagePropertyOrientation` with an explicit switch. The two enums do not
   share raw values, so the previous cast dropped upright images and

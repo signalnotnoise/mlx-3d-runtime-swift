@@ -49,7 +49,7 @@ Model I/O does not export the `usdz` extension, in the SwiftPM `xctest` process 
 | `MarchingCubesTests` | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:7-102` | Grid corners, empty fields, closed ellipsoid at resolution 32 (`Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:70-93`) |
 | `VolumeGridBatchTests` | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:104-175` | Rejects grids outside 2...512 before weight load, and checks lazy batches match the full point list |
 | `ImageTensorTests` | `Tests/MLX3DRuntimeTests/ImageTensorTests.swift:9-128` | Missing file, opaque red, transparent pixel over 0.5, aspect-fit versus stretch |
-| `GenerationProgressTests` | `Tests/MLX3DRuntimeTests/GenerationProgressTests.swift:9-189` | Defaults, a missing bundle or weights file does not call progress, events stay in order, and a nil handler builds no Shap-E callback |
+| `GenerationProgressTests` | `Tests/MLX3DRuntimeTests/GenerationProgressTests.swift:9-279` | Defaults, a missing bundle or weights file does not call progress, events stay in order, a nil handler builds no Shap-E callback, and an empty, wrong-rank, or non-contiguous Shap-E partial does not crash |
 | `CLIExitTests` | `Tests/MLX3DRuntimeTests/CLIExitTests.swift:6-83` | Nonzero exits, including `--grid-size 9999`; locates `MLX3DCLI` via `dladdr` (`Tests/MLX3DRuntimeTests/CLIExitTests.swift:85-106`). macOS only; `Process` is unavailable on iOS. |
 | `RuntimeContractTests` | `Tests/MLX3DRuntimeTests/RuntimeContractTests.swift:9-38` | Missing weights, missing bundle, short field |
 | `ModelCacheTests` | `Tests/MLX3DRuntimeTests/ModelCacheTests.swift:8-232` | Fake loaders: reuse, single-flight load, failed load is retried, `unload` does not republish an in-flight model |

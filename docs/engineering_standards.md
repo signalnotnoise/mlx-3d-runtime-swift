@@ -6,7 +6,7 @@ Invariants of this repository. Sibling model code is not specified here.
 
 `Package.swift:1` sets `swift-tools-version: 6.2`.
 
-`Package.swift:29-31` caps `mlx-swift` at `0.31.3..<0.31.5`. The comment states that `0.31.5` and later set Swift tools 6.3. Public `shap-e-mlx-swift` and `triposr-mlx-swift` `main` (commits `d7b6b7aa88d11e265799fc81e5fea1b734571d2b` and `51994056febf3be5ed726e89de169037a2fbf6a6`) both declare that same range. Do not widen this package past `0.31.4`.
+`Package.swift:29-31` caps `mlx-swift` at `0.31.3..<0.31.5`. The comment states that `0.31.5` and later set Swift tools 6.3. Public `shap-e-mlx-swift` and `triposr-mlx-swift` `main` (commits `7ed124d1a9b408a84d3b96f0df66c53dd48b3de6` and `51994056febf3be5ed726e89de169037a2fbf6a6`) both declare that same range. Do not widen this package past `0.31.4`. `Package.resolved` pins that Shap-E commit. Its scalar mesh accessors read tensor bytes. This package still validates the `MLXArray` before `asArray`.
 
 ## Tensor layout and coordinates
 
@@ -20,7 +20,7 @@ Density queries build one batch of positions with `points:` and reshape that bat
 
 Marching cubes subtracts `threshold` and reshapes the field to `[resolution, resolution, resolution]` (`Sources/MLX3DRuntime/MarchingCubesExtractor.swift:34-38`). Values above the threshold are the interior. The bbox passed to Shap-E is the same min and size as the sample grid (`Sources/MLX3DRuntime/MarchingCubesExtractor.swift:39-54`). `useMetalMarchingCubes` defaults to false and selects `MetalMarchingCubes.extract`; false keeps `MarchingCubes.extract` on that same field. Positions come back packed `x,y,z`. Faces are `Int32` (`Sources/MLX3DRuntime/MarchingCubesExtractor.swift:56-64`).
 
-`Mesh.positions` length is `3V`. `Mesh.faces` length is `3F`. `Mesh.vertexColors`, when present, length is `3V` (`Sources/MLX3DRuntime/Mesh.swift:5-10`). Shap-E RGBA (`V * 4`) is stored as RGB, dropping the fourth component (`Sources/MLX3DRuntime/MLX3DRuntime.swift:507-523`).
+`Mesh.positions` length is `3V`. `Mesh.faces` length is `3F`. `Mesh.vertexColors`, when present, length is `3V` (`Sources/MLX3DRuntime/Mesh.swift:5-10`). Shap-E RGBA (`V * 4`) is stored as RGB, dropping the fourth component (`Sources/MLX3DRuntime/MLX3DRuntime.swift:507-523`). `ShapEMeshArrays` checks size, rank, and the last dimension, casts with `asType`, and calls `contiguous()` before `asArray` (`Sources/MLX3DRuntime/ShapEMeshArrays.swift:16-148`). A zero-size vertex or face buffer throws `emptyMesh`. A partial that throws is omitted.
 
 ## Weights
 
