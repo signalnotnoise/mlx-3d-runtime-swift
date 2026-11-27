@@ -42,7 +42,7 @@ A second job, `ios-simulator`, runs on the same `macos-26` runner (`.github/work
 | Suite | File | Covers |
 | --- | --- | --- |
 | `MeshTests` | `Tests/MLX3DRuntimeTests/MeshTests.swift:6-47` | Open triangle, closed tetrahedron, degenerate face |
-| `MeshExportTests` | `Tests/MLX3DRuntimeTests/MeshExportTests.swift:6-98` | OBJ, PLY, empty mesh, bad indices |
+| `MeshExportTests` | `Tests/MLX3DRuntimeTests/MeshExportTests.swift:15-613` | OBJ+MTL references, unchanged PLY, legacy vertex-RGB OBJ, USDZ round-trip, Y-up pose and winding |
 | `MarchingCubesTests` | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:7-102` | Grid corners, empty fields, closed ellipsoid at resolution 32 (`Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:70-93`) |
 | `VolumeGridBatchTests` | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:104-175` | Rejects grids outside 2...512 before weight load, and checks lazy batches match the full point list |
 | `ImageTensorTests` | `Tests/MLX3DRuntimeTests/ImageTensorTests.swift:9-80` | Missing file, opaque red, transparent pixel over 0.5 |

@@ -38,6 +38,8 @@ The session does not download files and does not pick a directory. Holding the s
 
 ## Export and the example
 
-`MeshExport` writes OBJ (`v` / `f`, faces 1-based, optional `r g b` on `v`) and ASCII PLY (`Sources/MLX3DRuntime/MeshExport.swift:23-46`, `Sources/MLX3DRuntime/MeshExport.swift:72-78`, `Sources/MLX3DRuntime/MeshExport.swift:113-118`).
+`MeshExport` (`Sources/MLX3DRuntime/MeshExport.swift:78-167`) writes OBJ, ASCII PLY, and USDZ. The default OBJ has positions on `v`, `mtllib`, and `usemtl VertexColorAverage` (`Sources/MLX3DRuntime/MeshExport.swift:197-218`). The companion MTL stores the average albedo in `Kd` (`Sources/MLX3DRuntime/MeshExport.swift:221-234`). `objText` still emits the historical `v x y z r g b` extension and does not write an MTL (`Sources/MLX3DRuntime/MeshExport.swift:171-194`). Faces are 1-based in OBJ and 0-based in PLY (`Sources/MLX3DRuntime/MeshExport.swift:426-437`). USDZ is a Model I/O asset with per-vertex RGB (`Sources/MLX3DRuntime/MeshExport.swift:125-149`, `Sources/MLX3DRuntime/MeshExport.swift:350-393`).
+
+`MeshExportOptions.upAxis` defaults to `.native` (`Sources/MLX3DRuntime/MeshExport.swift:64-76`). Native coordinates are Z-up: legs to back along Z, back toward +Z (`Sources/MLX3DRuntime/MeshExport.swift:40-51`). `.yUp` rewrites positions only while writing a file, `(x, y, z)` to `(x, z, -y)` (`Sources/MLX3DRuntime/MeshExport.swift:329-348`). Face indices are copied in order. `validatedFaceIndices` rejects a negative or out-of-range index (`Sources/MLX3DRuntime/MeshExport.swift:312-326`). Export does not apply pin offsets or scale.
 
 `MLX3DCLI` dispatches `text` and `image` (`Sources/MLX3DCLI/MLX3DCLI.swift:39-58`). `MLX3DExample` only references `Mesh`, `MarchingCubes`, and `TripoSRModel` and does not load weights (`Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:7-17`).
