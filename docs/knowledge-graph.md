@@ -64,6 +64,6 @@ flowchart TD
 | CLI | `Sources/MLX3DCLI/MLX3DCLI.swift:18-168` |
 | Example link check | `Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18` |
 | CI | `.github/workflows/ci.yml:16-285` |
-| App-hosted USDZ tests | `Examples/ExportHost/ExportHostTests/USDZHostTests.swift:11-252` |
+| App-hosted USDZ tests | `Examples/ExportHost/ExportHostTests/USDZHostTests.swift:11-323` |
 | Public sibling branch pins | `Package.swift:33-41` |
 | Ellipsoid test | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-92` |

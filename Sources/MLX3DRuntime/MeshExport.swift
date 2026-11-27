@@ -138,8 +138,8 @@ public enum MeshExport {
         if FileManager.default.fileExists(atPath: url.path) {
             try FileManager.default.removeItem(at: url)
         }
-        if try writeUSDZCrate(checked, to: url) { return }
-        if writeUSDZSceneKit(checked, to: url) { return }
+        // A Model I/O crate imports with reordered vertices. USDA keeps the
+        // written order, indices, colors, and the chosen up axis.
         try writeUSDZUSDA(checked, upAxis: options.upAxis, to: url)
     }
 

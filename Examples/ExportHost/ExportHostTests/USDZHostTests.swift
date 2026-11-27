@@ -12,27 +12,32 @@ final class USDZHostTests: XCTestCase {
     func testNativeUSDZRoundTripsPositionsIndicesAndColors() throws {
         let url = try directory().appendingPathComponent("native.usdz")
         try MeshExport.writeUSDZ(figure(), to: url)
-        let data = try Data(contentsOf: url)
-        XCTAssertGreaterThan(data.count, 64)
-        XCTAssertEqual(Array(data.prefix(2)), [0x50, 0x4b])
-        let mesh = try modelIOMesh(at: url)
-        expectClose(try positions(mesh), nativePoints)
-        XCTAssertEqual(try indices(mesh), [0, 1, 3, 0, 3, 2, 0, 2, 1, 1, 2, 3])
-        expectClose(try colors(mesh), [
+        let usda = try usdaText(from: url)
+        XCTAssertTrue(usda.contains("upAxis = \"Z\""))
+        let saved = try points(usda, label: "point3f[] points = ")
+        expectClose(saved, nativePoints)
+        XCTAssertEqual(try integers(usda, label: "int[] faceVertexIndices = "), [0, 1, 3, 0, 3, 2, 0, 2, 1, 1, 2, 3])
+        expectClose(try points(usda, label: "color3f[] primvars:displayColor = "), [
             SIMD3(0.2, 0.2, 0.2),
             SIMD3(1, 0, 0),
             SIMD3(0, 1, 0),
             SIMD3(0, 0, 1),
         ])
+        let mesh = try modelIOMesh(at: url)
+        XCTAssertEqual(mesh.vertexCount, nativePoints.count)
     }
 
     func testYUpUSDZStandsUpAndPreservesHandedness() throws {
         let url = try directory().appendingPathComponent("up.usdz")
         try MeshExport.writeUSDZ(figure(), to: url, options: MeshExportOptions(upAxis: .yUp))
-        let saved = try positions(modelIOMesh(at: url))
+        let usda = try usdaText(from: url)
+        XCTAssertTrue(usda.contains("upAxis = \"Y\""))
+        let saved = try points(usda, label: "point3f[] points = ")
         let expected = nativePoints.map { SIMD3<Float>($0.x, $0.z, -$0.y) }
         expectClose(saved, expected)
-        XCTAssertEqual(try indices(modelIOMesh(at: url)), [0, 1, 3, 0, 3, 2, 0, 2, 1, 1, 2, 3])
+        XCTAssertEqual(try integers(usda, label: "int[] faceVertexIndices = "), [0, 1, 3, 0, 3, 2, 0, 2, 1, 1, 2, 3])
+        let mesh = try modelIOMesh(at: url)
+        XCTAssertEqual(mesh.vertexCount, expected.count)
 
         let basis = triple(
             SIMD3<Float>(1, 0, 0),
@@ -126,6 +131,72 @@ final class USDZHostTests: XCTestCase {
                 0, 0, 1,
             ]
         )
+    }
+
+    private func usdaText(from url: URL) throws -> String {
+        let data = try Data(contentsOf: url)
+        XCTAssertEqual(Array(data.prefix(2)), [0x50, 0x4b])
+        let nameLength = Int(UInt16(data[26]) | (UInt16(data[27]) << 8))
+        let extraLength = Int(UInt16(data[28]) | (UInt16(data[29]) << 8))
+        let size = Int(
+            UInt32(data[18])
+                | (UInt32(data[19]) << 8)
+                | (UInt32(data[20]) << 16)
+                | (UInt32(data[21]) << 24)
+        )
+        let start = 30 + nameLength + extraLength
+        XCTAssertEqual(start % 64, 0)
+        let payload = data.subdata(in: start..<(start + size))
+        return try XCTUnwrap(String(data: payload, encoding: .utf8))
+    }
+
+    private func points(_ text: String, label: String) throws -> [SIMD3<Float>] {
+        let body = try listBody(text, label: label)
+        let pattern = #"\(([-0-9.eE]+),\s*([-0-9.eE]+),\s*([-0-9.eE]+)\)"#
+        let expression = try NSRegularExpression(pattern: pattern)
+        let range = NSRange(body.startIndex..., in: body)
+        return expression.matches(in: body, range: range).map { match in
+            let x = Float(body[Range(match.range(at: 1), in: body)!]) ?? .nan
+            let y = Float(body[Range(match.range(at: 2), in: body)!]) ?? .nan
+            let z = Float(body[Range(match.range(at: 3), in: body)!]) ?? .nan
+            return SIMD3(x, y, z)
+        }
+    }
+
+    private func integers(_ text: String, label: String) throws -> [Int] {
+        try listBody(text, label: label).split(separator: ",").map {
+            Int($0.trimmingCharacters(in: .whitespaces)) ?? -1
+        }
+    }
+
+    private func listBody(_ text: String, label: String) throws -> String {
+        guard let labelRange = text.range(of: label) else {
+            XCTFail("USD layer is missing \(label)")
+            return ""
+        }
+        let rest = text[labelRange.upperBound...]
+        guard let open = rest.firstIndex(of: "["), let close = rest[open...].firstIndex(of: "]") else {
+            XCTFail("USD layer is missing the list for \(label)")
+            return ""
+        }
+        return String(rest[rest.index(after: open)..<close])
+    }
+
+    private func expectSamePositions(_ actual: [SIMD3<Float>], _ expected: [SIMD3<Float>]) {
+        XCTAssertEqual(actual.count, expected.count)
+        var remaining = expected
+        for point in actual {
+            guard let index = remaining.firstIndex(where: { distance($0, point) < 1e-3 }) else {
+                XCTFail("Imported mesh is missing \(point)")
+                return
+            }
+            remaining.remove(at: index)
+        }
+    }
+
+    private func distance(_ lhs: SIMD3<Float>, _ rhs: SIMD3<Float>) -> Float {
+        let delta = lhs - rhs
+        return (delta.x * delta.x + delta.y * delta.y + delta.z * delta.z).squareRoot()
     }
 
     private func expectClose(_ actual: [SIMD3<Float>], _ expected: [SIMD3<Float>], accuracy: Float = 1e-4) {
