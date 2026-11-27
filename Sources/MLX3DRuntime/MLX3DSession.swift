@@ -163,8 +163,9 @@ public final class MLX3DSession: Sendable {
     #if canImport(UIKit)
     /// UIImage to mesh through the cached TripoSR model.
     ///
-    /// Orientation uses ``ImageBackgroundRemoval``'s explicit `UIImage.Orientation`
-    /// mapping, the same switch as `removeBackground(from: UIImage)`. It is not a raw-value cast.
+    /// The explicit `UIImage.Orientation` switch renders an upright bitmap first.
+    /// Cutout, a nil cutout, and fallback all use that upright image. Vision is
+    /// then asked for `.up`, because the pixels are already oriented.
     public func imageToMesh(
         uiImage: UIImage,
         weightsURL: URL,
@@ -184,15 +185,28 @@ public final class MLX3DSession: Sendable {
         options: ImageToMeshOptions,
         foregroundCutout: (@Sendable (CGImage, CGFloat, CGImagePropertyOrientation) async throws -> CGImage?)?
     ) async throws -> Mesh {
-        guard let cgImage = uiImage.cgImage else {
-            throw MLX3DRuntimeError.imageUnreadable("UIImage has no CGImage.")
-        }
-        let orientation = ImageBackgroundRemoval.cgImagePropertyOrientation(for: uiImage.imageOrientation)
+        let upright = try ImageBackgroundRemoval.uprightCGImage(from: uiImage)
         return try await tripoCGImage(
-            cgImage,
+            upright,
             weightsURL: weightsURL,
             options: options,
-            orientation: orientation,
+            orientation: .up,
+            foregroundCutout: foregroundCutout
+        )
+    }
+
+    /// CGImage that would be passed to TripoSR after orientation and cutout policy.
+    /// Does not load weights.
+    func modelInputCGImage(
+        uiImage: UIImage,
+        options: ImageToMeshOptions,
+        foregroundCutout: (@Sendable (CGImage, CGFloat, CGImagePropertyOrientation) async throws -> CGImage?)?
+    ) async throws -> CGImage {
+        let upright = try ImageBackgroundRemoval.uprightCGImage(from: uiImage)
+        return try await Self.preparedTripoImage(
+            upright,
+            options: options,
+            orientation: .up,
             foregroundCutout: foregroundCutout
         )
     }

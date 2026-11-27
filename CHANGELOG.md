@@ -21,8 +21,9 @@ version tag yet.
 - `MLX3DSession.imageToMesh(cgImage:)` runs the foreground cutout with
   `CutoutFailurePolicy` (`.strict` by default) and then the cached TripoSR
   model. `MLX3DSession.imageToMeshShapE` runs the white-background prep and
-  then the cached Shap-E runtime. On UIKit, `imageToMesh(uiImage:)` uses the
-  explicit `UIImage.Orientation` mapping.
+  then the cached Shap-E runtime. On UIKit, `imageToMesh(uiImage:)` renders an
+  upright bitmap with the explicit `UIImage.Orientation` switch before the
+  cutout, so a skipped cutout or a fallback does not send a sideways photo.
 - Swift package `MLX3DRuntime` with library product `MLX3DRuntime` and
   executable product `MLX3DCLI`.
 - `Mesh` (positions, faces, optional vertex colors) plus OBJ and PLY export.

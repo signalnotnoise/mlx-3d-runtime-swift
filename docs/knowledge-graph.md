@@ -43,14 +43,14 @@ flowchart TD
 | --- | --- |
 | Package pins and products | `Package.swift:1-68` |
 | Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:16-184` |
-| Caller-owned loaded-model session | `Sources/MLX3DRuntime/MLX3DSession.swift:2-399` |
+| Caller-owned loaded-model session | `Sources/MLX3DRuntime/MLX3DSession.swift:2-413` |
 | Model key | `Sources/MLX3DRuntime/MLX3DModelKey.swift:1-78` |
 | In-memory load cache | `Sources/MLX3DRuntime/MLX3DModelCache.swift:1-168` |
 | Shap-E image options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:68-122` |
 | Image decode | `Sources/MLX3DRuntime/ImageTensor.swift:6-107` |
 | CGImage cutout then TripoSR | `Sources/MLX3DRuntime/MLX3DRuntime.swift:217-250` |
 | Cutout failure policy | `Sources/MLX3DRuntime/MLX3DRuntime.swift:46-56` |
-| Copied Mesquette cutout | `Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:6-229` |
+| Copied Mesquette cutout | `Sources/MLX3DRuntime/ImageBackgroundRemoval.swift:6-246` |
 | Shap-E white prep then image generation | `Sources/MLX3DRuntime/MLX3DRuntime.swift:260-301` |
 | Image-to-mesh and image rank check | `Sources/MLX3DRuntime/MLX3DRuntime.swift:186-462` |
 | Density grid and batches | `Sources/MLX3DRuntime/TripoSRMeshing.swift:5-106` |
@@ -62,6 +62,6 @@ flowchart TD
 | OBJ and PLY | `Sources/MLX3DRuntime/MeshExport.swift:23-172` |
 | CLI | `Sources/MLX3DCLI/MLX3DCLI.swift:18-168` |
 | Example link check | `Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18` |
-| CI | `.github/workflows/ci.yml:16-238` |
+| CI | `.github/workflows/ci.yml:16-239` |
 | Public sibling branch pins | `Package.swift:33-41` |
 | Ellipsoid test | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-92` |

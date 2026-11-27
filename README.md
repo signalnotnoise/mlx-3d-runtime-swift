@@ -82,7 +82,7 @@ await session.unload(key)
 
 The Shap-E key is the bundle directory plus the BPE file (default `bpe_simple_vocab_16e6.txt.gz` inside the bundle). The TripoSR key is the safetensors URL. Prompt, seed, grid size, and steps are not part of the key.
 
-`session.imageToMesh(cgImage:)` runs the same foreground cutout as `MLX3DRuntime.imageToMesh(cgImage:)`, including `cutoutFailurePolicy` (`.strict` by default), then reuses the cached TripoSR model. `session.imageToMeshShapE` runs the same white-background `removeBackground` prep, then reuses the cached Shap-E runtime. On UIKit, `imageToMesh(uiImage:)` maps `UIImage.Orientation` with the explicit switch from `ImageBackgroundRemoval`.
+`session.imageToMesh(cgImage:)` runs the same foreground cutout as `MLX3DRuntime.imageToMesh(cgImage:)`, including `cutoutFailurePolicy` (`.strict` by default), then reuses the cached TripoSR model. `session.imageToMeshShapE` runs the same white-background `removeBackground` prep, then reuses the cached Shap-E runtime. On UIKit, `imageToMesh(uiImage:)` uses that same switch to render an upright bitmap before the cutout. A skipped cutout and a fallback both send those upright pixels to TripoSR.
 
 `Mesh.positions` and `Mesh.vertexColors` are packed `x, y, z` and `r, g, b`. `Mesh.faces` are packed triangle indices. `vertexColors` is `nil` when a path has no colors. Shap-E's RGBA channel is stored as RGB.
 

@@ -229,7 +229,8 @@ jobs:
             -destination "${DESTINATION}" \
             -only-testing:"MLX3DRuntimeTests/ImageBackgroundRemovalTests/uiImageOrientationMapsToCGImagePropertyOrientation()" \
             -only-testing:"MLX3DRuntimeTests/ImageBackgroundRemovalTests/uiImageRemoveBackgroundNormalizesEveryOrientation()" \
-            -only-testing:"MLX3DRuntimeTests/ImageBackgroundRemovalTests/sessionUIImageCutoutUsesMappedOrientation()" \
+            -only-testing:"MLX3DRuntimeTests/ImageBackgroundRemovalTests/sessionUIImageCutoutPathFeedsUprightPixels()" \
+            -only-testing:"MLX3DRuntimeTests/ImageBackgroundRemovalTests/sessionUIImageSkippedAndFallbackPathsFeedUprightPixels()" \
             -skipPackagePluginValidation \
             -skipMacroValidation \
             -parallel-testing-enabled NO \
