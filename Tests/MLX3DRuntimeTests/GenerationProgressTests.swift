@@ -232,6 +232,7 @@ struct GenerationProgressTests {
             [3, 4]
         )
         let rows = columns.transposed()
+        rows.eval()
         #expect(rows.shape == [4, 3])
         #expect(rows.strides != [3, 1])
         let values = try ShapEMeshArrays.floats(rows, components: 3)
@@ -243,12 +244,14 @@ struct GenerationProgressTests {
 
         let storedColors = MLXArray(Array(0..<16).map { Float($0) }, [4, 4])
         let stridedColors = storedColors.transposed()
+        stridedColors.eval()
         #expect(stridedColors.strides != [4, 1])
         let colorValues = try ShapEMeshArrays.floats(stridedColors, components: 4)
         #expect(colorValues.count == 16)
 
         let wide = MLXArray(Array(0..<24).map { Float($0) }, [4, 6])
         let rowSlice = wide[0..., 0..<3]
+        rowSlice.eval()
         #expect(rowSlice.shape == [4, 3])
         #expect(rowSlice.strides != [3, 1])
         let sliced = try ShapEMeshArrays.floats(rowSlice, components: 3)

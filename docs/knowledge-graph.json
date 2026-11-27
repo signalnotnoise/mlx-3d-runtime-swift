@@ -1077,7 +1077,7 @@
     "Tests/MLX3DRuntimeTests/CLIExitTests.swift:6-106": "8e1ee65c7ad3444242f49fcde2d4ebd47235280096553f49fcb216ab49e9f4ea",
     "Tests/MLX3DRuntimeTests/CLIExitTests.swift:6-83": "6b5af112b531c76224793e935cf5960265aae869b050d59b517b6c5ee72d5ebc",
     "Tests/MLX3DRuntimeTests/CLIExitTests.swift:85-106": "4462e46a7ead7dbacd6684675de1cb1c73530f080af653f56c64d64dbbd39ed4",
-    "Tests/MLX3DRuntimeTests/GenerationProgressTests.swift:9-276": "b359038edb63d1e0b996dcf861227af019355471f7e46316118e1cfad259f3bb",
+    "Tests/MLX3DRuntimeTests/GenerationProgressTests.swift:9-279": "00267c5986cd5aac089cccc3258bc970187bbfe551ef2313dd0877d88419bd42",
     "Tests/MLX3DRuntimeTests/ImageBackgroundRemovalTests.swift:13-424": "72158e40d6127abc59bf23c2be296331049a616c7a8c04e9091cd9757a5e1b28",
     "Tests/MLX3DRuntimeTests/ImageTensorTests.swift:10-12": "f060d137b343507f3ac6123c55b08c8e90c0873dc17e59ab8f84e23cd98da587",
     "Tests/MLX3DRuntimeTests/ImageTensorTests.swift:9-128": "799476064a0d6c18effd2025448d341d0355afc62ef5fd38c7d7f2dd23433019",
