@@ -2,19 +2,19 @@
 
 ## Package pins
 
-`Package.swift:28-41` depends on:
+`Package.swift:21-32` depends on:
 
-- `mlx-swift` `0.31.3..<0.31.5` (`Package.swift:31`).
-- `shap-e-mlx-swift` public branch `main` (`Package.swift:33-36`).
-- `triposr-mlx-swift` public branch `main` (`Package.swift:38-41`).
+- `mlx-swift` `0.31.3..<0.31.5` (`Package.swift:24`).
+- `shap-e-mlx-swift` `from: "0.1.0"` (`Package.swift:25-28`).
+- `triposr-mlx-swift` `from: "0.1.0"` (`Package.swift:29-32`).
 
-TODO in `Package.swift:4-9` and again at `Package.swift:32` and `Package.swift:37`: switch both sibling pins to `from: "0.1.0"` once those repositories are tagged. The example manifest repeats public `main` and the same TODO (`Examples/Integration/Package.swift:9-10` and `Examples/Integration/Package.swift:24-33`).
+The example manifest uses the same version pins (`Examples/Integration/Package.swift:21-28`).
 
-`Package.resolved` records the revisions resolved from those `main` branches. The Shap-E pin is `7ed124d1a9b408a84d3b96f0df66c53dd48b3de6`, whose `verticesArray`, `facesArray`, and `colorsArray` read tensor bytes instead of `MLXArray.asArray`. CI resolves again from GitHub with an empty cache (`.github/workflows/ci.yml:49-96`). There is no `Vendor/` mirror.
+`Package.resolved` records the revisions resolved from those `0.1.0` tags. The Shap-E pin is `962403e2ccef75a10c084c09c70c92899e93d328` (`v0.1.0`, which includes `7ed124d`), whose `verticesArray`, `facesArray`, and `colorsArray` read tensor bytes instead of `MLXArray.asArray`. CI resolves again from GitHub with an empty cache (`.github/workflows/ci.yml:49-96`). There is no `Vendor/` mirror.
 
-`Examples/Integration/Package.swift:22` depends on this repo by `path: "../.."`. The package identity is the checkout directory name `mlx-3d-runtime-swift` (`Examples/Integration/Package.swift:5-7` and `Examples/Integration/Package.swift:38`).
+`Examples/Integration/Package.swift:20` depends on this repo by `path: "../.."`. The package identity is the checkout directory name `mlx-3d-runtime-swift` (`Examples/Integration/Package.swift:5-7` and `Examples/Integration/Package.swift:34`).
 
-Products of this package are `MLX3DRuntime` and `MLX3DCLI` (`Package.swift:18-26`). The example product is `MLX3DExample` (`Examples/Integration/Package.swift:18-19`).
+Products of this package are `MLX3DRuntime` and `MLX3DCLI` (`Package.swift:11-19`). The example product is `MLX3DExample` (`Examples/Integration/Package.swift:16-17`).
 
 ## What each path needs
 

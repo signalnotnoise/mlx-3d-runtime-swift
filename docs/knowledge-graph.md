@@ -41,7 +41,7 @@ flowchart TD
 
 | Task | Location |
 | --- | --- |
-| Package pins and products | `Package.swift:1-68` |
+| Package pins and products | `Package.swift:1-59` |
 | Text-to-mesh options and call | `Sources/MLX3DRuntime/MLX3DRuntime.swift:16-229` |
 | Caller-owned loaded-model session | `Sources/MLX3DRuntime/MLX3DSession.swift:2-486` |
 | Generation progress event | `Sources/MLX3DRuntime/GenerationProgress.swift:9-26` |
@@ -66,5 +66,5 @@ flowchart TD
 | Example link check | `Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18` |
 | CI | `.github/workflows/ci.yml:16-285` |
 | App-hosted USDZ tests | `Examples/ExportHost/ExportHostTests/USDZHostTests.swift:11-323` |
-| Public sibling branch pins | `Package.swift:33-41` |
+| Public sibling version pins | `Package.swift:25-32` |
 | Ellipsoid test | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-92` |

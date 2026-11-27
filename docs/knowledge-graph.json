@@ -1,10 +1,10 @@
 {
   "metadata": {
     "repo": "signalnotnoise/mlx-3d-runtime-swift",
-    "branch": "cursor/wrapper-cutout-port",
-    "verified_commit": "c3fc11d1152eca0a07156a4232523df9c7bfaaaf",
-    "verified_commit_note": "Informational only. verify_docs.py hashes cited line text in the working tree and does not require verified_commit to be an ancestor of HEAD.",
-    "generated_at": "2026-11-26",
+    "branch": "main",
+    "verified_commit": "81e886b6a88cbe36d610c21f41c26cceae5bc688",
+    "verified_commit_note": "Informational only. verify_docs.py hashes cited line text in the working tree and does not require verified_commit to be an ancestor of HEAD. 81e886b is the pre-pin main commit; this change switches sibling dependencies to from: 0.1.0.",
+    "generated_at": "2026-11-27",
     "swift_tools_version": "6.2",
     "mlx_swift_constraint": "0.31.3..<0.31.5",
     "content_hash_note": "content_hashes are SHA-256 of the cited lines in the working tree, joined by newlines with a trailing newline. verified_commit is not checked against HEAD and does not need to be an ancestor."
@@ -177,7 +177,7 @@
       {
         "file_path": "Package.swift",
         "line_start": 1,
-        "line_end": 68
+        "line_end": 59
       },
       {
         "file_path": ".github/workflows/ci.yml",
@@ -187,7 +187,7 @@
       {
         "file_path": "Examples/Integration/Package.swift",
         "line_start": 1,
-        "line_end": 45
+        "line_end": 40
       }
     ],
     "foreground_cutout": [
@@ -243,8 +243,8 @@
       "kind": "target",
       "target": "MLX3DRuntime",
       "file_path": "Package.swift",
-      "line_start": 45,
-      "line_end": 53,
+      "line_start": 35,
+      "line_end": 43,
       "summary": "Library target. Depends on MLX, MLXNN, ShapERuntime, and TripoSRRuntime."
     },
     {
@@ -252,8 +252,8 @@
       "kind": "target",
       "target": "MLX3DCLI",
       "file_path": "Package.swift",
-      "line_start": 54,
-      "line_end": 57,
+      "line_start": 44,
+      "line_end": 47,
       "summary": "Executable target. Depends on MLX3DRuntime."
     },
     {
@@ -261,8 +261,8 @@
       "kind": "target",
       "target": "MLX3DRuntimeTests",
       "file_path": "Package.swift",
-      "line_start": 58,
-      "line_end": 67,
+      "line_start": 48,
+      "line_end": 57,
       "summary": "Test target. Depends on MLX3DRuntime, MLX3DCLI, MLX, ShapERuntime, and TripoSRRuntime."
     },
     {
@@ -270,8 +270,8 @@
       "kind": "target",
       "target": "MLX3DExample",
       "file_path": "Examples/Integration/Package.swift",
-      "line_start": 35,
-      "line_end": 42,
+      "line_start": 31,
+      "line_end": 38,
       "summary": "Separate package executable that imports MLX3DRuntime, ShapERuntime, and TripoSRRuntime."
     },
     {
@@ -560,7 +560,7 @@
       "file_path": "https://github.com/signalnotnoise/shap-e-mlx-swift",
       "line_start": null,
       "line_end": null,
-      "summary": "Text-to-3D runtime. Product ShapERuntime. Public branch main."
+      "summary": "Text-to-3D runtime. Product ShapERuntime. Tagged 0.1.0 (includes 7ed124d)."
     },
     {
       "id": "external.MarchingCubes",
@@ -578,7 +578,7 @@
       "file_path": "https://github.com/signalnotnoise/triposr-mlx-swift",
       "line_start": null,
       "line_end": null,
-      "summary": "Image-to-3D runtime. Product TripoSRRuntime. Public branch main."
+      "summary": "Image-to-3D runtime. Product TripoSRRuntime. Tagged 0.1.0."
     },
     {
       "id": "external.TripoSRModel",
@@ -868,28 +868,27 @@
   ],
   "content_hashes": {
     ".github/workflows/ci.yml:104-112": "84dc3291aded2a967fbaa1c85a7f5534062eb9fb9f572f5ed7b0e33a5b7a9df8",
-    ".github/workflows/ci.yml:114-147": "c1509c40a08959bbfd84e08fa5281e3807290d4fb35b342b2bed5a1c5e8116e5",
+    ".github/workflows/ci.yml:114-147": "9592425ae550e04758b685dd0bd6172c2e7edbe5284cef5df99bc757125a8b28",
     ".github/workflows/ci.yml:149-162": "9de03f61e9717534f7e767184844d9a6509046415816309977f2766cab9c72c0",
-    ".github/workflows/ci.yml:16-285": "e26134c776efb3b8c380220e508cf9c1d4a9c36de161d98e521f1c46cd2610d5",
+    ".github/workflows/ci.yml:16-285": "6856f81e33c50d18c2d883d46f28bd62b8ae78b1d07427d16e2e013a898a8ec4",
     ".github/workflows/ci.yml:242-254": "4e3e522e90303fa68094422537ed4c04d637d6745a3df40a1cad6100d2ae29a6",
     ".github/workflows/ci.yml:26-31": "58b3c739dee7e7701ad416902daa4de3eb172545f2a6f5979b5585df8c9949f8",
     ".github/workflows/ci.yml:275-285": "51e96e50f569dbf833ac737ca9b4c77d357226610dbc267da01fb217c2c4833e",
     ".github/workflows/ci.yml:40-47": "62d9951204305e9afba8dcc0580cbd780b9e147bdbe7f06047c9a7530eb5cafb",
-    ".github/workflows/ci.yml:49-96": "3760bee72e3428cbe5470e8309a504016820164b24d7d7f27284c4d49791dc3c",
+    ".github/workflows/ci.yml:49-96": "2fbf9345fb52cdadcb0c69be5289d99ecf691f8d627a4cea8df0422980deb0b0",
     "Examples/ExportHost/ExportHostTests/USDZHostTests.swift:11-323": "e7ee5bdd7b0edfc2f282ba7ac7344601442ba3988c3980ce8f22511ba6cac531",
-    "Examples/Integration/Package.swift:1-45": "1ccdb2cc33c39500b1e0d0a035517b5a6d8468e94e37811ed845e30624469a2c",
-    "Examples/Integration/Package.swift:18-19": "bb0bbaf31647b73136b1258cb57f097e8472b8bbc4bdcaaeb57562129e1368b0",
-    "Examples/Integration/Package.swift:24-33": "07cb9533fbb86ebfdfeb28e67168fee59ec12e483e6a99b304b68b31adf22c3e",
-    "Examples/Integration/Package.swift:35-42": "5d9b88788d13bb9525e60c068f67e7e2b5ac51c940e5d5b5716ab066ea55e7cc",
+    "Examples/Integration/Package.swift:1-40": "0fb44962e06dac0d521d96bd056c9f075e1863cdcd82e2d48adcdddb3847b5c9",
+    "Examples/Integration/Package.swift:16-17": "6a813e64b855a5388513aed54e095567fa06e7a5cda5d38d074c63b0add5c746",
+    "Examples/Integration/Package.swift:21-28": "ce370bf821b5003e830863dd514f34de17283b515aff9ac75dccb319e9129a7d",
+    "Examples/Integration/Package.swift:31-38": "a7cda624ffd41f57d8a0961208d4b57a3288b541d7787b3dcf4e9272f1adc9e8",
     "Examples/Integration/Package.swift:5-7": "0ab0eb46e0a5b32f6851a7ae7883fdf50de82dad1e52ee7823713634b319bcc6",
-    "Examples/Integration/Package.swift:9-10": "b73c21d8d9265e328acdd8c2365dfe1f950d557942489650ad7194fd157ea6f1",
     "Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18": "78726c408201d7205389776fc6798470165c619b7a76923732d9e2431e0ba0fb",
     "Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:7-17": "512c2ee9a080379487f9d3f5e3d59e122f6cb078ef2c02da8a5a2e6aee69f1f4",
     "Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:8-18": "2ee2a69f75cfa183bac13e018f05fe1915b0dbe153fbcf0e8b81a5936c920d4a",
-    "Package.swift:1-68": "6a658908ebaf08dd938e8bf42a3b62d069704326997598018f01743f294c487b",
-    "Package.swift:45-53": "5affe77356edf3ebd3d580ec272f5aec28b4d29fa61b5fb82306c92b505806d6",
-    "Package.swift:54-57": "05670eb41b593246a31927705f36b78b3903790c90e0965fcd6d6a2fa81da977",
-    "Package.swift:58-67": "1995c0b153f89e586eabb528d2e133a2a16c2764d83061b3769a7f10ddb5f430",
+    "Package.swift:1-59": "d8e45ee183150d5e89db43208e6d149e5224a1ad3fcdb4d209596ac0bf69c907",
+    "Package.swift:35-43": "3a8226f7632a328a7081d5f6ab26e73ea0271413c71379433a4c4bfca23055ab",
+    "Package.swift:44-47": "159cb2fd755ec24b9c5bbbea7cf897672fc34ecfdb7be0fb2474a63cb7c5e918",
+    "Package.swift:48-57": "94ce6b32469e24f8709ef00fd96d5aacb9ad403a4cdc06a9bb755eade5c51d54",
     "Sources/MLX3DCLI/MLX3DCLI.swift:117-119": "dd06e224421e008f4f70186aef059a212bbafa778b56a10f8585942a9545a485",
     "Sources/MLX3DCLI/MLX3DCLI.swift:117-123": "833e08a1d662f7c0f891936eecf54cb1b5dae4a2e477dcb37d57062595da322e",
     "Sources/MLX3DCLI/MLX3DCLI.swift:120-123": "04e7e0bf42a963a12904700d994551360b2febeb79122fc1009a4add985f2c60",

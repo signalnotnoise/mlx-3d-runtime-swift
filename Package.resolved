@@ -1,5 +1,5 @@
 {
-  "originHash" : "6a658908ebaf08dd938e8bf42a3b62d069704326997598018f01743f294c487b",
+  "originHash" : "d8e45ee183150d5e89db43208e6d149e5224a1ad3fcdb4d209596ac0bf69c907",
   "pins" : [
     {
       "identity" : "mlx-swift",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/signalnotnoise/shap-e-mlx-swift.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "7ed124d1a9b408a84d3b96f0df66c53dd48b3de6"
+        "revision" : "962403e2ccef75a10c084c09c70c92899e93d328",
+        "version" : "0.1.0"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/signalnotnoise/triposr-mlx-swift.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "51994056febf3be5ed726e89de169037a2fbf6a6"
+        "revision" : "51994056febf3be5ed726e89de169037a2fbf6a6",
+        "version" : "0.1.0"
       }
     }
   ],
