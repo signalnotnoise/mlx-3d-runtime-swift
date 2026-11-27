@@ -227,8 +227,8 @@ jobs:
           xcodebuild test \
             -scheme MLX3DRuntime-Package \
             -destination "${DESTINATION}" \
-            -only-testing:MLX3DRuntimeTests/ImageBackgroundRemovalTests/uiImageOrientationMapsToCGImagePropertyOrientation \
-            -only-testing:MLX3DRuntimeTests/ImageBackgroundRemovalTests/uiImageRemoveBackgroundNormalizesEveryOrientation \
+            -only-testing:MLX3DRuntimeTests/ImageBackgroundRemovalTests/uiImageOrientationMapsToCGImagePropertyOrientation() \
+            -only-testing:MLX3DRuntimeTests/ImageBackgroundRemovalTests/uiImageRemoveBackgroundNormalizesEveryOrientation() \
             -skipPackagePluginValidation \
             -skipMacroValidation \
             -parallel-testing-enabled NO \
