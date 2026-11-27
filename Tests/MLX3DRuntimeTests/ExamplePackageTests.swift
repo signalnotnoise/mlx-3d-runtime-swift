@@ -22,7 +22,7 @@ struct ExamplePackageTests {
             encoding: .utf8
         )
 
-        #expect(manifest.contains("branch: \"main\""))
+        #expect(!manifest.contains("branch: \"main\""))
         #expect(!manifest.contains("cursor/shap-e-runtime-package-ea5b"))
         #expect(!manifest.contains("cursor/triposr-mlx-swift-package-45c1"))
         #expect(manifest.contains("from: \"0.1.0\""))
@@ -31,7 +31,7 @@ struct ExamplePackageTests {
         #expect(readme.contains("https://huggingface.co/signalNotNoise/shap-e-mlx"))
         #expect(readme.contains("https://huggingface.co/signalNotNoise/triposr-mlx"))
 
-        #expect(exampleManifest.contains("branch: \"main\""))
+        #expect(!exampleManifest.contains("branch: \"main\""))
         #expect(!exampleManifest.contains("cursor/shap-e-runtime-package-ea5b"))
         #expect(!exampleManifest.contains("cursor/triposr-mlx-swift-package-45c1"))
         #expect(exampleManifest.contains("path: \"../..\""))
