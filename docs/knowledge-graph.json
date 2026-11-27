@@ -145,7 +145,7 @@
       {
         "file_path": ".github/workflows/ci.yml",
         "line_start": 16,
-        "line_end": 235
+        "line_end": 237
       },
       {
         "file_path": "Examples/Integration/Package.swift",
@@ -668,8 +668,8 @@
   "content_hashes": {
     ".github/workflows/ci.yml:104-112": "84dc3291aded2a967fbaa1c85a7f5534062eb9fb9f572f5ed7b0e33a5b7a9df8",
     ".github/workflows/ci.yml:114-147": "c1509c40a08959bbfd84e08fa5281e3807290d4fb35b342b2bed5a1c5e8116e5",
-    ".github/workflows/ci.yml:16-235": "090d03d82d3ccf546c0ed47c48736f80d2ef69453a97720dd239dfecfc7d0742",
-    ".github/workflows/ci.yml:227-235": "2379c5960cbdf474db110d1421a4a1d4c3a4eb7106b742223210daf4d28221bc",
+    ".github/workflows/ci.yml:16-237": "3292fb90e1b3bd910e09045da4baa04fab1e7cacaa72b91bd2992b9bd7598ac8",
+    ".github/workflows/ci.yml:227-237": "a1d3992459e79e9f155b4faec35c4f16ba8fe4331b335907830deb3b4613990f",
     ".github/workflows/ci.yml:26-31": "58b3c739dee7e7701ad416902daa4de3eb172545f2a6f5979b5585df8c9949f8",
     ".github/workflows/ci.yml:40-47": "62d9951204305e9afba8dcc0580cbd780b9e147bdbe7f06047c9a7530eb5cafb",
     ".github/workflows/ci.yml:49-96": "3760bee72e3428cbe5470e8309a504016820164b24d7d7f27284c4d49791dc3c",

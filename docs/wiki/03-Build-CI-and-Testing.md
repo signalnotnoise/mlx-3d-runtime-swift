@@ -35,7 +35,7 @@ xcodebuild build \
 
 `scripts/verify_docs.py` checks doc anchors. CI runs it after the example build.
 
-A second job, `ios-simulator`, runs on the same `macos-26` runner (`.github/workflows/ci.yml:153`). It resolves from GitHub into an empty cache, picks an available iPhone simulator, and runs `xcodebuild test -destination 'platform=iOS Simulator,...'` (`.github/workflows/ci.yml:227-235`). That job is what executes the UIKit orientation tests. The macOS job does not compile UIKit.
+A second job, `ios-simulator`, runs on the same `macos-26` runner (`.github/workflows/ci.yml:153`). It resolves from GitHub into an empty cache, picks an available iPhone simulator, and runs `xcodebuild test -destination 'platform=iOS Simulator,...'` (`.github/workflows/ci.yml:227-237`) for `uiImageOrientationMapsToCGImagePropertyOrientation` and `uiImageRemoveBackgroundNormalizesEveryOrientation`. The rest of the suite stays on the macOS job because MLX startup crashes the iOS simulator test runner. The macOS job does not compile UIKit.
 
 ## What the tests cover
 

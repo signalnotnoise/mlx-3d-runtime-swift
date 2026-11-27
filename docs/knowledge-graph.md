@@ -56,6 +56,6 @@ flowchart TD
 | OBJ and PLY | `Sources/MLX3DRuntime/MeshExport.swift:23-172` |
 | CLI | `Sources/MLX3DCLI/MLX3DCLI.swift:18-168` |
 | Example link check | `Examples/Integration/Sources/MLX3DExample/MLX3DExample.swift:1-18` |
-| CI | `.github/workflows/ci.yml:16-235` |
+| CI | `.github/workflows/ci.yml:16-237` |
 | Public sibling branch pins | `Package.swift:33-41` |
 | Ellipsoid test | `Tests/MLX3DRuntimeTests/MarchingCubesTests.swift:51-92` |
