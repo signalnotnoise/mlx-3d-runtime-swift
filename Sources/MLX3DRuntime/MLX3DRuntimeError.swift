@@ -7,6 +7,7 @@ public enum MLX3DRuntimeError: Error, Equatable, LocalizedError, Sendable {
     case invalidBatchSize(Int)
     case emptyBBox
     case colorCountMismatch(expected: Int, actual: Int)
+    case unsupportedColorShape(shape: [Int])
     case densityCountMismatch(expected: Int, actual: Int)
     case imageUnreadable(String)
     case imageUnsupported(String)
@@ -34,6 +35,8 @@ public enum MLX3DRuntimeError: Error, Equatable, LocalizedError, Sendable {
             return "Bounding box must have a positive extent on every axis."
         case .colorCountMismatch(let expected, let actual):
             return "Expected \(expected) color values, got \(actual)."
+        case .unsupportedColorShape(let shape):
+            return "Unsupported color layout \(shape). Accepted layouts: flat [4*V] or [..., 4]."
         case .densityCountMismatch(let expected, let actual):
             return "Density query returned \(actual) values, expected \(expected)."
         case .imageUnreadable(let path):

@@ -33,7 +33,7 @@ enum ShapEMeshArrays {
     static func mesh(vertices: MLXArray, faces: MLXArray, rgba: MLXArray?) throws -> Mesh {
         let positions = try floats(vertices, components: 3)
         let indices = try ints(faces, components: 3)
-        let colors = try vertexColors(from: rgba)
+        let colors = try vertexColors(from: rgba, vertexCount: positions.count / 3)
         return Mesh(positions: positions, faces: indices, vertexColors: colors)
     }
 
@@ -56,36 +56,16 @@ enum ShapEMeshArrays {
 
     /// RGBA floats, or nil when the mesh has no RGBA channel.
     /// A zero-size channel returns an empty buffer and does not call `asArray`.
+    /// The count is validated against the mesh's actual geometry vertex count.
     static func rgba(from generated: ShapEMeshResult) throws -> [Float]? {
         guard let colors = try generated.mlxTextureChannel("RGBA") else {
             return nil
         }
-        if colors.size == 0 {
-            return []
-        }
-        guard hasPackedLayout(colors, components: 4) else {
-            throw MLX3DRuntimeError.colorCountMismatch(
-                expected: (colors.size / 4) * 4,
-                actual: colors.size
-            )
-        }
-        return try readFloats(colors)
+        return try validatedRGBAValues(colors, vertexCount: generated.meshResult.vertices.elementCount / 3)
     }
 
-    private static func vertexColors(from rgba: MLXArray?) throws -> [Float]? {
-        guard let rgba else { return nil }
-        if rgba.size == 0 { return [] }
-        guard hasPackedLayout(rgba, components: 4) else {
-            throw MLX3DRuntimeError.colorCountMismatch(
-                expected: (rgba.size / 4) * 4,
-                actual: rgba.size
-            )
-        }
-        let values = try readFloats(rgba)
-        let vertexCount = values.count / 4
-        guard values.count == vertexCount * 4 else {
-            throw MLX3DRuntimeError.colorCountMismatch(expected: vertexCount * 4, actual: values.count)
-        }
+    private static func vertexColors(from rgba: MLXArray?, vertexCount: Int) throws -> [Float]? {
+        guard let values = try validatedRGBAValues(rgba, vertexCount: vertexCount) else { return nil }
         var rgb = [Float]()
         rgb.reserveCapacity(vertexCount * 3)
         for vertex in 0..<vertexCount {
@@ -94,6 +74,28 @@ enum ShapEMeshArrays {
             rgb.append(values[vertex * 4 + 2])
         }
         return rgb
+    }
+
+    /// Shared RGBA validation for both color entry points.
+    ///
+    /// Shap-E records the RGBA channel flattened (`[4 * V]`), so — unlike
+    /// positions/faces, which keep the strict packed-layout rule — colors
+    /// accept either the flat form or any shape ending in 4. The scalar
+    /// count must then match the *geometry* vertex count exactly.
+    /// Nil stays nil and zero-size stays an empty buffer, without `asArray`.
+    static func validatedRGBAValues(_ array: MLXArray?, vertexCount: Int) throws -> [Float]? {
+        guard let array else { return nil }
+        if array.size == 0 { return [] }
+        let isFlat = array.ndim == 1 && array.size.isMultiple(of: 4)
+        let isShaped = array.ndim >= 2 && array.shape.last == 4 && array.size.isMultiple(of: 4)
+        guard isFlat || isShaped else {
+            throw MLX3DRuntimeError.unsupportedColorShape(shape: array.shape)
+        }
+        let values = try readFloats(array)
+        guard values.count == vertexCount * 4 else {
+            throw MLX3DRuntimeError.colorCountMismatch(expected: vertexCount * 4, actual: values.count)
+        }
+        return values
     }
 
     static func floats(_ array: MLXArray, components: Int) throws -> [Float] {

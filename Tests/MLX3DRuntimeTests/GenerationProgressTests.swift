@@ -218,7 +218,7 @@ struct GenerationProgressTests {
         ])
 
         #expect(kept == [coloredTriangle])
-        #expect(throws: MLX3DRuntimeError.colorCountMismatch(expected: 8, actual: 9)) {
+        #expect(throws: MLX3DRuntimeError.unsupportedColorShape(shape: [3, 3])) {
             _ = try ShapEMeshArrays.mesh(vertices: triangleVertices, faces: triangleFaces, rgba: badColors)
         }
         #expect(throws: MLX3DRuntimeError.emptyMesh) {
@@ -429,3 +429,46 @@ private let progressTriangle = Mesh(
     positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
     faces: [0, 1, 2]
 )
+
+struct ShapEMeshArraysColorLayoutTests {
+    init() {
+        Device.setDefault(device: Device(.cpu))
+    }
+
+    @Test func flatAndShapedRGBAProduceSameRGB() throws {
+        let values: [Float] = [1, 0, 0, 1, 0, 0.5, 1, 1]
+        let vertices = MLXArray([Float(0), 0, 0, 1, 0, 0] as [Float], [2, 3])
+        let faces = MLXArray([Int32(0), 1, 0] as [Int32], [1, 3])
+        let fromFlat = try ShapEMeshArrays.mesh(vertices: vertices, faces: faces, rgba: MLXArray(values, [8]))
+        let fromShaped = try ShapEMeshArrays.mesh(vertices: vertices, faces: faces, rgba: MLXArray(values, [2, 4]))
+        #expect(fromFlat.vertexColors == [1, 0, 0, 0, 0.5, 1])
+        #expect(fromFlat.vertexColors == fromShaped.vertexColors)
+    }
+
+    @Test func sevenColorValuesRejected() {
+        let rgba = MLXArray([Float](repeating: 0, count: 7), [7])
+        #expect(throws: MLX3DRuntimeError.self) {
+            try ShapEMeshArrays.validatedRGBAValues(rgba, vertexCount: 2)
+        }
+    }
+
+    @Test func divisibleButWrongCountForGeometryRejected() {
+        let rgba = MLXArray([Float](repeating: 0, count: 12), [12])
+        #expect(throws: MLX3DRuntimeError.colorCountMismatch(expected: 8, actual: 12)) {
+            try ShapEMeshArrays.validatedRGBAValues(rgba, vertexCount: 2)
+        }
+    }
+
+    @Test func wrongTrailingDimensionRejectedAsUnsupportedShape() {
+        let rgba = MLXArray([Float](repeating: 0, count: 8), [4, 2])
+        #expect(throws: MLX3DRuntimeError.unsupportedColorShape(shape: [4, 2])) {
+            try ShapEMeshArrays.validatedRGBAValues(rgba, vertexCount: 2)
+        }
+    }
+
+    @Test func nilAndZeroSizeColorsPassThrough() throws {
+        #expect(try ShapEMeshArrays.validatedRGBAValues(nil, vertexCount: 2) == nil)
+        let empty = MLXArray([Float](), [0])
+        #expect(try ShapEMeshArrays.validatedRGBAValues(empty, vertexCount: 2) == [])
+    }
+}

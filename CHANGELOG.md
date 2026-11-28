@@ -6,6 +6,17 @@ The format is based on Keep a Changelog.
 
 ## [Unreleased]
 
+### Fixed
+
+- Shap-E RGBA vertex colors recorded as a flat `[4 * V]` tensor are now
+  accepted (previously rejected unless the last dimension was 4, which
+  failed every colored Shap-E mesh from the current renderer). Flat
+  acceptance is RGBA-specific — positions and faces keep the strict
+  packed-layout rule — and color counts are validated against the actual
+  geometry vertex count. Shape rejections throw the new
+  `unsupportedColorShape` error naming the accepted layouts, instead of
+  a count mismatch whose expected value was derived from the bad input.
+
 ### Changed
 
 - `Package.swift` pins `shap-e-mlx-swift` and `triposr-mlx-swift` to
