@@ -244,7 +244,7 @@ Unit tests cover mesh topology, OBJ+MTL and PLY export, a Y-up conversion that k
 
 Platforms in `Package.swift` are macOS 14, iOS 17, and visionOS 1.
 
-Only macOS has been tested. iOS and visionOS are declared but not yet run. CI builds and runs the tests on a macOS runner. It does not download weights, and it does not build an iOS or visionOS destination.
+Full-weight runs have been tested on macOS (M3 Max). CI builds and runs the tests on a macOS runner, and it runs `Examples/ExportHost` on macOS and on the iOS Simulator. It does not download weights. visionOS is declared and has not been run.
 
 Shap-E and TripoSR weight files stay outside git. A full text-to-mesh or image-to-mesh run needs those files and an Apple Silicon GPU.
 
